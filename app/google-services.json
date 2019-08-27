@@ -1,0 +1,77 @@
+{
+  "project_info": {
+    "project_number": "110345427936",
+    "firebase_url": "https://messageapp-9e68b.firebaseio.com",
+    "project_id": "messageapp-9e68b",
+    "storage_bucket": "messageapp-9e68b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:110345427936:android:6be36669b3cc52b0",
+        "android_client_info": {
+          "package_name": "com.example.messenger"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "110345427936-hbvs6u1b47fsfsilp4m9n7sljmkhduo1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA_8AyaDANVG6v4SlzKjlkjAfNNuKSkXSY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "110345427936-hbvs6u1b47fsfsilp4m9n7sljmkhduo1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:110345427936:android:ea710e82d6302c6d",
+        "android_client_info": {
+          "package_name": "com.qatasoft.videocall"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "110345427936-oo8b33o6fcvksv2ihrnsudoec7etu107.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.qatasoft.videocall",
+            "certificate_hash": "c3ae41ea95aded2288cbddc3c31a3b92c8d03f15"
+          }
+        },
+        {
+          "client_id": "110345427936-hbvs6u1b47fsfsilp4m9n7sljmkhduo1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA_8AyaDANVG6v4SlzKjlkjAfNNuKSkXSY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "110345427936-hbvs6u1b47fsfsilp4m9n7sljmkhduo1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

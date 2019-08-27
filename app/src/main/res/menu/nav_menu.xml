@@ -3,13 +3,23 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/menu_search_users"
+        android:title="@string/menu_search"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/menu_new_messages"
-        android:title="New Messages"
-        app:showAsAction="ifRoom" />
+        android:title="@string/menu_new_messages"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_friends"
+        android:title="@string/menu_friends"
+        app:showAsAction="never" />
 
     <item
         android:id="@+id/menu_signout"
-        android:title="Sign Out"
-        app:showAsAction="ifRoom" />
+        android:title="@string/menu_signout"
+        app:showAsAction="never" />
 
 </menu>

@@ -15,12 +15,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
+import com.qatasoft.videocall.request.IApiServer
+import com.qatasoft.videocall.models.Token
 import io.agora.rtc.IRtcEngineEventHandler
 import io.agora.rtc.RtcEngine
 import io.agora.rtc.video.VideoCanvas
 import io.agora.rtc.video.VideoEncoderConfiguration
-import com.qatasoft.videocall.Request.IApiServer
-import com.qatasoft.videocall.models.Token
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response

@@ -1,4 +1,4 @@
-package com.qatasoft.videocall.Request
+package com.qatasoft.videocall.request
 
 import com.qatasoft.videocall.models.Token
 import retrofit2.Call

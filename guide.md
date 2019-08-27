@@ -12,7 +12,7 @@ In the `AndroidManifest.xml` file, `uses-permissions` settings were added for th
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="io.agora.tutorials1v1vcall">
+    package="com.qatasoft.videocall">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />

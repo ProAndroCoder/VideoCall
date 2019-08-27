@@ -1,5 +1,6 @@
 package com.qatasoft.videocall.messages
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -14,10 +15,13 @@ import com.qatasoft.videocall.models.User
 import com.qatasoft.videocall.views.LatestMessageRow
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import com.qatasoft.videocall.MyPreference
+import com.qatasoft.videocall.users.SearchActivity
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.OnItemClickListener
 import com.xwray.groupie.ViewHolder
 import kotlinx.android.synthetic.main.activity_latest_messages.*
+import java.lang.ref.WeakReference
 import kotlin.collections.HashMap
 
 class LatestMessagesActivity : AppCompatActivity() {
@@ -28,6 +32,8 @@ class LatestMessagesActivity : AppCompatActivity() {
     }
 
     val adapter = GroupAdapter<ViewHolder>()
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -110,7 +116,14 @@ class LatestMessagesActivity : AppCompatActivity() {
         ref.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(p0: DataSnapshot) {
                 currentUser = p0.getValue(User::class.java)
-                Log.d(TAG, "Current User : ${currentUser?.username}")
+
+                if(currentUser!=null){
+                    Log.d(TAG, "Current User : ${currentUser?.username}")
+                    val myPreference= MyPreference(applicationContext)
+                    myPreference.setLoginInfo(currentUser!!)
+                }
+
+                WeakReference(this)
             }
 
             override fun onCancelled(p0: DatabaseError) {
@@ -135,6 +148,14 @@ class LatestMessagesActivity : AppCompatActivity() {
                 val intent = Intent(this, LoginActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
                 startActivity(intent)
+            }
+
+            R.id.menu_search_users -> {
+                startActivity(Intent(this, SearchActivity::class.java))
+            }
+
+            R.id.menu_friends -> {
+                startActivity(Intent(this, SearchActivity::class.java))
             }
         }
         return super.onOptionsItemSelected(item)

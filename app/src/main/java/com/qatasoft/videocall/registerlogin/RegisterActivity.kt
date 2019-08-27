@@ -86,10 +86,11 @@ class RegisterActivity : AppCompatActivity() {
             }
             .addOnFailureListener {
                 Log.d("RegisterActivity", "Failed to Create User : ${it.message}")
+                Toast.makeText(this,it.message,Toast.LENGTH_LONG).show()
             }
     }
 
-    //Firebase e resim upload eden metod
+    //Firebase'e resim upload eden metod
     private fun UploadProfileImage() {
         if (selectedPhotoUri == null) {
             Log.d("RegisterActivity", "Photo URI is Null")

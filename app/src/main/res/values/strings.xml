@@ -15,4 +15,12 @@
     <string name="login_signup">Create An Account</string>
     <string name="register_select_photo">SELECT PHOTO</string>
     <string name="chatlog_send">SEND</string>
+
+
+    <!-- Menu Strings -->
+
+    <string name="menu_signout">Sign Out</string>
+    <string name="menu_new_messages">New Messages</string>
+    <string name="menu_search">Search</string>
+    <string name="menu_friends">Friends</string>
 </resources>
