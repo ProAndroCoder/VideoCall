@@ -1,4 +1,4 @@
-package io.agora.tutorials1v1vcall.models
+package com.qatasoft.videocall.models
 
 data class Token(
         val token: String

@@ -1,12 +1,9 @@
-package io.agora.tutorials1v1vcall.Request
+package com.qatasoft.videocall.Request
 
-import io.agora.tutorials1v1vcall.models.Token
+import com.qatasoft.videocall.models.Token
 import retrofit2.Call
 import retrofit2.http.GET
-import retrofit2.http.Path
 import retrofit2.http.Query
-import java.nio.channels.spi.AbstractInterruptibleChannel
-import java.util.*
 
 interface IApiServer {
 
