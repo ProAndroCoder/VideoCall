@@ -9,10 +9,10 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.qatasoft.videocall.Fragments.HomeFragment
 import com.squareup.picasso.Picasso
 import com.xwray.groupie.Item
 import com.xwray.groupie.ViewHolder
-import com.qatasoft.videocall.messages.LatestMessagesActivity
 import kotlinx.android.synthetic.main.item_latest_messages.view.*
 
 class LatestMessageRow(val chatMessage: ChatMessage) : Item<ViewHolder>() {
@@ -40,7 +40,7 @@ class LatestMessageRow(val chatMessage: ChatMessage) : Item<ViewHolder>() {
             }
 
             override fun onCancelled(p0: DatabaseError) {
-                Log.d(LatestMessagesActivity.TAG, "There is a problem while fetching User Info : ${p0.message}")
+                Log.d(HomeFragment.TAG, "There is a problem while fetching User Info : ${p0.message}")
             }
         })
         viewHolder.itemView.circle_imageview_latest_messages

@@ -1,41 +1,57 @@
-package com.qatasoft.videocall.messages
+package com.qatasoft.videocall.Fragments
+
 
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import androidx.appcompat.app.AppCompatActivity
-import com.qatasoft.videocall.R
-import com.qatasoft.videocall.views.UserItem
+import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.qatasoft.videocall.MyPreference
+
+import com.qatasoft.videocall.R
+import com.qatasoft.videocall.messages.ChatLogActivity
+import com.qatasoft.videocall.models.User
+import com.qatasoft.videocall.views.UserItem
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.ViewHolder
-import com.qatasoft.videocall.models.User
-import kotlinx.android.synthetic.main.activity_new_message.*
+import kotlinx.android.synthetic.main.fragment_home.view.*
 
-class NewMessageActivity : AppCompatActivity() {
+// TODO: Rename parameter arguments, choose names that match
+// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+private const val ARG_PARAM1 = "param1"
+private const val ARG_PARAM2 = "param2"
+
+/**
+ * A simple [Fragment] subclass.
+ *
+ */
+class NewMessageFragment : Fragment() {
     var TAG = "NewMessageActivity"
-    var myUser=User("","","")
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_new_message)
-
-        supportActionBar?.title = "Select User"
-
-        val myPreference=MyPreference(this)
-        myUser=myPreference.getLoginInfo()
-
-        fetchUsers()
-    }
+    var myUser= User("","","")
 
     //Companian Object sayesinde burada tanımlanan değerler diğer activityler tarafından da okunabilir
     companion object {
         val USER_KEY = "USER_KEY"
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View? {
+        val view=inflater.inflate(R.layout.fragment_home, container, false)
+
+        val myPreference= MyPreference(activity)
+        myUser=myPreference.getLoginInfo()
+
+        fetchUsers()
+
+        // Inflate the layout for this fragment
+        return view
     }
 
     //Firebase Veritabanımızdan bilgileri çekme işlemini yapan metod
@@ -50,7 +66,7 @@ class NewMessageActivity : AppCompatActivity() {
                     val user = it.getValue(User::class.java)
 
                     if (user != null && user.uid != FirebaseAuth.getInstance().uid) {
-                        adapter.add(UserItem(user,2,myUser))
+                        adapter.add(UserItem(user,2,myUser,activity))
                     }
                 }
 
@@ -61,10 +77,9 @@ class NewMessageActivity : AppCompatActivity() {
                     //Başka activitye nesne gönderme Parcelable
                     intent.putExtra(USER_KEY, userItem.user)
                     startActivity(intent)
-                    finish()
                 }
 
-                recyclerview_new_messages.adapter = adapter
+                view?.recyclerview_home?.adapter = adapter
             }
 
             override fun onCancelled(p0: DatabaseError) {
@@ -73,4 +88,3 @@ class NewMessageActivity : AppCompatActivity() {
         })
     }
 }
-

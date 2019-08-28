@@ -14,9 +14,11 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.firebase.auth.FirebaseAuth
 
 import com.qatasoft.videocall.request.IApiServer
 import com.qatasoft.videocall.models.Token
+import io.agora.rtc.Constants
 import io.agora.rtc.IRtcEngineEventHandler
 import io.agora.rtc.RtcEngine
 import io.agora.rtc.video.VideoCanvas
@@ -29,17 +31,17 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class VideoChatViewActivity : AppCompatActivity() {
 
-    private var channel="brohellom"
-    private var uid="1234546"
+    private var channel="hello"
+    private var uid=FirebaseAuth.getInstance().uid
     private var generatedToken:String=""
     private var mRtcEngine: RtcEngine? = null
 
     private val retrofit=Retrofit.Builder().baseUrl("https://videocallkotlin.herokuapp.com/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-    private val apiService=retrofit.create(IApiServer::class.java)
+    //private val apiService=retrofit.create(IApiServer::class.java)
 
-    private val response=apiService.getToken(channel,uid.toInt())
+    //private val response=apiService.getToken(channel, uid?.toInt())
 
     private val mRtcEventHandler = object : IRtcEngineEventHandler() {
         override fun onFirstRemoteVideoDecoded(uid: Int, width: Int, height: Int, elapsed: Int) {
@@ -59,22 +61,26 @@ class VideoChatViewActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_video_chat_view)
 
-        response.enqueue(object:Callback<Token>{
-            override fun onFailure(call: Call<Token>, t: Throwable) {
-                Log.d("hellobrodf",t.message)
-            }
+        //response.enqueue(object:Callback<Token>{
+        //    override fun onFailure(call: Call<Token>, t: Throwable) {
+        //        Log.d("hellobrodf",t.message)
+        //    }
 
-            override fun onResponse(call: Call<Token>, response: Response<Token>) {
-                Log.d("hellobrodf", response.body()?.token)
-                generatedToken= response.body()!!.token
+        //    override fun onResponse(call: Call<Token>, response: Response<Token>) {
+        //        Log.d("hellobrodf", response.body()?.token)
+        //        generatedToken= response.body()!!.token
 
-                Log.d("hellobrodf", "token : "+generatedToken)
+         //       Log.d("hellobrodf", "token : "+generatedToken)
 
-                if (checkSelfPermission(Manifest.permission.RECORD_AUDIO, PERMISSION_REQ_ID_RECORD_AUDIO) && checkSelfPermission(Manifest.permission.CAMERA, PERMISSION_REQ_ID_CAMERA)) {
-                    initAgoraEngineAndJoinChannel()
-                }
-            }
-        })
+         //       if (checkSelfPermission(Manifest.permission.RECORD_AUDIO, PERMISSION_REQ_ID_RECORD_AUDIO) && checkSelfPermission(Manifest.permission.CAMERA, PERMISSION_REQ_ID_CAMERA)) {
+         //           initAgoraEngineAndJoinChannel()
+         //       }
+         //   }
+       // })
+
+        if (checkSelfPermission(Manifest.permission.RECORD_AUDIO, PERMISSION_REQ_ID_RECORD_AUDIO) && checkSelfPermission(Manifest.permission.CAMERA, PERMISSION_REQ_ID_CAMERA)) {
+            initAgoraEngineAndJoinChannel()
+        }
 
 
 
@@ -204,11 +210,13 @@ class VideoChatViewActivity : AppCompatActivity() {
     }
 
     private fun joinChannel() {
-        var token: String? = generatedToken
+        mRtcEngine?.setChannelProfile(Constants.CHANNEL_PROFILE_COMMUNICATION);
+        var token: String? = getString(R.string.agora_temp)
         if (token!!.isEmpty()) {
             token = null
         }
-        mRtcEngine!!.joinChannel(token, channel, "Extra Optional Data",uid.toInt()) // if you do not specify the uid, we will generate the uid for you
+        Log.d("VideoCall",token)
+        mRtcEngine!!.joinChannel(token, channel, "Extra Optional Data", 0) // if you do not specify the uid, we will generate the uid for you
     }
 
     private fun setupRemoteVideo(uid: Int) {

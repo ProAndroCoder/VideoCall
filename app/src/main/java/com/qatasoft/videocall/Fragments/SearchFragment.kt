@@ -1,9 +1,12 @@
-package com.qatasoft.videocall.users
+package com.qatasoft.videocall.Fragments
 
-import android.content.Intent
+
 import android.os.Bundle
 import android.util.Log
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -12,17 +15,23 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.qatasoft.videocall.MyPreference
 import com.qatasoft.videocall.R
-import com.qatasoft.videocall.messages.ChatLogActivity
-import com.qatasoft.videocall.messages.LatestMessagesActivity
 import com.qatasoft.videocall.models.User
 import com.qatasoft.videocall.views.UserItem
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.ViewHolder
-import kotlinx.android.synthetic.main.activity_new_message.*
-import kotlinx.android.synthetic.main.activity_register.*
-import kotlinx.android.synthetic.main.activity_search.*
+import kotlinx.android.synthetic.main.fragment_home.view.recyclerview_home
+import kotlinx.android.synthetic.main.fragment_search.view.*
 
-class SearchActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
+// TODO: Rename parameter arguments, choose names that match
+// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+private const val ARG_PARAM1 = "param1"
+private const val ARG_PARAM2 = "param2"
+
+/**
+ * A simple [Fragment] subclass.
+ *
+ */
+class SearchFragment : Fragment(),SearchView.OnQueryTextListener {
     override fun onQueryTextSubmit(query: String?): Boolean {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
@@ -30,6 +39,7 @@ class SearchActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
     override fun onQueryTextChange(newText: String?): Boolean {
         if (newText != null) {
             if(!newText.isEmpty()){
+                adapter.clear()
                 searchText=newText.toString()
                 fetchUsers()
             }
@@ -44,22 +54,28 @@ class SearchActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
     var searchText=""
     val adapter = GroupAdapter<ViewHolder>()
 
-    var myUser=User("","","")
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_search)
-
-        val myPreference=MyPreference(this)
-        myUser=myPreference.getLoginInfo()
-
-
-        searchview_et.setOnQueryTextListener(this)
-    }
+    var myUser= User("","","")
 
     //Companian Object sayesinde burada tanımlanan değerler diğer activityler tarafından da okunabilir
     companion object {
         val USER_KEY = "USER_KEY"
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View? {
+        val view=inflater.inflate(R.layout.fragment_search, container, false)
+
+        val recyclerview=view.recyclerview_home
+        val searchview=view.searchview_et
+
+        val myPreference= MyPreference(activity)
+        myUser=myPreference.getLoginInfo()
+
+
+        searchview.setOnQueryTextListener(this)
+
+        // Inflate the layout for this fragment
+        return view
     }
 
     //Firebase Veritabanımızdan bilgileri çekme işlemini yapan metod
@@ -74,12 +90,12 @@ class SearchActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
                     if(user != null){
                         if (user.uid != FirebaseAuth.getInstance().uid && user.username.contains(searchText)) {
-                            adapter.add(UserItem(user,1,myUser))
+                            adapter.add(UserItem(user,1,myUser,activity))
                         }
                     }
                 }
                 if(!searchText.isEmpty()){
-                    recyclerview_search.adapter = adapter
+                    view?.recyclerview_home?.adapter =adapter
                 }
             }
 
@@ -88,4 +104,6 @@ class SearchActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
             }
         })
     }
+
+
 }

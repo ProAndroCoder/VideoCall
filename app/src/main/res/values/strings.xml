@@ -4,6 +4,7 @@
     <string name="agora_app_id">f5d9905695274bb5bd4d1d4b2106b008</string>
 
     <string name="agora_app_cert">04b6b49589094246a382eeb31f32b9c6</string>
+    <string name="agora_temp">006f5d9905695274bb5bd4d1d4b2106b008IAD/lHoSC8MBC6FFvaUXe6fFZUq7NxiHHTFXNw7NfIR044amEDYh39v0EAAfDVvGBv9nXQEAAQAAAAAA</string>
 
 
     <string name="register_username">Username</string>
@@ -23,4 +24,13 @@
     <string name="menu_new_messages">New Messages</string>
     <string name="menu_search">Search</string>
     <string name="menu_friends">Friends</string>
+    <string name="friends_tab1_friends">Friends</string>
+    <string name="friends_tab2_requests">Requests</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

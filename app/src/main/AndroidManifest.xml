@@ -14,7 +14,10 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".users.FriendsActivity"></activity>
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/title_activity_main"></activity>
+        <activity android:name=".users.FriendsActivity" />
         <activity android:name=".users.SearchActivity" />
         <activity android:name=".messages.ChatLogActivity">
             <meta-data

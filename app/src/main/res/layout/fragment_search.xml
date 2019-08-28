@@ -4,20 +4,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".users.SearchActivity">
+    tools:context=".Fragments.SearchFragment">
 
+    <!-- TODO: Update blank fragment layout -->
     <androidx.appcompat.widget.SearchView
         android:id="@+id/searchview_et"
         android:layout_width="match_parent"
-        app:queryHint="Type Username"
-        app:searchIcon="@drawable/search_ico"
+        android:layout_height="wrap_content"
         app:closeIcon="@drawable/close_ico"
-        android:layout_height="wrap_content"/>
+        app:queryHint="Type Username"
+        app:searchIcon="@drawable/search_ico" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:layout_below="@+id/searchview_et"
-        android:id="@+id/recyclerview_search"
+        android:id="@+id/recyclerview_home"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@+id/searchview_et"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
 </RelativeLayout>

@@ -1,6 +1,5 @@
 package com.qatasoft.videocall.registerlogin
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -13,24 +12,23 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.qatasoft.videocall.Fragments.HomeFragment
+import com.qatasoft.videocall.MainActivity
 import com.qatasoft.videocall.MyPreference
-import com.qatasoft.videocall.messages.LatestMessagesActivity
 import com.qatasoft.videocall.models.User
-import com.qatasoft.videocall.views.UserItem
 import kotlinx.android.synthetic.main.activity_login.*
-import kotlinx.android.synthetic.main.activity_search.*
 
 class LoginActivity : AppCompatActivity() {
     companion object {
         val TAG = "LoginActivity"
-        var myUser= User("","","")
+        var myUser = User("", "", "")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        direct_login()
+        //direct_login()
 
         btn_login.setOnClickListener {
             perform_login()
@@ -53,11 +51,11 @@ class LoginActivity : AppCompatActivity() {
                     if (!it.isSuccessful) return@addOnCompleteListener
 
 
-                    startActivity(Intent(this, LatestMessagesActivity::class.java))
+                    startActivity(Intent(this, MainActivity::class.java))
                 }
                 .addOnFailureListener {
                     Log.d("LoginActivity", "There is An Error While LoginActivity : ${it.message}")
-                    Toast.makeText(this,it.message,Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
                 }
     }
 
@@ -66,7 +64,27 @@ class LoginActivity : AppCompatActivity() {
                 .addOnCompleteListener {
                     if (!it.isSuccessful) return@addOnCompleteListener
 
-                    startActivity(Intent(this, LatestMessagesActivity::class.java))
+                    val uid = FirebaseAuth.getInstance().uid
+                    val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
+
+                    ref.addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(p0: DataSnapshot) {
+                            HomeFragment.currentUser = p0.getValue(User::class.java)
+
+                            if (HomeFragment.currentUser != null) {
+                                Log.d(HomeFragment.TAG, "Current User : ${HomeFragment.currentUser?.username}")
+                                val myPreference = MyPreference(applicationContext)
+                                myPreference.setLoginInfo(HomeFragment.currentUser!!)
+
+                                startActivity(Intent(applicationContext, MainActivity::class.java))
+                            }
+                        }
+
+                        override fun onCancelled(p0: DatabaseError) {
+
+                        }
+                    })
+
                 }
                 .addOnFailureListener {
                     Log.d("LoginActivity", "There is An Error While LoginActivity : ${it.message}")

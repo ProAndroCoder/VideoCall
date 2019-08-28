@@ -13,7 +13,8 @@ import com.qatasoft.videocall.models.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
-import com.qatasoft.videocall.messages.LatestMessagesActivity
+import com.qatasoft.videocall.Fragments.HomeFragment
+import com.qatasoft.videocall.MainActivity
 import kotlinx.android.synthetic.main.activity_register.*
 import java.util.*
 
@@ -125,7 +126,7 @@ class RegisterActivity : AppCompatActivity() {
         ref.setValue(user).addOnSuccessListener {
             Log.d("RegisterActivity", "User is Saved To Firebase Database")
 
-            val intent = Intent(this, LatestMessagesActivity::class.java)
+            val intent = Intent(this, MainActivity::class.java)
 
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intent)
