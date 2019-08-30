@@ -1,5 +1,6 @@
 package com.qatasoft.videocall.messages
 
+import android.Manifest
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -19,24 +20,34 @@ import com.qatasoft.videocall.Fragments.HomeFragment
 import com.qatasoft.videocall.Fragments.NewMessageFragment
 import com.qatasoft.videocall.MyPreference
 import com.qatasoft.videocall.VideoChatViewActivity
+import com.qatasoft.videocall.VideoRequest
+import com.qatasoft.videocall.models.Token
+import com.qatasoft.videocall.request.IApiServer
 import com.squareup.picasso.Picasso
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.ViewHolder
 import kotlinx.android.synthetic.main.activity_chat_log.*
 import kotlinx.android.synthetic.main.item_user_new_message.view.*
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 class ChatLogActivity : AppCompatActivity() {
 
     val adapter = GroupAdapter<ViewHolder>()
-    var myUser= User("","","")
+    var mUser= User("","","","")
     var user: User? = null
+    var channel="hello"
+    var uid=FirebaseAuth.getInstance().uid
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_log)
 
         val myPreference= MyPreference(this)
-        myUser=myPreference.getLoginInfo()
+        mUser=myPreference.getUserInfo()
 
         recyclerview_chatlog.adapter = adapter
 
@@ -48,8 +59,28 @@ class ChatLogActivity : AppCompatActivity() {
         chat_username.text= user!!.username
 
         chat_videocall.setOnClickListener(View.OnClickListener {
-            startActivity(Intent(this,VideoChatViewActivity::class.java))
-            finish()
+            val retrofit= Retrofit.Builder().baseUrl("https://videocallkotlin.herokuapp.com/")
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build()
+            val apiService=retrofit.create(IApiServer::class.java)
+
+            val response=apiService.getToken(channel, 0)
+
+            response.enqueue(object: Callback<Token> {
+                override fun onFailure(call: Call<Token>, t: Throwable) {
+                    Log.d(TAG,t.message.toString())
+                }
+
+                override fun onResponse(call: Call<Token>, response: Response<Token>) {
+
+                    Log.d(TAG, response.body()!!.token)
+                    val generatedToken= response.body()!!.token
+                    Log.d(TAG, "token : $generatedToken")
+
+                    val reqUser=User(user!!.profileImageUrl, user!!.uid, user!!.username,generatedToken)
+                    addVideoRequest(reqUser)
+                }
+            })
         })
 
         fetchMessages()
@@ -58,6 +89,50 @@ class ChatLogActivity : AppCompatActivity() {
             Log.d(TAG, "Attempt to send message ...")
             performSendMessage()
         }
+    }
+
+    fun addVideoRequest(user:User){
+        val toId = user?.uid
+
+        val ref = FirebaseDatabase.getInstance().getReference("/videorequests/$toId/$uid").push()
+
+        ref.setValue(user)
+                .addOnSuccessListener {
+                    val intent=Intent(this,VideoRequest::class.java)
+                    intent.putExtra(NewMessageFragment.USER_KEY,user)
+                    startActivity(intent)
+                }
+                .addOnFailureListener {
+                    Log.d(TAG, "Message Cant Send ${it.message}")
+                }
+    }
+
+    fun onVideoRequestWait(){
+        val toId = user?.uid
+
+        val ref = FirebaseDatabase.getInstance().getReference("/videorequests/$uid/$toId")
+
+        ref.addChildEventListener(object : ChildEventListener {
+            override fun onChildAdded(p0: DataSnapshot, p1: String?) {
+            }
+
+            override fun onChildChanged(p0: DataSnapshot, p1: String?) {
+
+            }
+
+            override fun onChildMoved(p0: DataSnapshot, p1: String?) {
+
+            }
+
+            override fun onChildRemoved(p0: DataSnapshot) {
+
+
+            }
+
+            override fun onCancelled(p0: DatabaseError) {
+
+            }
+        })
     }
 
     private fun fetchMessages() {
@@ -71,10 +146,10 @@ class ChatLogActivity : AppCompatActivity() {
                 val chatMessage = p0.getValue(ChatMessage::class.java)
                 if (chatMessage != null) {
                     Log.d(TAG, chatMessage.text)
-                    val currentUser = myUser
+                    val currentUser = mUser
 
                     if (FirebaseAuth.getInstance().uid == chatMessage.fromId && user?.uid == chatMessage.toId) {
-                        adapter.add(ChatFromItem(chatMessage.text, currentUser!!))
+                        adapter.add(ChatFromItem(chatMessage.text, currentUser))
                     } else if (FirebaseAuth.getInstance().uid == chatMessage.toId && user?.uid == chatMessage.fromId) {
                         adapter.add(ChatToItem(chatMessage.text, user!!))
                     }

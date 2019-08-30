@@ -34,7 +34,7 @@ class FriendsFragment : Fragment() {
     companion object{
         var TAG="FriendsActivity"
     }
-    var myUser= User("","","")
+    var mUser= User("","","","")
     val adapter = GroupAdapter<ViewHolder>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -42,7 +42,7 @@ class FriendsFragment : Fragment() {
         val view=inflater.inflate(R.layout.fragment_home, container, false)
 
         val myPreference= MyPreference(activity)
-        myUser=myPreference.getLoginInfo()
+        mUser=myPreference.getUserInfo()
 
         getFriends()
 
@@ -51,8 +51,8 @@ class FriendsFragment : Fragment() {
     }
 
     fun getFriends(){
-        Log.d(TAG, "My User Id : ${myUser.uid}")
-        val ref = FirebaseDatabase.getInstance().getReference("/friends/${myUser.uid}")
+        Log.d(TAG, "My User Id : ${mUser.uid}")
+        val ref = FirebaseDatabase.getInstance().getReference("/friends/${mUser.uid}")
         ref.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(p0: DataSnapshot) {
 
@@ -61,7 +61,7 @@ class FriendsFragment : Fragment() {
 
                     Log.d(TAG, "User Info : ${user?.username}")
                     if (user != null && user.uid != FirebaseAuth.getInstance().uid) {
-                        adapter.add(UserItem(user,3,myUser,activity))
+                        adapter.add(UserItem(user,3,mUser,activity))
                     }
                 }
 

@@ -4,21 +4,21 @@ import android.content.Intent
 import android.os.Bundle
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
-import android.widget.TextView
 import com.google.firebase.auth.FirebaseAuth
 import com.qatasoft.videocall.Fragments.FriendsFragment
 import com.qatasoft.videocall.Fragments.HomeFragment
 import com.qatasoft.videocall.Fragments.NewMessageFragment
 import com.qatasoft.videocall.Fragments.SearchFragment
+import com.qatasoft.videocall.models.LoginInfo
 import com.qatasoft.videocall.registerlogin.LoginActivity
 
 class MainActivity : AppCompatActivity() {
     val manager=supportFragmentManager
 
-    private lateinit var textMessage: TextView
     private val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
             R.id.navigation_home -> {
+
                 openHomeFragment()
                 return@OnNavigationItemSelectedListener true
             }
@@ -38,6 +38,12 @@ class MainActivity : AppCompatActivity() {
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_signout ->{
+                //Arka planda uygulama kapansa bile çalışan Servisleri kapatır.
+                stopService()
+                //Shared Preference ile telefonda bulunan kullanıcı bilgilerini silme işlemi. Uid boş gönderilirse çıkış yapar.
+                val myPreference=MyPreference(this)
+
+                myPreference.setLoginInfo(LoginInfo("",""))
                 // Firebase ile kullanıcının çıkışını sağlamak ve onu LoginActivity'e yollama işi
                 FirebaseAuth.getInstance().signOut()
                 val intent = Intent(this, LoginActivity::class.java)
@@ -54,6 +60,8 @@ class MainActivity : AppCompatActivity() {
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
 
         openHomeFragment()
+
+        startService()
 
         navView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
     }
@@ -88,5 +96,13 @@ class MainActivity : AppCompatActivity() {
         transaction.replace(R.id.fragmentHolder,fragment)
         transaction.addToBackStack(null)
         transaction.commit()
+    }
+
+    fun startService(){
+        startService(Intent(this,BackgroundService::class.java))
+    }
+
+    fun stopService(){
+        stopService(Intent(this,BackgroundService::class.java))
     }
 }

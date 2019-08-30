@@ -31,17 +31,10 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class VideoChatViewActivity : AppCompatActivity() {
 
-    private var channel="hello"
-    private var uid=FirebaseAuth.getInstance().uid
     private var generatedToken:String=""
     private var mRtcEngine: RtcEngine? = null
-
-    private val retrofit=Retrofit.Builder().baseUrl("https://videocallkotlin.herokuapp.com/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-    //private val apiService=retrofit.create(IApiServer::class.java)
-
-    //private val response=apiService.getToken(channel, uid?.toInt())
+    var channel="hello"
+    var uid=FirebaseAuth.getInstance().uid
 
     private val mRtcEventHandler = object : IRtcEngineEventHandler() {
         override fun onFirstRemoteVideoDecoded(uid: Int, width: Int, height: Int, elapsed: Int) {
@@ -61,30 +54,9 @@ class VideoChatViewActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_video_chat_view)
 
-        //response.enqueue(object:Callback<Token>{
-        //    override fun onFailure(call: Call<Token>, t: Throwable) {
-        //        Log.d("hellobrodf",t.message)
-        //    }
-
-        //    override fun onResponse(call: Call<Token>, response: Response<Token>) {
-        //        Log.d("hellobrodf", response.body()?.token)
-        //        generatedToken= response.body()!!.token
-
-         //       Log.d("hellobrodf", "token : "+generatedToken)
-
-         //       if (checkSelfPermission(Manifest.permission.RECORD_AUDIO, PERMISSION_REQ_ID_RECORD_AUDIO) && checkSelfPermission(Manifest.permission.CAMERA, PERMISSION_REQ_ID_CAMERA)) {
-         //           initAgoraEngineAndJoinChannel()
-         //       }
-         //   }
-       // })
-
         if (checkSelfPermission(Manifest.permission.RECORD_AUDIO, PERMISSION_REQ_ID_RECORD_AUDIO) && checkSelfPermission(Manifest.permission.CAMERA, PERMISSION_REQ_ID_CAMERA)) {
             initAgoraEngineAndJoinChannel()
         }
-
-
-
-
     }
 
     private fun initAgoraEngineAndJoinChannel() {

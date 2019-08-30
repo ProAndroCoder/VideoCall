@@ -8,27 +8,23 @@ import androidx.appcompat.app.AppCompatActivity
 import com.qatasoft.videocall.R
 
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
-import com.qatasoft.videocall.Fragments.HomeFragment
 import com.qatasoft.videocall.MainActivity
 import com.qatasoft.videocall.MyPreference
-import com.qatasoft.videocall.models.User
+import com.qatasoft.videocall.models.LoginInfo
 import kotlinx.android.synthetic.main.activity_login.*
 
 class LoginActivity : AppCompatActivity() {
     companion object {
         val TAG = "LoginActivity"
-        var myUser = User("", "", "")
+        val USER_EMAIL="UserEmail"
+        val USER_PASSWORD="UserPass"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        //direct_login()
+        direct_login()
 
         btn_login.setOnClickListener {
             perform_login()
@@ -50,6 +46,10 @@ class LoginActivity : AppCompatActivity() {
                 .addOnCompleteListener {
                     if (!it.isSuccessful) return@addOnCompleteListener
 
+                    val loginInfo=LoginInfo(email,password)
+
+                    val mPreference=MyPreference(this)
+                    mPreference.setLoginInfo(loginInfo)
 
                     startActivity(Intent(this, MainActivity::class.java))
                 }
@@ -59,35 +59,21 @@ class LoginActivity : AppCompatActivity() {
                 }
     }
 
+    //Önceden giriş yapılmış ise ve çıkış yapılmamış ise o bilgilerle giriş yapar.
     private fun direct_login() {
-        FirebaseAuth.getInstance().signInWithEmailAndPassword("moro@gmail.com", "123456")
-                .addOnCompleteListener {
-                    if (!it.isSuccessful) return@addOnCompleteListener
+        val myPreference = MyPreference(this)
+        if (myPreference.isLoggedIn()) {
+            val loginInfo:LoginInfo=myPreference.getLoginInfo()
+            FirebaseAuth.getInstance().signInWithEmailAndPassword(loginInfo.email, loginInfo.password)
+                    .addOnCompleteListener {
+                        if (!it.isSuccessful) return@addOnCompleteListener
 
-                    val uid = FirebaseAuth.getInstance().uid
-                    val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
-
-                    ref.addListenerForSingleValueEvent(object : ValueEventListener {
-                        override fun onDataChange(p0: DataSnapshot) {
-                            HomeFragment.currentUser = p0.getValue(User::class.java)
-
-                            if (HomeFragment.currentUser != null) {
-                                Log.d(HomeFragment.TAG, "Current User : ${HomeFragment.currentUser?.username}")
-                                val myPreference = MyPreference(applicationContext)
-                                myPreference.setLoginInfo(HomeFragment.currentUser!!)
-
-                                startActivity(Intent(applicationContext, MainActivity::class.java))
-                            }
-                        }
-
-                        override fun onCancelled(p0: DatabaseError) {
-
-                        }
-                    })
-
-                }
-                .addOnFailureListener {
-                    Log.d("LoginActivity", "There is An Error While LoginActivity : ${it.message}")
-                }
+                        startActivity(Intent(this, MainActivity::class.java))
+                    }
+                    .addOnFailureListener {
+                        Log.d("LoginActivity", "There is An Error While LoginActivity : ${it.message}")
+                        Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
+                    }
+        }
     }
 }

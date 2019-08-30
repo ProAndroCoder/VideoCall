@@ -54,7 +54,7 @@ class SearchFragment : Fragment(),SearchView.OnQueryTextListener {
     var searchText=""
     val adapter = GroupAdapter<ViewHolder>()
 
-    var myUser= User("","","")
+    var mUser= User("","","","")
 
     //Companian Object sayesinde burada tanımlanan değerler diğer activityler tarafından da okunabilir
     companion object {
@@ -65,11 +65,10 @@ class SearchFragment : Fragment(),SearchView.OnQueryTextListener {
                               savedInstanceState: Bundle?): View? {
         val view=inflater.inflate(R.layout.fragment_search, container, false)
 
-        val recyclerview=view.recyclerview_home
         val searchview=view.searchview_et
 
         val myPreference= MyPreference(activity)
-        myUser=myPreference.getLoginInfo()
+        mUser=myPreference.getUserInfo()
 
 
         searchview.setOnQueryTextListener(this)
@@ -90,7 +89,7 @@ class SearchFragment : Fragment(),SearchView.OnQueryTextListener {
 
                     if(user != null){
                         if (user.uid != FirebaseAuth.getInstance().uid && user.username.contains(searchText)) {
-                            adapter.add(UserItem(user,1,myUser,activity))
+                            adapter.add(UserItem(user,1,mUser,activity))
                         }
                     }
                 }

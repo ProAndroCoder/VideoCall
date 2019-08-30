@@ -34,7 +34,7 @@ private const val ARG_PARAM2 = "param2"
  */
 class NewMessageFragment : Fragment() {
     var TAG = "NewMessageActivity"
-    var myUser= User("","","")
+    var mUser= User("","","","")
 
     //Companian Object sayesinde burada tanımlanan değerler diğer activityler tarafından da okunabilir
     companion object {
@@ -46,7 +46,7 @@ class NewMessageFragment : Fragment() {
         val view=inflater.inflate(R.layout.fragment_home, container, false)
 
         val myPreference= MyPreference(activity)
-        myUser=myPreference.getLoginInfo()
+        mUser=myPreference.getUserInfo()
 
         fetchUsers()
 
@@ -66,7 +66,7 @@ class NewMessageFragment : Fragment() {
                     val user = it.getValue(User::class.java)
 
                     if (user != null && user.uid != FirebaseAuth.getInstance().uid) {
-                        adapter.add(UserItem(user,2,myUser,activity))
+                        adapter.add(UserItem(user,2,mUser,activity))
                     }
                 }
 
