@@ -1,6 +1,7 @@
 package com.qatasoft.videocall
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.PorterDuff
 import android.os.Bundle
@@ -15,26 +16,24 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
+import com.qatasoft.videocall.VideoCallRequest.SendVideoRequest
 
-import com.qatasoft.videocall.request.IApiServer
-import com.qatasoft.videocall.models.Token
+import com.qatasoft.videocall.models.User
 import io.agora.rtc.Constants
 import io.agora.rtc.IRtcEngineEventHandler
 import io.agora.rtc.RtcEngine
 import io.agora.rtc.video.VideoCanvas
 import io.agora.rtc.video.VideoEncoderConfiguration
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
 class VideoChatViewActivity : AppCompatActivity() {
 
-    private var generatedToken:String=""
     private var mRtcEngine: RtcEngine? = null
-    var channel="hello"
     var uid=FirebaseAuth.getInstance().uid
+    val TAG="VideoChatViewActivity"
+    var isCaller=false
+    var user=User("","","","")
+    var mUser=User("","","","")
 
     private val mRtcEventHandler = object : IRtcEngineEventHandler() {
         override fun onFirstRemoteVideoDecoded(uid: Int, width: Int, height: Int, elapsed: Int) {
@@ -53,6 +52,15 @@ class VideoChatViewActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_video_chat_view)
+
+        val myPreference= MyPreference(this)
+        mUser=myPreference.getUserInfo()
+
+        user=intent.getParcelableExtra(SendVideoRequest.TEMP_TOKEN)
+        isCaller=intent.getBooleanExtra(SendVideoRequest.CALLER_KEY,false)
+
+        Toast.makeText(this,isCaller.toString()+" "+user.token,Toast.LENGTH_LONG).show()
+
 
         if (checkSelfPermission(Manifest.permission.RECORD_AUDIO, PERMISSION_REQ_ID_RECORD_AUDIO) && checkSelfPermission(Manifest.permission.CAMERA, PERMISSION_REQ_ID_CAMERA)) {
             initAgoraEngineAndJoinChannel()
@@ -183,12 +191,8 @@ class VideoChatViewActivity : AppCompatActivity() {
 
     private fun joinChannel() {
         mRtcEngine?.setChannelProfile(Constants.CHANNEL_PROFILE_COMMUNICATION);
-        var token: String? = getString(R.string.agora_temp)
-        if (token!!.isEmpty()) {
-            token = null
-        }
-        Log.d("VideoCall",token)
-        mRtcEngine!!.joinChannel(token, channel, "Extra Optional Data", 0) // if you do not specify the uid, we will generate the uid for you
+
+        mRtcEngine!!.joinChannel(user.token, "hello", "Extra Optional Data", 0) // if you do not specify the uid, we will generate the uid for you
     }
 
     private fun setupRemoteVideo(uid: Int) {
@@ -208,7 +212,21 @@ class VideoChatViewActivity : AppCompatActivity() {
     }
 
     private fun leaveChannel() {
-        mRtcEngine!!.leaveChannel()
+        if(isCaller){
+            val ref = FirebaseDatabase.getInstance().getReference("/videorequests/${user.uid}/${mUser.uid}")
+
+            ref.removeValue()
+
+            startService(Intent(this,BackgroundService::class.java))
+
+            mRtcEngine!!.leaveChannel()
+            finish()
+        }
+        else{
+            mRtcEngine!!.leaveChannel()
+            startActivity(Intent(this,MainActivity::class.java))
+        }
+
     }
 
     private fun onRemoteUserLeft() {
@@ -217,6 +235,18 @@ class VideoChatViewActivity : AppCompatActivity() {
 
         val tipMsg = findViewById<TextView>(R.id.quick_tips_when_use_agora_sdk) // optional UI
         tipMsg.visibility = View.VISIBLE
+
+        if(isCaller){
+            val ref = FirebaseDatabase.getInstance().getReference("/videorequests/${user.uid}/${mUser.uid}")
+
+            ref.removeValue()
+
+            startService(Intent(this,BackgroundService::class.java))
+        }
+
+        val intent=Intent(this,MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(intent)
     }
 
     private fun onRemoteUserVideoMuted(uid: Int, muted: Boolean) {

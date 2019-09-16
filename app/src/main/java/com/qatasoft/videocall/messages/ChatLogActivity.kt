@@ -1,6 +1,5 @@
 package com.qatasoft.videocall.messages
 
-import android.Manifest
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -16,23 +15,13 @@ import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
-import com.qatasoft.videocall.Fragments.HomeFragment
 import com.qatasoft.videocall.Fragments.NewMessageFragment
 import com.qatasoft.videocall.MyPreference
-import com.qatasoft.videocall.VideoChatViewActivity
-import com.qatasoft.videocall.VideoRequest
-import com.qatasoft.videocall.models.Token
-import com.qatasoft.videocall.request.IApiServer
+import com.qatasoft.videocall.VideoCallRequest.SendVideoRequest
 import com.squareup.picasso.Picasso
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.ViewHolder
 import kotlinx.android.synthetic.main.activity_chat_log.*
-import kotlinx.android.synthetic.main.item_user_new_message.view.*
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
 class ChatLogActivity : AppCompatActivity() {
 
@@ -54,33 +43,18 @@ class ChatLogActivity : AppCompatActivity() {
         //Parcelable Nesne Alma
         user = intent.getParcelableExtra<User>(NewMessageFragment.USER_KEY)?:null
 
+        Log.d(TAG, "Current : ${mUser.profileImageUrl}")
+        Log.d(TAG, "Target : ${user?.profileImageUrl}")
+
+
         Picasso.get().load(user!!.profileImageUrl).into(chat_userImage)
 
         chat_username.text= user!!.username
 
         chat_videocall.setOnClickListener(View.OnClickListener {
-            val retrofit= Retrofit.Builder().baseUrl("https://videocallkotlin.herokuapp.com/")
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build()
-            val apiService=retrofit.create(IApiServer::class.java)
-
-            val response=apiService.getToken(channel, 0)
-
-            response.enqueue(object: Callback<Token> {
-                override fun onFailure(call: Call<Token>, t: Throwable) {
-                    Log.d(TAG,t.message.toString())
-                }
-
-                override fun onResponse(call: Call<Token>, response: Response<Token>) {
-
-                    Log.d(TAG, response.body()!!.token)
-                    val generatedToken= response.body()!!.token
-                    Log.d(TAG, "token : $generatedToken")
-
-                    val reqUser=User(user!!.profileImageUrl, user!!.uid, user!!.username,generatedToken)
-                    addVideoRequest(reqUser)
-                }
-            })
+            val intent= Intent(this, SendVideoRequest::class.java)
+            intent.putExtra(NewMessageFragment.USER_KEY,user)
+            startActivity(intent)
         })
 
         fetchMessages()
@@ -91,49 +65,7 @@ class ChatLogActivity : AppCompatActivity() {
         }
     }
 
-    fun addVideoRequest(user:User){
-        val toId = user?.uid
 
-        val ref = FirebaseDatabase.getInstance().getReference("/videorequests/$toId/$uid").push()
-
-        ref.setValue(user)
-                .addOnSuccessListener {
-                    val intent=Intent(this,VideoRequest::class.java)
-                    intent.putExtra(NewMessageFragment.USER_KEY,user)
-                    startActivity(intent)
-                }
-                .addOnFailureListener {
-                    Log.d(TAG, "Message Cant Send ${it.message}")
-                }
-    }
-
-    fun onVideoRequestWait(){
-        val toId = user?.uid
-
-        val ref = FirebaseDatabase.getInstance().getReference("/videorequests/$uid/$toId")
-
-        ref.addChildEventListener(object : ChildEventListener {
-            override fun onChildAdded(p0: DataSnapshot, p1: String?) {
-            }
-
-            override fun onChildChanged(p0: DataSnapshot, p1: String?) {
-
-            }
-
-            override fun onChildMoved(p0: DataSnapshot, p1: String?) {
-
-            }
-
-            override fun onChildRemoved(p0: DataSnapshot) {
-
-
-            }
-
-            override fun onCancelled(p0: DatabaseError) {
-
-            }
-        })
-    }
 
     private fun fetchMessages() {
         val fromId = FirebaseAuth.getInstance().uid
@@ -159,7 +91,6 @@ class ChatLogActivity : AppCompatActivity() {
             }
 
             override fun onChildChanged(p0: DataSnapshot, p1: String?) {
-
             }
 
             override fun onChildMoved(p0: DataSnapshot, p1: String?) {

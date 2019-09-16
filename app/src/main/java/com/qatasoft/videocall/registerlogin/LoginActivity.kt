@@ -16,8 +16,6 @@ import kotlinx.android.synthetic.main.activity_login.*
 class LoginActivity : AppCompatActivity() {
     companion object {
         val TAG = "LoginActivity"
-        val USER_EMAIL="UserEmail"
-        val USER_PASSWORD="UserPass"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,24 +37,28 @@ class LoginActivity : AppCompatActivity() {
         val email = et_login_Email.text.toString()
         val password = et_login_Password.text.toString()
 
-        Log.d("LoginActivity", "email : $email")
-        Log.d("LoginActivity", "password : $password")
+        if(!(email.isEmpty() || password.isEmpty())){
+            Log.d(TAG, "email : $email")
+            Log.d(TAG, "password : $password")
 
-        FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener {
-                    if (!it.isSuccessful) return@addOnCompleteListener
+            FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
+                    .addOnCompleteListener {
+                        if (!it.isSuccessful) return@addOnCompleteListener
 
-                    val loginInfo=LoginInfo(email,password)
+                        val loginInfo=LoginInfo(email,password)
 
-                    val mPreference=MyPreference(this)
-                    mPreference.setLoginInfo(loginInfo)
+                        val mPreference=MyPreference(this)
+                        mPreference.setLoginInfo(loginInfo)
 
-                    startActivity(Intent(this, MainActivity::class.java))
-                }
-                .addOnFailureListener {
-                    Log.d("LoginActivity", "There is An Error While LoginActivity : ${it.message}")
-                    Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
-                }
+                        startActivity(Intent(this, MainActivity::class.java))
+                    }
+                    .addOnFailureListener {
+                        Log.d("LoginActivity", "There is An Error While LoginActivity : ${it.message}")
+                        Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
+                    }
+        }
+
+
     }
 
     //Önceden giriş yapılmış ise ve çıkış yapılmamış ise o bilgilerle giriş yapar.
