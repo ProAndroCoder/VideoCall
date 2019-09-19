@@ -175,8 +175,8 @@ class VideoChatViewActivity : AppCompatActivity() {
     private fun setupVideoProfile() {
         mRtcEngine!!.enableVideo()
 //      mRtcEngine!!.setVideoProfile(Constants.VIDEO_PROFILE_360P, false) // Earlier than 2.3.0
-        mRtcEngine!!.setVideoEncoderConfiguration(VideoEncoderConfiguration(VideoEncoderConfiguration.VD_640x360,
-                VideoEncoderConfiguration.FRAME_RATE.FRAME_RATE_FPS_15,
+        mRtcEngine!!.setVideoEncoderConfiguration(VideoEncoderConfiguration(VideoEncoderConfiguration.VD_1280x720,
+                VideoEncoderConfiguration.FRAME_RATE.FRAME_RATE_FPS_30,
                 VideoEncoderConfiguration.STANDARD_BITRATE,
                 VideoEncoderConfiguration.ORIENTATION_MODE.ORIENTATION_MODE_FIXED_PORTRAIT))
     }
@@ -216,16 +216,16 @@ class VideoChatViewActivity : AppCompatActivity() {
             val ref = FirebaseDatabase.getInstance().getReference("/videorequests/${user.uid}/${mUser.uid}")
 
             ref.removeValue()
-
-            startService(Intent(this,BackgroundService::class.java))
-
-            mRtcEngine!!.leaveChannel()
-            finish()
         }
-        else{
-            mRtcEngine!!.leaveChannel()
-            startActivity(Intent(this,MainActivity::class.java))
-        }
+
+        mRtcEngine!!.leaveChannel()
+
+        startService(Intent(this,BackgroundService::class.java))
+
+        startActivity(Intent(this,MainActivity::class.java))
+        val intent=Intent(this,MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(intent)
 
     }
 
@@ -240,9 +240,8 @@ class VideoChatViewActivity : AppCompatActivity() {
             val ref = FirebaseDatabase.getInstance().getReference("/videorequests/${user.uid}/${mUser.uid}")
 
             ref.removeValue()
-
-            startService(Intent(this,BackgroundService::class.java))
         }
+        startService(Intent(this,BackgroundService::class.java))
 
         val intent=Intent(this,MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)

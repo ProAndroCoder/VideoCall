@@ -6,20 +6,93 @@
     android:layout_height="match_parent"
     tools:context=".VideoCallRequest.GetVideoRequest">
 
-    <Button
-        android:layout_centerInParent="true"
-        android:id="@+id/btnConfirm"
+    <io.fotoapparat.view.CameraView
+        android:id="@+id/camera_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/darker_gray" />
+
+    <TextView
+        android:id="@+id/send_req_video_call_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
-        android:text="KABUL ET"/>
-
-    <Button
-        android:layout_below="@id/btnConfirm"
         android:layout_centerHorizontal="true"
-        android:id="@+id/btnReject"
+        android:layout_marginTop="20dp"
+        android:fontFamily="sans-serif-black"
+        android:text="GELEN ARAMA"
+        android:textSize="20sp" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/get_req_circleimage_user"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_below="@id/send_req_video_call_text"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:src="@android:color/holo_green_light"
+        app:civ_border_width="2dp" />
+
+    <TextView
+        android:id="@+id/get_req_text_username"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="REDDET"/>
+        android:layout_below="@+id/get_req_circleimage_user"
+        android:layout_centerHorizontal="true"
+        android:textColor="@android:color/black" />
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_centerVertical="true">
+
+        <!--
+        <com.ebanx.swipebtn.SwipeButton
+              android:id="@+id/swipe_btn"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginStart="20dp"
+              android:layout_marginEnd="20dp"
+              app:button_background="@drawable/shape_button"
+              app:button_bottom_padding="20dp"
+              app:button_image_disabled="@drawable/end_call_ico"
+              app:button_image_enabled="@drawable/btn_end_call"
+              app:button_image_width="100dp"
+              app:button_left_padding="20dp"
+              app:button_right_padding="20dp"
+              app:button_top_padding="20dp"
+              app:has_activate_state="true"
+              app:initial_state="disabled"
+              app:inner_text="SWIPE"
+              app:inner_text_background="@drawable/shape_rounded"
+              app:inner_text_bottom_padding="18dp"
+              app:inner_text_color="@android:color/white"
+              app:inner_text_size="16sp"
+              app:inner_text_top_padding="18dp" />
+
+              -->
+
+        <Button
+            android:id="@+id/btnReject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:text="Reddet" />
+
+        <Button
+            android:id="@+id/btnConfirm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="20dp"
+            android:text="Kabul Et" />
+
+    </RelativeLayout>
+
+    <ImageView
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="50dp"
+        android:src="@drawable/chat_ico" />
 </RelativeLayout>

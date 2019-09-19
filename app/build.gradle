@@ -66,4 +66,13 @@ dependencies {
     implementation 'com.squareup.picasso:picasso:2.71828'
 
     implementation 'com.google.android.material:material:1.0.0'
+
+    //Fotoapparat For Camera View
+    implementation 'io.fotoapparat:fotoapparat:2.6.1'
+    //Material Design For CameraView
+    implementation 'com.google.android.material:material:1.1.0-alpha10'
+
+    implementation 'com.ebanx:swipe-button:0.8.3'
+
+
 }

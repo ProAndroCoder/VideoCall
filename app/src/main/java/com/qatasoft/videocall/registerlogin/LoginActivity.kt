@@ -64,8 +64,8 @@ class LoginActivity : AppCompatActivity() {
     //Önceden giriş yapılmış ise ve çıkış yapılmamış ise o bilgilerle giriş yapar.
     private fun direct_login() {
         val myPreference = MyPreference(this)
-        if (myPreference.isLoggedIn()) {
-            val loginInfo:LoginInfo=myPreference.getLoginInfo()
+        val loginInfo:LoginInfo=myPreference.getLoginInfo()
+        if (myPreference.isLoggedIn() && !loginInfo.email.equals("")) {
             FirebaseAuth.getInstance().signInWithEmailAndPassword(loginInfo.email, loginInfo.password)
                     .addOnCompleteListener {
                         if (!it.isSuccessful) return@addOnCompleteListener

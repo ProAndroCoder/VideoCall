@@ -15,6 +15,8 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.qatasoft.videocall.Fragments.HomeFragment
 import com.qatasoft.videocall.MainActivity
+import com.qatasoft.videocall.MyPreference
+import com.qatasoft.videocall.models.LoginInfo
 import kotlinx.android.synthetic.main.activity_register.*
 import java.util.*
 
@@ -84,6 +86,11 @@ class RegisterActivity : AppCompatActivity() {
                 Log.d("RegisterActivity", "User is Created UID : ${it.result?.user?.uid}")
 
                 UploadProfileImage()
+
+                val loginInfo= LoginInfo(email,password)
+
+                val mPreference= MyPreference(this)
+                mPreference.setLoginInfo(loginInfo)
             }
             .addOnFailureListener {
                 Log.d("RegisterActivity", "Failed to Create User : ${it.message}")
