@@ -5,11 +5,17 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.firebase.database.ChildEventListener
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.qatasoft.videocall.*
+import com.qatasoft.videocall.Fragments.NewMessageFragment
+import com.qatasoft.videocall.messages.ChatLogActivity
 import com.qatasoft.videocall.models.User
 import com.squareup.picasso.Picasso
 import io.fotoapparat.Fotoapparat
@@ -23,9 +29,10 @@ import kotlinx.android.synthetic.main.activity_send_video_request.*
 
 class GetVideoRequest : AppCompatActivity() {
 
-    var user= User("","","","")
-    var mUser= User("","","","")
+    var user = User("", "", "", "")
+    var mUser = User("", "", "", "")
 
+    val TAG = "GetVideoRequest"
     var fotoapparat: Fotoapparat? = null
     var fotoapparatState: FotoapparatState? = null
     var cameraStatus: CameraState? = null
@@ -38,11 +45,11 @@ class GetVideoRequest : AppCompatActivity() {
 
         stopService(Intent(this, BackgroundService::class.java))
 
-        val myPreference= MyPreference(this)
-        mUser=myPreference.getUserInfo()
+        val myPreference = MyPreference(this)
+        mUser = myPreference.getUserInfo()
 
         user = intent.getParcelableExtra(SendVideoRequest.TEMP_TOKEN)
-        Toast.makeText(this, user.username,Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, user.username, Toast.LENGTH_SHORT).show()
 
         createFotoapparat()
 
@@ -51,29 +58,45 @@ class GetVideoRequest : AppCompatActivity() {
 
         setUserInfo()
 
-        btnConfirm.setOnClickListener {
-            Toast.makeText(this,"Kabul Edildi",Toast.LENGTH_LONG).show()
+        onVideoRequestWait()
 
-            val ref = FirebaseDatabase.getInstance().getReference("/videorequests/${mUser.uid}/${user.uid}")
+        get_req_swipe_confirm.onSwipedOnListener = {
+            confirmCall()
+        }
 
-            ref.setValue(mUser)
+        get_req_swipe_reject.onSwipedOffListener = {
+            rejectCall()
 
-            val intent= Intent(applicationContext, VideoChatViewActivity::class.java)
-            intent.putExtra(SendVideoRequest.CALLER_KEY,false)
-            intent.putExtra(SendVideoRequest.TEMP_TOKEN,user)
+            Toast.makeText(this, "Call is Rejected", Toast.LENGTH_SHORT).show()
+        }
+
+        get_req_chat.setOnClickListener {
+            rejectCall()
+
+            //Seçilen kişiyi ChatLogActivity'e gönderme işlemi (Mesajlaşma)
+            val intent = Intent(this, ChatLogActivity::class.java)
+            //Başka activitye nesne gönderme Parcelable
+            intent.putExtra(NewMessageFragment.USER_KEY, user)
             startActivity(intent)
         }
 
-        btnReject.setOnClickListener {
-            Toast.makeText(this,"Red Edildi",Toast.LENGTH_LONG).show()
+    }
 
-            val ref = FirebaseDatabase.getInstance().getReference("/videorequests/${mUser.uid}/${user.uid}")
+    override fun onBackPressed() {
+        super.onBackPressed()
+        rejectCall()
+    }
 
-            ref.removeValue()
+    private fun confirmCall() {
+        val ref = FirebaseDatabase.getInstance().getReference("/videorequests/${mUser.uid}/${user.uid}")
 
-            startActivity(Intent(applicationContext, MainActivity::class.java))
-        }
+        ref.setValue(mUser)
+    }
 
+    private fun rejectCall() {
+        val ref = FirebaseDatabase.getInstance().getReference("/videorequests/${mUser.uid}/${user.uid}")
+
+        ref.removeValue()
     }
 
     private fun createFotoapparat() {
@@ -125,6 +148,38 @@ class GetVideoRequest : AppCompatActivity() {
             startActivity(intent)
             finish()
         }
+    }
+
+    fun onVideoRequestWait() {
+        val ref = FirebaseDatabase.getInstance().getReference("/videorequests/${mUser.uid}/${user.uid}")
+
+        ref.addChildEventListener(object : ChildEventListener {
+            override fun onChildAdded(p0: DataSnapshot, p1: String?) {
+
+            }
+
+            override fun onChildChanged(p0: DataSnapshot, p1: String?) {
+                Log.d(TAG, "Changed")
+
+                val intent = Intent(applicationContext, VideoChatViewActivity::class.java)
+                intent.putExtra(SendVideoRequest.CALLER_KEY, false)
+                intent.putExtra(SendVideoRequest.TEMP_TOKEN, user)
+                startActivity(intent)
+            }
+
+            override fun onChildMoved(p0: DataSnapshot, p1: String?) {
+
+            }
+
+            override fun onChildRemoved(p0: DataSnapshot) {
+                Toast.makeText(applicationContext, "Video Call Rejected", Toast.LENGTH_LONG).show()
+                finish()
+            }
+
+            override fun onCancelled(p0: DatabaseError) {
+
+            }
+        })
     }
 
     private fun setUserInfo() {

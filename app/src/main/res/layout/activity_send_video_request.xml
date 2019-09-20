@@ -7,10 +7,10 @@
     tools:context=".VideoCallRequest.SendVideoRequest">
 
     <io.fotoapparat.view.CameraView
-        android:background="@android:color/darker_gray"
         android:id="@+id/camera_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:background="@android:color/darker_gray" />
 
     <TextView
         android:id="@+id/send_req_video_call_text"
@@ -48,6 +48,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="50dp"
         android:src="@drawable/end_call_ico"
+        app:civ_border_color="@color/colorWhite"
         app:civ_border_width="2dp" />
 
     <LinearLayout
@@ -63,24 +64,24 @@
             android:id="@+id/send_req_change_cam"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:src="@drawable/change_cam_ico" />
+            android:layout_weight=".33"
+            android:src="@drawable/ic_switch_camera" />
 
         <ImageView
-            android:id="@+id/send_req_video_off"
+            android:id="@+id/send_req_chat"
             android:layout_width="45dp"
             android:layout_height="45dp"
-            android:layout_marginStart="80dp"
-            android:layout_marginEnd="80dp"
-            android:src="@drawable/video_off_ico" />
+            android:layout_weight=".33"
+            android:src="@drawable/chat_ico" />
 
         <ImageView
             android:id="@+id/send_req_mute"
             android:layout_width="50dp"
             android:layout_height="50dp"
+            android:layout_weight=".33"
             android:src="@drawable/muted_ico" />
 
     </LinearLayout>
-
 
 
 </RelativeLayout>

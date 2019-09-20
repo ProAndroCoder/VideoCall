@@ -29,11 +29,11 @@ import io.agora.rtc.video.VideoEncoderConfiguration
 class VideoChatViewActivity : AppCompatActivity() {
 
     private var mRtcEngine: RtcEngine? = null
-    var uid=FirebaseAuth.getInstance().uid
-    val TAG="VideoChatViewActivity"
-    var isCaller=false
-    var user=User("","","","")
-    var mUser=User("","","","")
+    var uid = FirebaseAuth.getInstance().uid
+    val TAG = "VideoChatViewActivity"
+    var isCaller = false
+    var user = User("", "", "", "")
+    var mUser = User("", "", "", "")
 
     private val mRtcEventHandler = object : IRtcEngineEventHandler() {
         override fun onFirstRemoteVideoDecoded(uid: Int, width: Int, height: Int, elapsed: Int) {
@@ -53,13 +53,11 @@ class VideoChatViewActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_video_chat_view)
 
-        val myPreference= MyPreference(this)
-        mUser=myPreference.getUserInfo()
+        val myPreference = MyPreference(this)
+        mUser = myPreference.getUserInfo()
 
-        user=intent.getParcelableExtra(SendVideoRequest.TEMP_TOKEN)
-        isCaller=intent.getBooleanExtra(SendVideoRequest.CALLER_KEY,false)
-
-        Toast.makeText(this,isCaller.toString()+" "+user.token,Toast.LENGTH_LONG).show()
+        user = intent.getParcelableExtra(SendVideoRequest.TEMP_TOKEN)
+        isCaller = intent.getBooleanExtra(SendVideoRequest.CALLER_KEY, false)
 
 
         if (checkSelfPermission(Manifest.permission.RECORD_AUDIO, PERMISSION_REQ_ID_RECORD_AUDIO) && checkSelfPermission(Manifest.permission.CAMERA, PERMISSION_REQ_ID_CAMERA)) {
@@ -77,7 +75,7 @@ class VideoChatViewActivity : AppCompatActivity() {
     private fun checkSelfPermission(permission: String, requestCode: Int): Boolean {
         Log.i(LOG_TAG, "checkSelfPermission $permission $requestCode")
         if (ContextCompat.checkSelfPermission(this,
-                permission) != PackageManager.PERMISSION_GRANTED) {
+                        permission) != PackageManager.PERMISSION_GRANTED) {
 
             ActivityCompat.requestPermissions(this,
                     arrayOf(permission),
@@ -175,9 +173,9 @@ class VideoChatViewActivity : AppCompatActivity() {
     private fun setupVideoProfile() {
         mRtcEngine!!.enableVideo()
 //      mRtcEngine!!.setVideoProfile(Constants.VIDEO_PROFILE_360P, false) // Earlier than 2.3.0
-        mRtcEngine!!.setVideoEncoderConfiguration(VideoEncoderConfiguration(VideoEncoderConfiguration.VD_1280x720,
-                VideoEncoderConfiguration.FRAME_RATE.FRAME_RATE_FPS_30,
-                VideoEncoderConfiguration.STANDARD_BITRATE,
+        mRtcEngine!!.setVideoEncoderConfiguration(VideoEncoderConfiguration(VideoEncoderConfiguration.VD_840x480,
+                VideoEncoderConfiguration.FRAME_RATE.FRAME_RATE_FPS_15,
+                VideoEncoderConfiguration.COMPATIBLE_BITRATE,
                 VideoEncoderConfiguration.ORIENTATION_MODE.ORIENTATION_MODE_FIXED_PORTRAIT))
     }
 
@@ -212,7 +210,7 @@ class VideoChatViewActivity : AppCompatActivity() {
     }
 
     private fun leaveChannel() {
-        if(isCaller){
+        if (isCaller) {
             val ref = FirebaseDatabase.getInstance().getReference("/videorequests/${user.uid}/${mUser.uid}")
 
             ref.removeValue()
@@ -220,10 +218,10 @@ class VideoChatViewActivity : AppCompatActivity() {
 
         mRtcEngine!!.leaveChannel()
 
-        startService(Intent(this,BackgroundService::class.java))
+        startService(Intent(this, BackgroundService::class.java))
 
-        startActivity(Intent(this,MainActivity::class.java))
-        val intent=Intent(this,MainActivity::class.java)
+        startActivity(Intent(this, MainActivity::class.java))
+        val intent = Intent(this, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)
 
@@ -236,14 +234,14 @@ class VideoChatViewActivity : AppCompatActivity() {
         val tipMsg = findViewById<TextView>(R.id.quick_tips_when_use_agora_sdk) // optional UI
         tipMsg.visibility = View.VISIBLE
 
-        if(isCaller){
+        if (isCaller) {
             val ref = FirebaseDatabase.getInstance().getReference("/videorequests/${user.uid}/${mUser.uid}")
 
             ref.removeValue()
         }
-        startService(Intent(this,BackgroundService::class.java))
+        startService(Intent(this, BackgroundService::class.java))
 
-        val intent=Intent(this,MainActivity::class.java)
+        val intent = Intent(this, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)
     }

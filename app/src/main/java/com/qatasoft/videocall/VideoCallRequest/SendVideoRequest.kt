@@ -14,11 +14,8 @@ import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
-import com.qatasoft.videocall.BackgroundService
+import com.qatasoft.videocall.*
 import com.qatasoft.videocall.Fragments.NewMessageFragment
-import com.qatasoft.videocall.MyPreference
-import com.qatasoft.videocall.R
-import com.qatasoft.videocall.VideoChatViewActivity
 import com.qatasoft.videocall.messages.ChatLogActivity
 import com.qatasoft.videocall.models.Token
 import com.qatasoft.videocall.models.User
@@ -79,12 +76,35 @@ class SendVideoRequest : AppCompatActivity() {
         setUserInfo()
         getToken()
 
+        send_req_end_call.setOnClickListener {
+            rejectCall()
+        }
+
         send_req_change_cam.setOnClickListener {
             switchCamera()
         }
-        send_req_video_off.setOnClickListener {
-            videoOff()
+        send_req_chat.setOnClickListener {
+            rejectCall()
+
+            //Seçilen kişiyi ChatLogActivity'e gönderme işlemi (Mesajlaşma)
+            val intent = Intent(this, ChatLogActivity::class.java)
+            //Başka activitye nesne gönderme Parcelable
+            intent.putExtra(NewMessageFragment.USER_KEY, user)
+            startActivity(intent)
         }
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        rejectCall()
+    }
+
+    private fun rejectCall() {
+        val ref = FirebaseDatabase.getInstance().getReference("/videorequests/${user.uid}/${mUser.uid}")
+
+        ref.removeValue()
+
+        finish()
     }
 
     private fun createFotoapparat() {
@@ -151,19 +171,6 @@ class SendVideoRequest : AppCompatActivity() {
             startActivity(intent)
             finish()
         }
-    }
-
-    private fun videoOff() {
-        if (fotoapparatState == FotoapparatState.ON) {
-            Log.d(TAG, "Camera OFF")
-
-            onStop()
-        } else {
-            Log.d(TAG, "Camera ON")
-
-            onStart()
-        }
-
     }
 
     //Tokeni apiden retrofit ile alma işlemi
