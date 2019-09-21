@@ -34,4 +34,9 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="send_req_video_call_text">GÖRÜNTÜLÜ ARAMA</string>
+    <string name="menu_switch_camera">Switch Camera</string>
+    <string name="menu_video_off">Video Off</string>
+    <string name="menu_mute_sound">Mute Sound</string>
+    <string name="menu_send_file">Send File</string>
+    <string name="menu_send_message">Send Message</string>
 </resources>

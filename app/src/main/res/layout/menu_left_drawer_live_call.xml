@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_vertical"
+    android:orientation="vertical"
+    android:padding="8dp"
+    tools:context=".VideoChatViewActivity">
+
+    <TextView
+        android:id="@+id/menu_switch_camera"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableStart="@drawable/change_cam_ico"
+        android:drawablePadding="12dp"
+        android:gravity="center_vertical"
+        android:padding="5dp"
+        android:text="@string/menu_switch_camera"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="8dp" />
+
+    <com.stfalcon.swipeablebutton.SwipeableButton
+        android:id="@+id/menu_swipe_video"
+        android:layout_width="180dp"
+        android:layout_height="60dp"
+        app:checkedBackground="@drawable/rounded_red"
+        app:checkedIcon="@drawable/ic_video_off"
+        app:checkedToggleBackground="@drawable/rounded_normal"
+        app:durationAnimation="250"
+        app:isChecked="false"
+        app:isClickToSwipeEnable="true"
+        app:textChecked="Camera Off"
+        app:textSize="4.6sp"
+        app:textUnchecked="On"
+        app:thresholdEnd="0.3"
+        app:thresholdStart="0.7"
+        app:uncheckedBackground="@drawable/rounded_green"
+        app:uncheckedIcon="@drawable/ic_video_on"
+        app:uncheckedToggleBackground="@drawable/rounded_normal" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="8dp" />
+
+    <com.stfalcon.swipeablebutton.SwipeableButton
+        android:id="@+id/menu_swipe_voice"
+        android:layout_width="180dp"
+        android:layout_height="60dp"
+        app:checkedBackground="@drawable/rounded_red"
+        app:checkedIcon="@drawable/ic_voice_off"
+        app:checkedToggleBackground="@drawable/rounded_normal"
+        app:durationAnimation="250"
+        app:isChecked="false"
+        app:isClickToSwipeEnable="true"
+        app:textChecked="Voice Off"
+        app:textSize="4.6sp"
+        app:textUnchecked="Voice On"
+        app:thresholdEnd="0.3"
+        app:thresholdStart="0.7"
+        app:uncheckedBackground="@drawable/rounded_green"
+        app:uncheckedIcon="@drawable/ic_voice_on"
+        app:uncheckedToggleBackground="@drawable/rounded_normal" />
+
+    <TextView
+        android:id="@+id/menu_chat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableStart="@drawable/chat_ico"
+        android:drawablePadding="12dp"
+        android:gravity="center_vertical"
+        android:padding="5dp"
+        android:text="@string/menu_send_message"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="8dp" />
+
+    <TextView
+        android:id="@+id/menu_send_file"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableStart="@drawable/send_ico"
+        android:drawablePadding="12dp"
+        android:gravity="center_vertical"
+        android:padding="5dp"
+        android:text="@string/menu_send_file"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="8dp" />
+
+
+</LinearLayout>

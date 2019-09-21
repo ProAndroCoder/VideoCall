@@ -4,23 +4,18 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
+import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.*
 import com.qatasoft.videocall.VideoCallRequest.GetVideoRequest
 import com.qatasoft.videocall.VideoCallRequest.SendVideoRequest
 import com.qatasoft.videocall.models.User
 
 class BackgroundService : Service() {
-    companion object{
-        val TAG="BackgroundService"
-        val uid=FirebaseAuth.getInstance().uid
+    companion object {
+        val TAG = "BackgroundService"
+        val uid = FirebaseAuth.getInstance().uid
     }
-
-
-
 
 
     override fun onBind(p0: Intent?): IBinder? {
@@ -28,68 +23,63 @@ class BackgroundService : Service() {
     }
 
     override fun onCreate() {
-
         super.onCreate()
-        StopTheTask.isStop=false
-        Log.d("RunBackground", "Service started")
-        super.onCreate()
-    }
 
-    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        super.onStartCommand(intent, flags, startId);
-        if(!StopTheTask.isStop){
-            onTaskRemoved(intent)
+        Log.d(TAG, "Background Log")
 
-            Log.d(TAG,"BAckv Uses")
+        val ref = FirebaseDatabase.getInstance().getReference("/videorequests/$uid")
+        ref.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(p0: DataSnapshot) {
 
-            val ref = FirebaseDatabase.getInstance().getReference("/videorequests/$uid")
-            ref.addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(p0: DataSnapshot) {
+                p0.children.forEach() {
+                    val user = it.getValue(User::class.java)
+                    Log.d(TAG, "User Info")
 
-                    p0.children.forEach() {
-                        val user = it.getValue(User::class.java)
 
-                        if (user != null && user.uid != uid) {
-                            stopService(Intent(applicationContext,BackgroundService::class.java))
-                            StopTheTask.isStop=true
+                    if (user != null && user.uid != uid) {
+                        //stopService(Intent(applicationContext,BackgroundService::class.java))
 
-                            val intent=Intent(applicationContext,GetVideoRequest::class.java)
-                            intent.putExtra(SendVideoRequest.TEMP_TOKEN,user)
-                            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            startActivity(intent)
-                        }
+                        Log.d(TAG, "Getting")
+
+                        val intent = Intent(applicationContext, GetVideoRequest::class.java)
+                        intent.putExtra(SendVideoRequest.TEMP_TOKEN, user)
+                        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        startActivity(intent)
                     }
                 }
+            }
 
-                override fun onCancelled(p0: DatabaseError) {
-                    Log.d(TAG, "There is an error while fetching user datas.")
-                }
-            })
-        }
+            override fun onCancelled(p0: DatabaseError) {
+                Log.d(TAG, "There is an error while fetching user datas.")
+            }
+        })
 
-        return START_STICKY
-    }
+//        val ref = FirebaseDatabase.getInstance().getReference("/videorequests")
+//        ref.addChildEventListener(object : ChildEventListener {
+//            override fun onCancelled(p0: DatabaseError) {
+//                Log.d(TAG, "Child Cancelled")
+//            }
+//
+//            override fun onChildMoved(p0: DataSnapshot, p1: String?) {
+//                Log.d(TAG, "Child Moved")
+//            }
+//
+//            override fun onChildChanged(p0: DataSnapshot, p1: String?) {
+//                Toast.makeText(applicationContext,"Child Changed",Toast.LENGTH_LONG).show()
+//            }
+//
+//            override fun onChildAdded(p0: DataSnapshot, p1: String?) {
+//                Toast.makeText(applicationContext,"Child Added",Toast.LENGTH_LONG).show()
+//
+//            }
+//
+//            override fun onChildRemoved(p0: DataSnapshot) {
+//                Toast.makeText(applicationContext,"Child Removed",Toast.LENGTH_LONG).show()
+//
+//            }
+//
+//        })
 
-    override fun onDestroy() {
-        super.onDestroy()
-        StopTheTask.isStop=false
-        val broadcastIntent = Intent("ac.in.ActivityRecognition.RestartSensor")
-        sendBroadcast(broadcastIntent)
-        //StopTheTask.isStop=true
-        Log.d("RunBackground", "Service stopped")
-        super.onDestroy()
-    }
 
-    override fun onTaskRemoved(rootIntent: Intent) {
-        val restartServiceIntent = Intent(applicationContext, this.javaClass)
-        restartServiceIntent.setPackage(packageName)
-        startService(restartServiceIntent)
-        super.onTaskRemoved(rootIntent)
-    }
-}
-
-class StopTheTask{
-    companion object{
-        var isStop=false
     }
 }

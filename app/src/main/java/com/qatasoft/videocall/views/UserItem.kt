@@ -53,7 +53,7 @@ class UserItem(val user: User, val secim:Int, val myUser: User, val mContext: Fr
             videoImage.visibility=View.VISIBLE
             chatImage.visibility=View.VISIBLE
 
-            videoImage.setImageResource(R.drawable.video_call_ico)
+            videoImage.setImageResource(R.drawable.ic_video_on)
             chatImage.setImageResource(R.drawable.chat_ico)
 
             videoImage.setOnClickListener(View.OnClickListener {

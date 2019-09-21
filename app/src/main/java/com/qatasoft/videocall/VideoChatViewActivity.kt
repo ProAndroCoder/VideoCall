@@ -10,70 +10,107 @@ import android.view.SurfaceView
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.qatasoft.videocall.VideoCallRequest.SendVideoRequest
-
 import com.qatasoft.videocall.models.User
+import com.yarolegovich.slidingrootnav.SlidingRootNavBuilder
 import io.agora.rtc.Constants
 import io.agora.rtc.IRtcEngineEventHandler
 import io.agora.rtc.RtcEngine
 import io.agora.rtc.video.VideoCanvas
 import io.agora.rtc.video.VideoEncoderConfiguration
+import kotlinx.android.synthetic.main.activity_video_chat_view.*
+import kotlinx.android.synthetic.main.menu_left_drawer_live_call.*
 
 class VideoChatViewActivity : AppCompatActivity() {
+    companion object {
+        private const val PERMISSION_REQ_ID_RECORD_AUDIO = 22
+        private const val PERMISSION_REQ_ID_CAMERA = PERMISSION_REQ_ID_RECORD_AUDIO + 1
+    }
 
     private var mRtcEngine: RtcEngine? = null
-    var uid = FirebaseAuth.getInstance().uid
-    val TAG = "VideoChatViewActivity"
-    var isCaller = false
-    var user = User("", "", "", "")
-    var mUser = User("", "", "", "")
-
-    private val mRtcEventHandler = object : IRtcEngineEventHandler() {
-        override fun onFirstRemoteVideoDecoded(uid: Int, width: Int, height: Int, elapsed: Int) {
-            runOnUiThread { setupRemoteVideo(uid) }
-        }
-
-        override fun onUserOffline(uid: Int, reason: Int) {
-            runOnUiThread { onRemoteUserLeft() }
-        }
-
-        override fun onUserMuteVideo(uid: Int, muted: Boolean) {
-            runOnUiThread { onRemoteUserVideoMuted(uid, muted) }
-        }
-    }
+    private val logTAG = "VideoChatViewActivity"
+    private var isCaller = false
+    private var user = User("", "", "", "")
+    private var mUser = User("", "", "", "")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_video_chat_view)
 
+        //Getting General info about signing user and target user which we talk with video
+        getGeneralInfo()
+
+        //Injecting Sliding Root NavBuilder Menu which left of the screen
+        injectSlidingRootNav()
+
+        //Check the permissions and start the video calling
+        initAgoraEngineAndJoinChannel()
+
+        //When turn on the video swipe which in the SlidingRootNav
+        menu_swipe_video.onSwipedOnListener = {
+            mRtcEngine!!.muteLocalVideoStream(true)
+
+            val container = local_video_view_container as FrameLayout
+            val surfaceView = container.getChildAt(0) as SurfaceView
+            surfaceView.setZOrderMediaOverlay(false)
+            surfaceView.visibility = if (true) View.GONE else View.VISIBLE
+        }
+
+        //When turn off the video swipe which in the SlidingRootNav
+        menu_swipe_video.onSwipedOffListener = {
+            mRtcEngine!!.muteLocalVideoStream(false)
+
+            val container = local_video_view_container as FrameLayout
+            val surfaceView = container.getChildAt(0) as SurfaceView
+            surfaceView.setZOrderMediaOverlay(true)
+            surfaceView.visibility = if (false) View.GONE else View.VISIBLE
+        }
+
+        //When turn on the voice swipe which in the SlidingRootNav
+        menu_swipe_voice.onSwipedOnListener = {
+            mRtcEngine!!.muteLocalAudioStream(true)
+        }
+
+        //When turn off the voice swipe which in the SlidingRootNav
+        menu_swipe_voice.onSwipedOffListener = {
+            mRtcEngine!!.muteLocalAudioStream(false)
+        }
+    }
+
+    private fun getGeneralInfo() {
         val myPreference = MyPreference(this)
         mUser = myPreference.getUserInfo()
 
         user = intent.getParcelableExtra(SendVideoRequest.TEMP_TOKEN)
         isCaller = intent.getBooleanExtra(SendVideoRequest.CALLER_KEY, false)
+    }
 
+    private fun injectSlidingRootNav() {
+        //Implementing the Sliding Root Navigation
+        val slidingRootNavBuilder = SlidingRootNavBuilder(this).withToolbarMenuToggle(video_chat_toolbar)
+                .withMenuOpened(false)
+                .withMenuLayout(R.layout.menu_left_drawer_live_call)
 
-        if (checkSelfPermission(Manifest.permission.RECORD_AUDIO, PERMISSION_REQ_ID_RECORD_AUDIO) && checkSelfPermission(Manifest.permission.CAMERA, PERMISSION_REQ_ID_CAMERA)) {
-            initAgoraEngineAndJoinChannel()
-        }
+        slidingRootNavBuilder.inject()
     }
 
     private fun initAgoraEngineAndJoinChannel() {
-        initializeAgoraEngine()
-        setupVideoProfile()
-        setupLocalVideo()
-        joinChannel()
+        if (checkSelfPermission(Manifest.permission.RECORD_AUDIO, PERMISSION_REQ_ID_RECORD_AUDIO) && checkSelfPermission(Manifest.permission.CAMERA, PERMISSION_REQ_ID_CAMERA)) {
+            initializeAgoraEngine()
+            setupVideoProfile()
+            setupLocalVideo()
+            joinChannel()
+        }
     }
 
+    //Checking Permissions For Camera and Audio
     private fun checkSelfPermission(permission: String, requestCode: Int): Boolean {
-        Log.i(LOG_TAG, "checkSelfPermission $permission $requestCode")
+        Log.i(logTAG, "checkSelfPermission $permission $requestCode")
         if (ContextCompat.checkSelfPermission(this,
                         permission) != PackageManager.PERMISSION_GRANTED) {
 
@@ -85,9 +122,10 @@ class VideoChatViewActivity : AppCompatActivity() {
         return true
     }
 
+    //When Permission Results
     override fun onRequestPermissionsResult(requestCode: Int,
                                             permissions: Array<String>, grantResults: IntArray) {
-        Log.i(LOG_TAG, "onRequestPermissionsResult " + grantResults[0] + " " + requestCode)
+        Log.i(logTAG, "onRequestPermissionsResult " + grantResults[0] + " " + requestCode)
 
         when (requestCode) {
             PERMISSION_REQ_ID_RECORD_AUDIO -> {
@@ -113,6 +151,7 @@ class VideoChatViewActivity : AppCompatActivity() {
         this.runOnUiThread { Toast.makeText(applicationContext, msg, Toast.LENGTH_LONG).show() }
     }
 
+    //On Channel Leaving Destroys the Session
     override fun onDestroy() {
         super.onDestroy()
 
@@ -121,6 +160,7 @@ class VideoChatViewActivity : AppCompatActivity() {
         mRtcEngine = null
     }
 
+
     fun onLocalVideoMuteClicked(view: View) {
         val iv = view as ImageView
         if (iv.isSelected) {
@@ -128,12 +168,13 @@ class VideoChatViewActivity : AppCompatActivity() {
             iv.clearColorFilter()
         } else {
             iv.isSelected = true
-            iv.setColorFilter(resources.getColor(R.color.colorPrimary), PorterDuff.Mode.MULTIPLY)
+            //If the image is not pre-selected we should filter the image for understand
+            iv.setColorFilter(ContextCompat.getColor(this, R.color.colorPrimary), PorterDuff.Mode.MULTIPLY)
         }
 
         mRtcEngine!!.muteLocalVideoStream(iv.isSelected)
 
-        val container = findViewById(R.id.local_video_view_container) as FrameLayout
+        val container = local_video_view_container as FrameLayout
         val surfaceView = container.getChildAt(0) as SurfaceView
         surfaceView.setZOrderMediaOverlay(!iv.isSelected)
         surfaceView.visibility = if (iv.isSelected) View.GONE else View.VISIBLE
@@ -146,17 +187,17 @@ class VideoChatViewActivity : AppCompatActivity() {
             iv.clearColorFilter()
         } else {
             iv.isSelected = true
-            iv.setColorFilter(resources.getColor(R.color.colorPrimary), PorterDuff.Mode.MULTIPLY)
+            iv.setColorFilter(ContextCompat.getColor(this, R.color.colorPrimary), PorterDuff.Mode.MULTIPLY)
         }
 
         mRtcEngine!!.muteLocalAudioStream(iv.isSelected)
     }
 
-    fun onSwitchCameraClicked(view: View) {
+    fun onSwitchCameraClicked() {
         mRtcEngine!!.switchCamera()
     }
 
-    fun onEncCallClicked(view: View) {
+    fun onEncCallClicked() {
         finish()
     }
 
@@ -164,7 +205,7 @@ class VideoChatViewActivity : AppCompatActivity() {
         try {
             mRtcEngine = RtcEngine.create(baseContext, getString(R.string.agora_app_id), mRtcEventHandler)
         } catch (e: Exception) {
-            Log.e(LOG_TAG, Log.getStackTraceString(e))
+            Log.e(logTAG, Log.getStackTraceString(e))
 
             throw RuntimeException("NEED TO check rtc sdk init fatal error\n" + Log.getStackTraceString(e))
         }
@@ -180,7 +221,7 @@ class VideoChatViewActivity : AppCompatActivity() {
     }
 
     private fun setupLocalVideo() {
-        val container = findViewById(R.id.local_video_view_container) as FrameLayout
+        val container = local_video_view_container as FrameLayout
         val surfaceView = RtcEngine.CreateRendererView(baseContext)
         surfaceView.setZOrderMediaOverlay(true)
         container.addView(surfaceView)
@@ -188,13 +229,13 @@ class VideoChatViewActivity : AppCompatActivity() {
     }
 
     private fun joinChannel() {
-        mRtcEngine?.setChannelProfile(Constants.CHANNEL_PROFILE_COMMUNICATION);
+        mRtcEngine?.setChannelProfile(Constants.CHANNEL_PROFILE_COMMUNICATION)
 
         mRtcEngine!!.joinChannel(user.token, "hello", "Extra Optional Data", 0) // if you do not specify the uid, we will generate the uid for you
     }
 
     private fun setupRemoteVideo(uid: Int) {
-        val container = findViewById(R.id.remote_video_view_container) as FrameLayout
+        val container = remote_video_view_container as FrameLayout
 
         if (container.childCount >= 1) {
             return
@@ -205,8 +246,6 @@ class VideoChatViewActivity : AppCompatActivity() {
         mRtcEngine!!.setupRemoteVideo(VideoCanvas(surfaceView, VideoCanvas.RENDER_MODE_FIT, uid))
 
         surfaceView.tag = uid // for mark purpose
-        val tipMsg = findViewById<TextView>(R.id.quick_tips_when_use_agora_sdk) // optional UI
-        tipMsg.visibility = View.GONE
     }
 
     private fun leaveChannel() {
@@ -228,11 +267,8 @@ class VideoChatViewActivity : AppCompatActivity() {
     }
 
     private fun onRemoteUserLeft() {
-        val container = findViewById(R.id.remote_video_view_container) as FrameLayout
+        val container = remote_video_view_container as FrameLayout
         container.removeAllViews()
-
-        val tipMsg = findViewById<TextView>(R.id.quick_tips_when_use_agora_sdk) // optional UI
-        tipMsg.visibility = View.VISIBLE
 
         if (isCaller) {
             val ref = FirebaseDatabase.getInstance().getReference("/videorequests/${user.uid}/${mUser.uid}")
@@ -247,7 +283,7 @@ class VideoChatViewActivity : AppCompatActivity() {
     }
 
     private fun onRemoteUserVideoMuted(uid: Int, muted: Boolean) {
-        val container = findViewById(R.id.remote_video_view_container) as FrameLayout
+        val container = remote_video_view_container as FrameLayout
 
         val surfaceView = container.getChildAt(0) as SurfaceView
 
@@ -257,11 +293,17 @@ class VideoChatViewActivity : AppCompatActivity() {
         }
     }
 
-    companion object {
+    private val mRtcEventHandler = object : IRtcEngineEventHandler() {
+        override fun onFirstRemoteVideoDecoded(uid: Int, width: Int, height: Int, elapsed: Int) {
+            runOnUiThread { setupRemoteVideo(uid) }
+        }
 
-        private val LOG_TAG = VideoChatViewActivity::class.java.simpleName
+        override fun onUserOffline(uid: Int, reason: Int) {
+            runOnUiThread { onRemoteUserLeft() }
+        }
 
-        private const val PERMISSION_REQ_ID_RECORD_AUDIO = 22
-        private const val PERMISSION_REQ_ID_CAMERA = PERMISSION_REQ_ID_RECORD_AUDIO + 1
+        override fun onUserMuteVideo(uid: Int, muted: Boolean) {
+            runOnUiThread { onRemoteUserVideoMuted(uid, muted) }
+        }
     }
 }

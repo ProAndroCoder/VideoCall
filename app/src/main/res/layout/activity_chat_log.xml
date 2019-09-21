@@ -32,7 +32,7 @@
                 android:layout_centerVertical="true"
                 android:layout_alignParentEnd="true"
                 android:layout_marginEnd="30dp"
-                android:src="@drawable/video_call_ico"
+                android:src="@drawable/ic_video_on"
                 android:layout_width="30dp"
                 android:layout_height="30dp" />
         </RelativeLayout>

@@ -79,7 +79,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_weight=".33"
-            android:src="@drawable/muted_ico" />
+            android:src="@drawable/ic_voice_off" />
 
     </LinearLayout>
 

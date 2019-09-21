@@ -18,18 +18,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <service
-            android:name=".BackgroundService"
-            android:enabled="true" />
-        <receiver
-            android:name=".SensorRestarterBroadcastReceiver"
-            android:enabled="true"
-            android:exported="true"
-            android:label="RestartServiceWhenStopped">
-            <intent-filter>
-                <action android:name="RestartService" />
-            </intent-filter>
-        </receiver>
+        <service android:name=".BackgroundService"/>
 
         <activity
             android:name=".MainActivity"

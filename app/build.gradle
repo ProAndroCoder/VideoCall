@@ -72,10 +72,11 @@ dependencies {
     //Material Design For CameraView
     implementation 'com.google.android.material:material:1.1.0-alpha10'
 
-    implementation 'com.ebanx:swipe-button:0.8.3'
-
-
+    //Swipable Button
     implementation 'com.github.stfalcon:swipeable-button:0.1.0'
+
+    //Root Navigation (Yan Menü)
+    implementation 'com.yarolegovich:sliding-root-nav:1.1.0'
 
 
 }

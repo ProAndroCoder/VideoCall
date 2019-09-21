@@ -58,16 +58,16 @@ class GetVideoRequest : AppCompatActivity() {
 
         setUserInfo()
 
-        onVideoRequestWait()
-
         get_req_swipe_confirm.onSwipedOnListener = {
             confirmCall()
+
+            Toast.makeText(this, "Call Confirmed", Toast.LENGTH_SHORT).show()
         }
 
         get_req_swipe_reject.onSwipedOffListener = {
             rejectCall()
 
-            Toast.makeText(this, "Call is Rejected", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Call Rejected", Toast.LENGTH_SHORT).show()
         }
 
         get_req_chat.setOnClickListener {
@@ -91,12 +91,19 @@ class GetVideoRequest : AppCompatActivity() {
         val ref = FirebaseDatabase.getInstance().getReference("/videorequests/${mUser.uid}/${user.uid}")
 
         ref.setValue(mUser)
+
+        val intent = Intent(applicationContext, VideoChatViewActivity::class.java)
+        intent.putExtra(SendVideoRequest.CALLER_KEY, false)
+        intent.putExtra(SendVideoRequest.TEMP_TOKEN, user)
+        startActivity(intent)
     }
 
     private fun rejectCall() {
         val ref = FirebaseDatabase.getInstance().getReference("/videorequests/${mUser.uid}/${user.uid}")
 
         ref.removeValue()
+
+        finish()
     }
 
     private fun createFotoapparat() {
@@ -148,38 +155,6 @@ class GetVideoRequest : AppCompatActivity() {
             startActivity(intent)
             finish()
         }
-    }
-
-    fun onVideoRequestWait() {
-        val ref = FirebaseDatabase.getInstance().getReference("/videorequests/${mUser.uid}/${user.uid}")
-
-        ref.addChildEventListener(object : ChildEventListener {
-            override fun onChildAdded(p0: DataSnapshot, p1: String?) {
-
-            }
-
-            override fun onChildChanged(p0: DataSnapshot, p1: String?) {
-                Log.d(TAG, "Changed")
-
-                val intent = Intent(applicationContext, VideoChatViewActivity::class.java)
-                intent.putExtra(SendVideoRequest.CALLER_KEY, false)
-                intent.putExtra(SendVideoRequest.TEMP_TOKEN, user)
-                startActivity(intent)
-            }
-
-            override fun onChildMoved(p0: DataSnapshot, p1: String?) {
-
-            }
-
-            override fun onChildRemoved(p0: DataSnapshot) {
-                Toast.makeText(applicationContext, "Video Call Rejected", Toast.LENGTH_LONG).show()
-                finish()
-            }
-
-            override fun onCancelled(p0: DatabaseError) {
-
-            }
-        })
     }
 
     private fun setUserInfo() {
