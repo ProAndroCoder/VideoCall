@@ -17,7 +17,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.qatasoft.videocall.Fragments.NewMessageFragment
 import com.qatasoft.videocall.MyPreference
-import com.qatasoft.videocall.VideoCallRequest.SendVideoRequest
+import com.qatasoft.videocall.videoCallRequests.SendVideoRequest
 import com.squareup.picasso.Picasso
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.ViewHolder
@@ -43,8 +43,8 @@ class ChatLogActivity : AppCompatActivity() {
         //Parcelable Nesne Alma
         user = intent.getParcelableExtra<User>(NewMessageFragment.USER_KEY)?:null
 
-        Log.d(TAG, "Current : ${mUser.profileImageUrl}")
-        Log.d(TAG, "Target : ${user?.profileImageUrl}")
+        Log.d(logTAG, "Current : ${mUser.profileImageUrl}")
+        Log.d(logTAG, "Target : ${user?.profileImageUrl}")
 
 
         Picasso.get().load(user!!.profileImageUrl).into(chat_userImage)
@@ -60,7 +60,7 @@ class ChatLogActivity : AppCompatActivity() {
         fetchMessages()
 
         btn_send_chatlog.setOnClickListener {
-            Log.d(TAG, "Attempt to send message ...")
+            Log.d(logTAG, "Attempt to send message ...")
             performSendMessage()
         }
     }
@@ -77,7 +77,7 @@ class ChatLogActivity : AppCompatActivity() {
             override fun onChildAdded(p0: DataSnapshot, p1: String?) {
                 val chatMessage = p0.getValue(ChatMessage::class.java)
                 if (chatMessage != null) {
-                    Log.d(TAG, chatMessage.text)
+                    Log.d(logTAG, chatMessage.text)
                     val currentUser = mUser
 
                     if (FirebaseAuth.getInstance().uid == chatMessage.fromId && user?.uid == chatMessage.toId) {
@@ -124,14 +124,14 @@ class ChatLogActivity : AppCompatActivity() {
 
         ref.setValue(chatMessage)
                 .addOnSuccessListener {
-                    Log.d(TAG, "Chat Message Saved : ${ref.key}")
+                    Log.d(logTAG, "Chat Message Saved : ${ref.key}")
                     //Edittext i boşaltma işlemi
                     et_message_chatlog.text.clear()
                     //recyclerview i en aşağı indirme işlemi
                     recyclerview_chatlog.scrollToPosition(adapter.itemCount - 1)
                 }
                 .addOnFailureListener {
-                    Log.d(TAG, "Message Cant Send ${it.message}")
+                    Log.d(logTAG, "Message Cant Send ${it.message}")
                 }
 
         toRef.setValue(chatMessage)
@@ -144,7 +144,7 @@ class ChatLogActivity : AppCompatActivity() {
     }
 
     companion object {
-        val TAG = "ChatLogActivity"
+        val logTAG = "ChatLogActivity"
     }
 }
 

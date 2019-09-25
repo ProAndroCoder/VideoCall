@@ -1,21 +1,26 @@
 package com.qatasoft.videocall
 
 import android.Manifest
+import androidx.appcompat.app.ActionBar
+import android.app.PictureInPictureParams
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.PorterDuff
+import android.content.res.Configuration
+import android.graphics.Point
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.util.Rational
 import android.view.SurfaceView
 import android.view.View
 import android.widget.FrameLayout
-import android.widget.ImageView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.firebase.database.FirebaseDatabase
-import com.qatasoft.videocall.VideoCallRequest.SendVideoRequest
+import com.qatasoft.videocall.videoCallRequests.SendVideoRequest
 import com.qatasoft.videocall.models.User
 import com.yarolegovich.slidingrootnav.SlidingRootNavBuilder
 import io.agora.rtc.Constants
@@ -38,9 +43,11 @@ class VideoChatViewActivity : AppCompatActivity() {
     private var user = User("", "", "", "")
     private var mUser = User("", "", "", "")
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_video_chat_view)
+
 
         //Getting General info about signing user and target user which we talk with video
         getGeneralInfo()
@@ -51,34 +58,88 @@ class VideoChatViewActivity : AppCompatActivity() {
         //Check the permissions and start the video calling
         initAgoraEngineAndJoinChannel()
 
-        //When turn on the video swipe which in the SlidingRootNav
-        menu_swipe_video.onSwipedOnListener = {
-            mRtcEngine!!.muteLocalVideoStream(true)
+        //When turn on or turn off the video swipe which in the SlidingRootNav
+        menu_swipe_video.setOnStateChangeListener {
+            if (it) {
+                menu_swipe_video.setSlidingButtonBackground(ContextCompat.getDrawable(this, R.drawable.rounded_red))
 
-            val container = local_video_view_container as FrameLayout
-            val surfaceView = container.getChildAt(0) as SurfaceView
-            surfaceView.setZOrderMediaOverlay(false)
-            surfaceView.visibility = if (true) View.GONE else View.VISIBLE
+                mRtcEngine!!.muteLocalVideoStream(true)
+
+                val container = local_video_view_container as FrameLayout
+                val surfaceView = container.getChildAt(0) as SurfaceView
+                surfaceView.setZOrderMediaOverlay(false)
+                surfaceView.visibility = if (true) View.GONE else View.VISIBLE
+            } else {
+                menu_swipe_video.setSlidingButtonBackground(ContextCompat.getDrawable(this, R.drawable.rounded_green))
+
+                mRtcEngine!!.muteLocalVideoStream(false)
+
+                val container = local_video_view_container as FrameLayout
+                val surfaceView = container.getChildAt(0) as SurfaceView
+                surfaceView.setZOrderMediaOverlay(true)
+                surfaceView.visibility = if (false) View.GONE else View.VISIBLE
+            }
         }
 
-        //When turn off the video swipe which in the SlidingRootNav
-        menu_swipe_video.onSwipedOffListener = {
-            mRtcEngine!!.muteLocalVideoStream(false)
+        //When turn on or off the voice swipe which in the SlidingRootNav
+        menu_swipe_voice.setOnStateChangeListener {
+            if (it) {
+                menu_swipe_voice.setSlidingButtonBackground(ContextCompat.getDrawable(this, R.drawable.rounded_red))
+                mRtcEngine!!.muteLocalAudioStream(true)
+            } else {
+                menu_swipe_voice.setSlidingButtonBackground(ContextCompat.getDrawable(this, R.drawable.rounded_green))
 
-            val container = local_video_view_container as FrameLayout
-            val surfaceView = container.getChildAt(0) as SurfaceView
-            surfaceView.setZOrderMediaOverlay(true)
-            surfaceView.visibility = if (false) View.GONE else View.VISIBLE
+                mRtcEngine!!.muteLocalAudioStream(false)
+            }
         }
 
-        //When turn on the voice swipe which in the SlidingRootNav
-        menu_swipe_voice.onSwipedOnListener = {
-            mRtcEngine!!.muteLocalAudioStream(true)
+        //When Switch Cam on the SlidingRootNav Clicked The camera changing (Front - Back)
+        menu_linear_switch_cam.setOnClickListener {
+            mRtcEngine!!.switchCamera()
         }
 
-        //When turn off the voice swipe which in the SlidingRootNav
-        menu_swipe_voice.onSwipedOffListener = {
-            mRtcEngine!!.muteLocalAudioStream(false)
+        //When end Call button clicked. The user left the channel.End Call is finished.
+        video_chat_endCall.setOnClickListener {
+            leaveChannel()
+        }
+    }
+
+    //On Home Button Pressed
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+
+        val display = windowManager.defaultDisplay
+        val size = Point()
+        display.getSize(size)
+
+        val width = size.x
+        val height = size.y
+
+        val aspectRatio = Rational(width, height)
+
+        val mPictureInPictureParamsBuilder = PictureInPictureParams.Builder()
+
+        mPictureInPictureParamsBuilder.setAspectRatio(aspectRatio).build()
+
+        enterPictureInPictureMode(mPictureInPictureParamsBuilder.build())
+    }
+
+    override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration?) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+        if (isInPictureInPictureMode) {
+
+        } else {
+
+        }
+    }
+
+    //Removes the video call data from firebase
+    private fun removeFirebaseData() {
+        if (isCaller) {
+            val ref = FirebaseDatabase.getInstance().getReference("/videorequests/${user.uid}/${mUser.uid}")
+
+            ref.removeValue()
         }
     }
 
@@ -123,8 +184,7 @@ class VideoChatViewActivity : AppCompatActivity() {
     }
 
     //When Permission Results
-    override fun onRequestPermissionsResult(requestCode: Int,
-                                            permissions: Array<String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         Log.i(logTAG, "onRequestPermissionsResult " + grantResults[0] + " " + requestCode)
 
         when (requestCode) {
@@ -158,47 +218,6 @@ class VideoChatViewActivity : AppCompatActivity() {
         leaveChannel()
         RtcEngine.destroy()
         mRtcEngine = null
-    }
-
-
-    fun onLocalVideoMuteClicked(view: View) {
-        val iv = view as ImageView
-        if (iv.isSelected) {
-            iv.isSelected = false
-            iv.clearColorFilter()
-        } else {
-            iv.isSelected = true
-            //If the image is not pre-selected we should filter the image for understand
-            iv.setColorFilter(ContextCompat.getColor(this, R.color.colorPrimary), PorterDuff.Mode.MULTIPLY)
-        }
-
-        mRtcEngine!!.muteLocalVideoStream(iv.isSelected)
-
-        val container = local_video_view_container as FrameLayout
-        val surfaceView = container.getChildAt(0) as SurfaceView
-        surfaceView.setZOrderMediaOverlay(!iv.isSelected)
-        surfaceView.visibility = if (iv.isSelected) View.GONE else View.VISIBLE
-    }
-
-    fun onLocalAudioMuteClicked(view: View) {
-        val iv = view as ImageView
-        if (iv.isSelected) {
-            iv.isSelected = false
-            iv.clearColorFilter()
-        } else {
-            iv.isSelected = true
-            iv.setColorFilter(ContextCompat.getColor(this, R.color.colorPrimary), PorterDuff.Mode.MULTIPLY)
-        }
-
-        mRtcEngine!!.muteLocalAudioStream(iv.isSelected)
-    }
-
-    fun onSwitchCameraClicked() {
-        mRtcEngine!!.switchCamera()
-    }
-
-    fun onEncCallClicked() {
-        finish()
     }
 
     private fun initializeAgoraEngine() {
@@ -249,32 +268,10 @@ class VideoChatViewActivity : AppCompatActivity() {
     }
 
     private fun leaveChannel() {
-        if (isCaller) {
-            val ref = FirebaseDatabase.getInstance().getReference("/videorequests/${user.uid}/${mUser.uid}")
-
-            ref.removeValue()
-        }
+        removeFirebaseData()
 
         mRtcEngine!!.leaveChannel()
 
-        startService(Intent(this, BackgroundService::class.java))
-
-        startActivity(Intent(this, MainActivity::class.java))
-        val intent = Intent(this, MainActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
-        startActivity(intent)
-
-    }
-
-    private fun onRemoteUserLeft() {
-        val container = remote_video_view_container as FrameLayout
-        container.removeAllViews()
-
-        if (isCaller) {
-            val ref = FirebaseDatabase.getInstance().getReference("/videorequests/${user.uid}/${mUser.uid}")
-
-            ref.removeValue()
-        }
         startService(Intent(this, BackgroundService::class.java))
 
         val intent = Intent(this, MainActivity::class.java)
@@ -299,7 +296,7 @@ class VideoChatViewActivity : AppCompatActivity() {
         }
 
         override fun onUserOffline(uid: Int, reason: Int) {
-            runOnUiThread { onRemoteUserLeft() }
+            runOnUiThread { leaveChannel() }
         }
 
         override fun onUserMuteVideo(uid: Int, muted: Boolean) {

@@ -4,11 +4,10 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
-import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
-import com.qatasoft.videocall.VideoCallRequest.GetVideoRequest
-import com.qatasoft.videocall.VideoCallRequest.SendVideoRequest
+import com.qatasoft.videocall.videoCallRequests.GetVideoRequest
+import com.qatasoft.videocall.videoCallRequests.SendVideoRequest
 import com.qatasoft.videocall.models.User
 
 class BackgroundService : Service() {
@@ -37,8 +36,6 @@ class BackgroundService : Service() {
 
 
                     if (user != null && user.uid != uid) {
-                        //stopService(Intent(applicationContext,BackgroundService::class.java))
-
                         Log.d(TAG, "Getting")
 
                         val intent = Intent(applicationContext, GetVideoRequest::class.java)

@@ -1,4 +1,4 @@
-package com.qatasoft.videocall.VideoCallRequest
+package com.qatasoft.videocall.videoCallRequests
 
 import android.Manifest
 import android.content.Intent
@@ -7,7 +7,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.ChildEventListener
@@ -21,7 +20,6 @@ import com.qatasoft.videocall.models.Token
 import com.qatasoft.videocall.models.User
 import com.qatasoft.videocall.request.IApiServer
 import com.squareup.picasso.Picasso
-import io.agora.rtc.RtcEngine
 import io.fotoapparat.Fotoapparat
 import io.fotoapparat.configuration.CameraConfiguration
 import io.fotoapparat.log.logcat
@@ -29,7 +27,6 @@ import io.fotoapparat.log.loggers
 import io.fotoapparat.parameter.ScaleType
 import io.fotoapparat.selector.back
 import io.fotoapparat.selector.front
-import io.fotoapparat.view.CameraView
 import kotlinx.android.synthetic.main.activity_send_video_request.*
 import retrofit2.Call
 import retrofit2.Callback
@@ -39,41 +36,31 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 @Suppress("DUPLICATE_LABEL_IN_WHEN")
 class SendVideoRequest : AppCompatActivity() {
-    val TAG = "VideoRequest"
+    val logTAG = "VideoRequest"
     var mUser = User("", "", "", "")
     var user = User("", "", "", "")
-    var channel = "hello"
+    private var channel = "hello"
     var uid = FirebaseAuth.getInstance().uid
 
-    var fotoapparat: Fotoapparat? = null
-    var fotoapparatState: FotoapparatState? = null
-    var cameraStatus: CameraState? = null
-
-    val permissions = arrayOf(android.Manifest.permission.CAMERA)
+    private var fotoapparat: Fotoapparat? = null
+    private var fotoapparatState: FotoapparatState? = null
+    private var cameraStatus: CameraState? = null
 
     companion object {
-        val CALLER_KEY = "USER_CALLER"
-        val TEMP_TOKEN = "VIDEO_CALL_TEMP_TOKEN"
+        const val CALLER_KEY = "USER_CALLER"
+        const val TEMP_TOKEN = "VIDEO_CALL_TEMP_TOKEN"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_send_video_request)
 
+        getGeneralInfo()
+
         stopService(Intent(this, BackgroundService::class.java))
-
-        val myPreference = MyPreference(this)
-        mUser = myPreference.getUserInfo()
-
-        user = intent.getParcelableExtra(NewMessageFragment.USER_KEY)
-        Toast.makeText(this, user.uid, Toast.LENGTH_SHORT).show()
 
         createFotoapparat()
 
-        cameraStatus = CameraState.BACK
-        fotoapparatState = FotoapparatState.OFF
-
-        setUserInfo()
         getToken()
 
         send_req_end_call.setOnClickListener {
@@ -83,6 +70,7 @@ class SendVideoRequest : AppCompatActivity() {
         send_req_change_cam.setOnClickListener {
             switchCamera()
         }
+
         send_req_chat.setOnClickListener {
             rejectCall()
 
@@ -92,6 +80,17 @@ class SendVideoRequest : AppCompatActivity() {
             intent.putExtra(NewMessageFragment.USER_KEY, user)
             startActivity(intent)
         }
+    }
+
+    private fun getGeneralInfo() {
+        val myPreference = MyPreference(this)
+        mUser = myPreference.getUserInfo()
+
+        user = intent.getParcelableExtra(NewMessageFragment.USER_KEY)
+
+        Picasso.get().load(user.profileImageUrl).into(send_req_circleimage_user)
+
+        send_req_text_username.text = user.username
     }
 
     override fun onBackPressed() {
@@ -108,7 +107,7 @@ class SendVideoRequest : AppCompatActivity() {
     }
 
     private fun createFotoapparat() {
-        val cameraView = findViewById<CameraView>(R.id.camera_view)
+        val cameraView = send_req_camera_view
 
         fotoapparat = Fotoapparat(
                 context = this,
@@ -122,6 +121,9 @@ class SendVideoRequest : AppCompatActivity() {
                     println("Recorder errors: $error")
                 }
         )
+
+        cameraStatus = CameraState.BACK
+        fotoapparatState = FotoapparatState.OFF
     }
 
     private fun switchCamera() {
@@ -132,10 +134,10 @@ class SendVideoRequest : AppCompatActivity() {
 
         if (cameraStatus == CameraState.BACK) {
             cameraStatus = CameraState.FRONT
-            Log.d(TAG, "Switched To FRONT Camera")
+            Log.d(logTAG, "Switched To FRONT Camera")
         } else {
             cameraStatus = CameraState.BACK
-            Log.d(TAG, "Switched To BACK Camera")
+            Log.d(logTAG, "Switched To BACK Camera")
         }
     }
 
@@ -147,15 +149,6 @@ class SendVideoRequest : AppCompatActivity() {
             fotoapparat?.start()
             fotoapparatState = FotoapparatState.ON
         }
-    }
-
-    private fun hasNoPermissions(): Boolean {
-        return ContextCompat.checkSelfPermission(this,
-                Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
-    }
-
-    fun requestPermission() {
-        ActivityCompat.requestPermissions(this, permissions, 0)
     }
 
     override fun onStop() {
@@ -173,8 +166,17 @@ class SendVideoRequest : AppCompatActivity() {
         }
     }
 
+    private fun hasNoPermissions(): Boolean {
+        return ContextCompat.checkSelfPermission(this,
+                Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun requestPermission() {
+        ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+    }
+
     //Tokeni apiden retrofit ile alma işlemi
-    fun getToken() {
+    private fun getToken() {
         val retrofit = Retrofit.Builder().baseUrl("https://videocallkotlin.herokuapp.com/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
@@ -184,12 +186,12 @@ class SendVideoRequest : AppCompatActivity() {
 
         response.enqueue(object : Callback<Token> {
             override fun onFailure(call: Call<Token>, t: Throwable) {
-                Log.d(ChatLogActivity.TAG, t.message.toString())
+                Log.d(ChatLogActivity.logTAG, t.message.toString())
             }
 
             override fun onResponse(call: Call<Token>, response: Response<Token>) {
                 val generatedToken = response.body()!!.token
-                Log.d(TAG, "token : $generatedToken")
+                Log.d(logTAG, "token : $generatedToken")
 
                 user = User(user.profileImageUrl, user.uid, user.username, generatedToken)
                 mUser = User(mUser.profileImageUrl, mUser.uid, mUser.username, generatedToken)
@@ -197,12 +199,6 @@ class SendVideoRequest : AppCompatActivity() {
                 addVideoRequest()
             }
         })
-    }
-
-    private fun setUserInfo() {
-        Picasso.get().load(user.profileImageUrl).into(send_req_circleimage_user)
-
-        send_req_text_username.text = user.username
     }
 
 
@@ -216,7 +212,7 @@ class SendVideoRequest : AppCompatActivity() {
         onVideoRequestWait()
     }
 
-    fun onVideoRequestWait() {
+    private fun onVideoRequestWait() {
         val toId = user.uid
 
         val ref = FirebaseDatabase.getInstance().getReference("/videorequests/$toId/$uid")
@@ -227,8 +223,7 @@ class SendVideoRequest : AppCompatActivity() {
             }
 
             override fun onChildChanged(p0: DataSnapshot, p1: String?) {
-                Log.d(TAG, "Video Confirmed By Target User")
-                Log.d(ChatLogActivity.TAG, "Changed")
+                Log.d(logTAG, "Video Call Confirmed")
 
                 val intent = Intent(applicationContext, VideoChatViewActivity::class.java)
                 intent.putExtra(CALLER_KEY, true)

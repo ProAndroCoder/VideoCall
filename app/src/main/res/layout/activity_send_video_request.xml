@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".VideoCallRequest.SendVideoRequest">
+    tools:context=".videoCallRequests.SendVideoRequest">
 
     <io.fotoapparat.view.CameraView
-        android:id="@+id/camera_view"
+        android:id="@+id/send_req_camera_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@android:color/darker_gray" />
@@ -47,7 +47,7 @@
         android:layout_above="@id/send_req_linear_control"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="50dp"
-        android:src="@drawable/end_call_ico"
+        android:src="@drawable/ic_endcall"
         app:civ_border_color="@color/colorWhite"
         app:civ_border_width="2dp" />
 
@@ -72,7 +72,7 @@
             android:layout_width="45dp"
             android:layout_height="45dp"
             android:layout_weight=".33"
-            android:src="@drawable/chat_ico" />
+            android:src="@drawable/ic_chat" />
 
         <ImageView
             android:id="@+id/send_req_mute"

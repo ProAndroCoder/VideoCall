@@ -1,17 +1,16 @@
-package com.qatasoft.videocall.VideoCallRequest
+package com.qatasoft.videocall.videoCallRequests
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.Ringtone
+import android.media.RingtoneManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.google.firebase.database.ChildEventListener
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.qatasoft.videocall.*
 import com.qatasoft.videocall.Fragments.NewMessageFragment
@@ -25,49 +24,33 @@ import io.fotoapparat.parameter.ScaleType
 import io.fotoapparat.selector.back
 import io.fotoapparat.view.CameraView
 import kotlinx.android.synthetic.main.activity_get_video_request.*
-import kotlinx.android.synthetic.main.activity_send_video_request.*
 
 class GetVideoRequest : AppCompatActivity() {
 
     var user = User("", "", "", "")
-    var mUser = User("", "", "", "")
+    private var mUser = User("", "", "", "")
 
-    val TAG = "GetVideoRequest"
-    var fotoapparat: Fotoapparat? = null
-    var fotoapparatState: FotoapparatState? = null
-    var cameraStatus: CameraState? = null
-
-    val permissions = arrayOf(android.Manifest.permission.CAMERA)
+    private var fotoapparat: Fotoapparat? = null
+    private var fotoapparatState: FotoapparatState? = null
+    private var cameraStatus: CameraState? = null
+    private var ringtone: Ringtone? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_get_video_request)
 
+        getGeneralInfo()
+
         stopService(Intent(this, BackgroundService::class.java))
-
-        val myPreference = MyPreference(this)
-        mUser = myPreference.getUserInfo()
-
-        user = intent.getParcelableExtra(SendVideoRequest.TEMP_TOKEN)
-        Toast.makeText(this, user.username, Toast.LENGTH_SHORT).show()
 
         createFotoapparat()
 
-        cameraStatus = CameraState.BACK
-        fotoapparatState = FotoapparatState.OFF
-
-        setUserInfo()
-
         get_req_swipe_confirm.onSwipedOnListener = {
             confirmCall()
-
-            Toast.makeText(this, "Call Confirmed", Toast.LENGTH_SHORT).show()
         }
 
         get_req_swipe_reject.onSwipedOffListener = {
             rejectCall()
-
-            Toast.makeText(this, "Call Rejected", Toast.LENGTH_SHORT).show()
         }
 
         get_req_chat.setOnClickListener {
@@ -80,11 +63,35 @@ class GetVideoRequest : AppCompatActivity() {
             startActivity(intent)
         }
 
+        playRingtone()
+    }
+
+    private fun playRingtone() {
+        ringtone = defaultRingtone
+        Toast.makeText(this, "Playing Ringtone : ${ringtone!!.getTitle(this)}", Toast.LENGTH_SHORT).show()
+
+        ringtone!!.play()
+    }
+
+    private fun getGeneralInfo() {
+        val myPreference = MyPreference(this)
+        mUser = myPreference.getUserInfo()
+
+        user = intent.getParcelableExtra(SendVideoRequest.TEMP_TOKEN)
+
+        Picasso.get().load(user.profileImageUrl).into(get_req_circleimage_user)
+
+        get_req_text_username.text = user.username
     }
 
     override fun onBackPressed() {
         super.onBackPressed()
-        rejectCall()
+
+        if (ringtone!!.isPlaying) {
+            ringtone!!.stop()
+        }
+        moveTaskToBack(true)
+
     }
 
     private fun confirmCall() {
@@ -103,11 +110,19 @@ class GetVideoRequest : AppCompatActivity() {
 
         ref.removeValue()
 
+        ringtone!!.stop()
+
+        startService(Intent(this, BackgroundService::class.java))
+
+        val intent = Intent(this, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(intent)
+
         finish()
     }
 
     private fun createFotoapparat() {
-        val cameraView = findViewById<CameraView>(R.id.camera_view)
+        val cameraView = get_req_camera_view
 
         fotoapparat = Fotoapparat(
                 context = this,
@@ -121,6 +136,9 @@ class GetVideoRequest : AppCompatActivity() {
                     println("Recorder errors: $error")
                 }
         )
+
+        cameraStatus = CameraState.BACK
+        fotoapparatState = FotoapparatState.OFF
     }
 
     override fun onStart() {
@@ -131,15 +149,6 @@ class GetVideoRequest : AppCompatActivity() {
             fotoapparat?.start()
             fotoapparatState = FotoapparatState.ON
         }
-    }
-
-    private fun hasNoPermissions(): Boolean {
-        return ContextCompat.checkSelfPermission(this,
-                Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
-    }
-
-    fun requestPermission() {
-        ActivityCompat.requestPermissions(this, permissions, 0)
     }
 
     override fun onStop() {
@@ -157,9 +166,19 @@ class GetVideoRequest : AppCompatActivity() {
         }
     }
 
-    private fun setUserInfo() {
-        Picasso.get().load(user.profileImageUrl).into(get_req_circleimage_user)
+    private fun hasNoPermissions(): Boolean {
+        return ContextCompat.checkSelfPermission(this,
+                Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
+    }
 
-        get_req_text_username.text = user.username
+    private fun requestPermission() {
+        ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
     }
 }
+
+// Extension property to get default ringtone
+val Context.defaultRingtone: Ringtone
+    get() {
+        val uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
+        return RingtoneManager.getRingtone(this, uri)
+    }

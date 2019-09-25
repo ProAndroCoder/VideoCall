@@ -3,6 +3,7 @@ package com.qatasoft.videocall
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -19,8 +20,8 @@ import com.qatasoft.videocall.models.User
 import com.qatasoft.videocall.registerlogin.LoginActivity
 
 class MainActivity : AppCompatActivity() {
-    val manager=supportFragmentManager
-    val TAG="MainActivity"
+    val manager = supportFragmentManager
+    val TAG = "MainActivity"
 
     private val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
@@ -44,14 +45,14 @@ class MainActivity : AppCompatActivity() {
                 openFriendsFragment()
                 return@OnNavigationItemSelectedListener true
             }
-            R.id.navigation_signout ->{
+            R.id.navigation_signout -> {
                 //Arka planda uygulama kapansa bile çalışan Servisleri kapatır.
                 stopService()
                 //Shared Preference ile telefonda bulunan kullanıcı bilgilerini silme işlemi. Uid boş gönderilirse çıkış yapar.
-                val myPreference=MyPreference(this)
+                val myPreference = MyPreference(this)
 
-                myPreference.setLoginInfo(LoginInfo("",""))
-                myPreference.setUserInfo(User("","","",""))
+                myPreference.setLoginInfo(LoginInfo("", ""))
+                myPreference.setUserInfo(User("", "", "", ""))
 
                 // Firebase ile kullanıcının çıkışını sağlamak ve onu LoginActivity'e yollama işi
                 FirebaseAuth.getInstance().signOut()
@@ -77,47 +78,47 @@ class MainActivity : AppCompatActivity() {
         navView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
     }
 
-    fun openHomeFragment(){
-        val transaction=manager.beginTransaction()
-        val fragment=HomeFragment()
-        transaction.replace(R.id.fragmentHolder,fragment)
+    fun openHomeFragment() {
+        val transaction = manager.beginTransaction()
+        val fragment = HomeFragment()
+        transaction.replace(R.id.fragmentHolder, fragment)
         transaction.addToBackStack(null)
         transaction.commit()
     }
 
-    fun openSearchFragment(){
-        val transaction=manager.beginTransaction()
-        val fragment= SearchFragment()
-        transaction.replace(R.id.fragmentHolder,fragment)
+    fun openSearchFragment() {
+        val transaction = manager.beginTransaction()
+        val fragment = SearchFragment()
+        transaction.replace(R.id.fragmentHolder, fragment)
         transaction.addToBackStack(null)
         transaction.commit()
     }
 
-    fun openFriendsFragment(){
-        val transaction=manager.beginTransaction()
-        val fragment=FriendsFragment()
-        transaction.replace(R.id.fragmentHolder,fragment)
+    fun openFriendsFragment() {
+        val transaction = manager.beginTransaction()
+        val fragment = FriendsFragment()
+        transaction.replace(R.id.fragmentHolder, fragment)
         transaction.addToBackStack(null)
         transaction.commit()
     }
 
-    fun openNewMessageFragment(){
-        val transaction=manager.beginTransaction()
-        val fragment=NewMessageFragment()
-        transaction.replace(R.id.fragmentHolder,fragment)
+    fun openNewMessageFragment() {
+        val transaction = manager.beginTransaction()
+        val fragment = NewMessageFragment()
+        transaction.replace(R.id.fragmentHolder, fragment)
         transaction.addToBackStack(null)
         transaction.commit()
     }
 
-    fun startService(){
-        startService(Intent(this,BackgroundService::class.java))
+    fun startService() {
+        startService(Intent(this, BackgroundService::class.java))
     }
 
-    fun stopService(){
-        stopService(Intent(this,BackgroundService::class.java))
+    fun stopService() {
+        stopService(Intent(this, BackgroundService::class.java))
     }
 
-    fun fetchUserInfo(){
+    fun fetchUserInfo() {
         val ref = FirebaseDatabase.getInstance().getReference("/users")
         ref.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(p0: DataSnapshot) {
@@ -126,7 +127,7 @@ class MainActivity : AppCompatActivity() {
                     val user = it.getValue(User::class.java)
 
                     if (user != null && user.uid == FirebaseAuth.getInstance().uid) {
-                        val myPreference=MyPreference(applicationContext)
+                        val myPreference = MyPreference(applicationContext)
                         myPreference.setUserInfo(user)
                     }
                 }

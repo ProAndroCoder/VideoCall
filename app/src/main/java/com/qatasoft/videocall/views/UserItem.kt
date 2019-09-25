@@ -54,7 +54,7 @@ class UserItem(val user: User, val secim:Int, val myUser: User, val mContext: Fr
             chatImage.visibility=View.VISIBLE
 
             videoImage.setImageResource(R.drawable.ic_video_on)
-            chatImage.setImageResource(R.drawable.chat_ico)
+            chatImage.setImageResource(R.drawable.ic_chat)
 
             videoImage.setOnClickListener(View.OnClickListener {
                 Log.d("UserItemClass","Video Call Required "+position)

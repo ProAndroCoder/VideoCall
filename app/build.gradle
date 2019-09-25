@@ -78,5 +78,8 @@ dependencies {
     //Root Navigation (Yan Menü)
     implementation 'com.yarolegovich:sliding-root-nav:1.1.0'
 
+    //Ebanx Swipable Button
+    implementation "com.ebanx:swipe-button:0.8.3"
+
 
 }

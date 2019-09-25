@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".VideoCallRequest.GetVideoRequest">
+    tools:context=".videoCallRequests.GetVideoRequest">
 
     <io.fotoapparat.view.CameraView
-        android:id="@+id/camera_view"
+        android:id="@+id/get_req_camera_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@android:color/darker_gray" />
@@ -54,21 +54,20 @@
             android:layout_marginStart="5dp"
             android:layout_marginEnd="5dp"
             android:layout_weight=".5"
-            android:isScrollContainer="true"
-            android:textAlignment="textEnd"
             app:checkedBackground="@drawable/rounded_red"
-            app:checkedIcon="@drawable/end_call_ico"
-            app:durationAnimation="250"
+            app:checkedIcon="@drawable/ic_endcall"
+            app:checkedToggleBackground="@drawable/rounded_normal"
+            app:durationAnimation="1"
             app:isChecked="true"
             app:isClickToSwipeEnable="false"
             app:textChecked="REJECT"
             app:textColorUnChecked="@color/colorWhite"
-            app:textSize="8sp"
             app:textUnchecked="REJECTED"
             app:thresholdEnd="0.3"
             app:thresholdStart="0.7"
-            app:uncheckedBackground="@android:color/holo_red_dark"
-            app:uncheckedIcon="@drawable/end_call_ico" />
+            app:uncheckedBackground="@drawable/rounded_red"
+            app:uncheckedIcon="@drawable/ic_endcall"
+            app:uncheckedToggleBackground="@drawable/rounded_normal" />
 
         <com.stfalcon.swipeablebutton.SwipeableButton
             android:id="@+id/get_req_swipe_confirm"
@@ -77,20 +76,18 @@
             android:layout_marginStart="5dp"
             android:layout_marginEnd="5dp"
             android:layout_weight=".5"
-            android:isScrollContainer="true"
-            android:textAlignment="textEnd"
-            app:checkedBackground="@android:color/holo_green_light"
+            app:checkedBackground="@drawable/rounded_green"
             app:checkedIcon="@drawable/ic_video_on"
-            app:durationAnimation="250"
+            app:durationAnimation="1"
             app:isClickToSwipeEnable="false"
             app:textChecked="CONFIRMED"
             app:textColorUnChecked="@color/colorWhite"
-            app:textSize="8sp"
             app:textUnchecked="CONFIRM"
             app:thresholdEnd="0.3"
             app:thresholdStart="0.7"
             app:uncheckedBackground="@drawable/rounded_green"
-            app:uncheckedIcon="@drawable/ic_video_on" />
+            app:uncheckedIcon="@drawable/ic_video_on"
+            app:uncheckedToggleBackground="@drawable/rounded_normal" />
 
     </LinearLayout>
 
@@ -103,5 +100,5 @@
         android:layout_marginBottom="50dp"
         android:background="@drawable/circle_back"
         android:padding="10dp"
-        android:src="@drawable/chat_ico" />
+        android:src="@drawable/ic_chat" />
 </RelativeLayout>

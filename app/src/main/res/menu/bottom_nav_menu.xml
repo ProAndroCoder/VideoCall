@@ -14,7 +14,7 @@
     <item
         android:id="@+id/navigation_new_messages"
         android:title="@string/menu_new_messages"
-        android:icon="@drawable/chat_ico"/>
+        android:icon="@drawable/ic_chat"/>
 
     <item
         android:id="@+id/navigation_friends"
