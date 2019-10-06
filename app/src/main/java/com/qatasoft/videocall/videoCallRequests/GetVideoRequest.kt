@@ -8,6 +8,7 @@ import android.media.Ringtone
 import android.media.RingtoneManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -29,6 +30,7 @@ class GetVideoRequest : AppCompatActivity() {
 
     var user = User("", "", "", "")
     private var mUser = User("", "", "", "")
+    private val logTAG = "GetVideoRequest"
 
     private var fotoapparat: Fotoapparat? = null
     private var fotoapparatState: FotoapparatState? = null
@@ -68,16 +70,19 @@ class GetVideoRequest : AppCompatActivity() {
 
     private fun playRingtone() {
         ringtone = defaultRingtone
-        Toast.makeText(this, "Playing Ringtone : ${ringtone!!.getTitle(this)}", Toast.LENGTH_SHORT).show()
 
         ringtone!!.play()
+    }
+
+    private fun stopRingtone() {
+        ringtone!!.stop()
     }
 
     private fun getGeneralInfo() {
         val myPreference = MyPreference(this)
         mUser = myPreference.getUserInfo()
 
-        user = intent.getParcelableExtra(SendVideoRequest.TEMP_TOKEN)
+        user = intent.getParcelableExtra(SendVideoRequest.TEMP_TOKEN)!!
 
         Picasso.get().load(user.profileImageUrl).into(get_req_circleimage_user)
 
@@ -98,6 +103,7 @@ class GetVideoRequest : AppCompatActivity() {
         val ref = FirebaseDatabase.getInstance().getReference("/videorequests/${mUser.uid}/${user.uid}")
 
         ref.setValue(mUser)
+        stopRingtone()
 
         val intent = Intent(applicationContext, VideoChatViewActivity::class.java)
         intent.putExtra(SendVideoRequest.CALLER_KEY, false)
@@ -160,9 +166,7 @@ class GetVideoRequest : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         if (!hasNoPermissions() && fotoapparatState == FotoapparatState.OFF) {
-            val intent = Intent(baseContext, SendVideoRequest::class.java)
-            startActivity(intent)
-            finish()
+            Log.i(logTAG, "OnResume")
         }
     }
 
@@ -173,6 +177,12 @@ class GetVideoRequest : AppCompatActivity() {
 
     private fun requestPermission() {
         ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        Log.i(logTAG, "OnRestart")
+        startActivity(Intent(this, MainActivity::class.java))
     }
 }
 

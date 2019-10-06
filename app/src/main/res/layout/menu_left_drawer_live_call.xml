@@ -16,9 +16,10 @@
         android:layout_height="wrap_content">
 
         <ImageView
+            android:id="@+id/switch_cam_img"
             android:layout_width="45dp"
             android:layout_height="45dp"
-            android:background="@drawable/rounded_normal"
+            android:background="@drawable/rounded_grey"
             android:padding="5dp"
             android:src="@drawable/ic_switch_camera" />
 

@@ -39,4 +39,5 @@
     <string name="menu_mute_sound">Mute Sound</string>
     <string name="menu_send_file">Send File</string>
     <string name="menu_send_message">Send Message</string>
+    <string name="menu_remove_messages">Remove All Messages</string>
 </resources>

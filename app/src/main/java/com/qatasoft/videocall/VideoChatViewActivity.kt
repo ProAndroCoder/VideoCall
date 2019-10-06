@@ -1,7 +1,6 @@
 package com.qatasoft.videocall
 
 import android.Manifest
-import androidx.appcompat.app.ActionBar
 import android.app.PictureInPictureParams
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -19,16 +18,27 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.ChildEventListener
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.qatasoft.videocall.models.ChatMessage
 import com.qatasoft.videocall.videoCallRequests.SendVideoRequest
 import com.qatasoft.videocall.models.User
+import com.qatasoft.videocall.views.ChatFromItem
+import com.qatasoft.videocall.views.ChatToItem
+import com.xwray.groupie.GroupAdapter
+import com.xwray.groupie.ViewHolder
 import com.yarolegovich.slidingrootnav.SlidingRootNavBuilder
 import io.agora.rtc.Constants
 import io.agora.rtc.IRtcEngineEventHandler
 import io.agora.rtc.RtcEngine
 import io.agora.rtc.video.VideoCanvas
 import io.agora.rtc.video.VideoEncoderConfiguration
+import kotlinx.android.synthetic.main.activity_chat_log.*
 import kotlinx.android.synthetic.main.activity_video_chat_view.*
+import kotlinx.android.synthetic.main.activity_video_chat_view.rel
 import kotlinx.android.synthetic.main.menu_left_drawer_live_call.*
 
 class VideoChatViewActivity : AppCompatActivity() {
@@ -37,17 +47,18 @@ class VideoChatViewActivity : AppCompatActivity() {
         private const val PERMISSION_REQ_ID_CAMERA = PERMISSION_REQ_ID_RECORD_AUDIO + 1
     }
 
+    val adapter = GroupAdapter<ViewHolder>()
     private var mRtcEngine: RtcEngine? = null
     private val logTAG = "VideoChatViewActivity"
     private var isCaller = false
     private var user = User("", "", "", "")
     private var mUser = User("", "", "", "")
+    private var isFront = true
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_video_chat_view)
-
 
         //Getting General info about signing user and target user which we talk with video
         getGeneralInfo()
@@ -57,6 +68,18 @@ class VideoChatViewActivity : AppCompatActivity() {
 
         //Check the permissions and start the video calling
         initAgoraEngineAndJoinChannel()
+
+        imgChat.setOnClickListener {
+            if (rel.visibility == View.VISIBLE) {
+                rel.visibility = View.INVISIBLE
+                live_chat.visibility = View.INVISIBLE
+            } else {
+                rel.visibility = View.VISIBLE
+                live_chat.visibility = View.VISIBLE
+
+                fetchMessages()
+            }
+        }
 
         //When turn on or turn off the video swipe which in the SlidingRootNav
         menu_swipe_video.setOnStateChangeListener {
@@ -68,7 +91,7 @@ class VideoChatViewActivity : AppCompatActivity() {
                 val container = local_video_view_container as FrameLayout
                 val surfaceView = container.getChildAt(0) as SurfaceView
                 surfaceView.setZOrderMediaOverlay(false)
-                surfaceView.visibility = if (true) View.GONE else View.VISIBLE
+                surfaceView.visibility = View.GONE
             } else {
                 menu_swipe_video.setSlidingButtonBackground(ContextCompat.getDrawable(this, R.drawable.rounded_green))
 
@@ -77,7 +100,7 @@ class VideoChatViewActivity : AppCompatActivity() {
                 val container = local_video_view_container as FrameLayout
                 val surfaceView = container.getChildAt(0) as SurfaceView
                 surfaceView.setZOrderMediaOverlay(true)
-                surfaceView.visibility = if (false) View.GONE else View.VISIBLE
+                surfaceView.visibility = View.VISIBLE
             }
         }
 
@@ -95,6 +118,13 @@ class VideoChatViewActivity : AppCompatActivity() {
 
         //When Switch Cam on the SlidingRootNav Clicked The camera changing (Front - Back)
         menu_linear_switch_cam.setOnClickListener {
+            if (isFront) {
+                switch_cam_img.background = ContextCompat.getDrawable(this, R.drawable.rounded_normal)
+                isFront = false
+            } else {
+                switch_cam_img.background = ContextCompat.getDrawable(this, R.drawable.rounded_grey)
+                isFront = true
+            }
             mRtcEngine!!.switchCamera()
         }
 
@@ -102,6 +132,47 @@ class VideoChatViewActivity : AppCompatActivity() {
         video_chat_endCall.setOnClickListener {
             leaveChannel()
         }
+    }
+
+    private fun fetchMessages() {
+        adapter.clear()
+        val fromId = FirebaseAuth.getInstance().uid
+        val toId = user.uid
+
+        val ref = FirebaseDatabase.getInstance().getReference("/user-messages/$fromId/$toId")
+
+        ref.addChildEventListener(object : ChildEventListener {
+            override fun onChildAdded(p0: DataSnapshot, p1: String?) {
+                val chatMessage = p0.getValue(ChatMessage::class.java)
+                if (chatMessage != null) {
+                    Log.d(logTAG, chatMessage.text)
+                    val currentUser = mUser
+
+                    if (FirebaseAuth.getInstance().uid == chatMessage.fromId && user.uid == chatMessage.toId) {
+                        adapter.add(ChatFromItem(chatMessage.text, currentUser))
+                    } else if (FirebaseAuth.getInstance().uid == chatMessage.toId && user.uid == chatMessage.fromId) {
+                        adapter.add(ChatToItem(chatMessage.text, user))
+                    }
+
+                    live_chat.scrollToPosition(adapter.itemCount - 1)
+                }
+            }
+
+            override fun onChildChanged(p0: DataSnapshot, p1: String?) {
+            }
+
+            override fun onChildMoved(p0: DataSnapshot, p1: String?) {
+
+            }
+
+            override fun onChildRemoved(p0: DataSnapshot) {
+
+            }
+
+            override fun onCancelled(p0: DatabaseError) {
+
+            }
+        })
     }
 
     //On Home Button Pressed
@@ -127,10 +198,8 @@ class VideoChatViewActivity : AppCompatActivity() {
 
     override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration?) {
         super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
-        if (isInPictureInPictureMode) {
-
-        } else {
-
+        if (!isInPictureInPictureMode) {
+            leaveChannel()
         }
     }
 
@@ -144,10 +213,12 @@ class VideoChatViewActivity : AppCompatActivity() {
     }
 
     private fun getGeneralInfo() {
+        live_chat.adapter = adapter
+
         val myPreference = MyPreference(this)
         mUser = myPreference.getUserInfo()
 
-        user = intent.getParcelableExtra(SendVideoRequest.TEMP_TOKEN)
+        user = intent.getParcelableExtra(SendVideoRequest.TEMP_TOKEN)!!
         isCaller = intent.getBooleanExtra(SendVideoRequest.CALLER_KEY, false)
     }
 

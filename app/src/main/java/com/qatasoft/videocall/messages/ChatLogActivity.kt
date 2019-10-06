@@ -3,7 +3,10 @@ package com.qatasoft.videocall.messages
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.qatasoft.videocall.R
 import com.qatasoft.videocall.models.ChatMessage
@@ -18,42 +21,52 @@ import com.google.firebase.database.FirebaseDatabase
 import com.qatasoft.videocall.Fragments.NewMessageFragment
 import com.qatasoft.videocall.MyPreference
 import com.qatasoft.videocall.videoCallRequests.SendVideoRequest
+import com.squareup.picasso.NetworkPolicy
 import com.squareup.picasso.Picasso
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.ViewHolder
 import kotlinx.android.synthetic.main.activity_chat_log.*
 
 class ChatLogActivity : AppCompatActivity() {
+    companion object {
+        val logTAG = "ChatLogActivity"
+    }
 
     val adapter = GroupAdapter<ViewHolder>()
-    var mUser= User("","","","")
+    var mUser = User("", "", "", "")
     var user: User? = null
-    var channel="hello"
-    var uid=FirebaseAuth.getInstance().uid
+    var channel = "hello"
+    var uid = FirebaseAuth.getInstance().uid
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_log)
 
-        val myPreference= MyPreference(this)
-        mUser=myPreference.getUserInfo()
+        val myPreference = MyPreference(this)
+        mUser = myPreference.getUserInfo()
 
         recyclerview_chatlog.adapter = adapter
 
         //Parcelable Nesne Alma
-        user = intent.getParcelableExtra<User>(NewMessageFragment.USER_KEY)?:null
+        user = intent.getParcelableExtra(NewMessageFragment.USER_KEY) ?: null
 
         Log.d(logTAG, "Current : ${mUser.profileImageUrl}")
         Log.d(logTAG, "Target : ${user?.profileImageUrl}")
 
+        setSupportActionBar(toolbar)
 
-        Picasso.get().load(user!!.profileImageUrl).into(chat_userImage)
+        Picasso.get()
+                .load(user!!.profileImageUrl)
+                .networkPolicy(NetworkPolicy.OFFLINE)
+                .into(chat_userImage)
 
-        chat_username.text= user!!.username
+        // Picasso.get().load(user!!.profileImageUrl).into(chat_userImage)
+
+        chat_username.text = user!!.username
 
         chat_videocall.setOnClickListener(View.OnClickListener {
-            val intent= Intent(this, SendVideoRequest::class.java)
-            intent.putExtra(NewMessageFragment.USER_KEY,user)
+            val intent = Intent(this, SendVideoRequest::class.java)
+            intent.putExtra(NewMessageFragment.USER_KEY, user)
             startActivity(intent)
         })
 
@@ -66,8 +79,8 @@ class ChatLogActivity : AppCompatActivity() {
     }
 
 
-
     private fun fetchMessages() {
+        adapter.clear()
         val fromId = FirebaseAuth.getInstance().uid
         val toId = user?.uid
 
@@ -143,8 +156,22 @@ class ChatLogActivity : AppCompatActivity() {
         latestToMessageRef.setValue(chatMessage)
     }
 
-    companion object {
-        val logTAG = "ChatLogActivity"
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.chat_toolbar_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.remove_chatlog -> {
+                val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${mUser.uid}/${user!!.uid}")
+
+                ref.removeValue()
+
+                fetchMessages()
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 }
 
