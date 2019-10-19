@@ -2,19 +2,24 @@
     <string name="app_name">videocallkotlin</string>
 
     <string name="agora_app_id">f5d9905695274bb5bd4d1d4b2106b008</string>
-
     <string name="agora_app_cert">04b6b49589094246a382eeb31f32b9c6</string>
     <string name="agora_temp">006f5d9905695274bb5bd4d1d4b2106b008IAD/lHoSC8MBC6FFvaUXe6fFZUq7NxiHHTFXNw7NfIR044amEDYh39v0EAAfDVvGBv9nXQEAAQAAAAAA</string>
 
 
-    <string name="register_username">Username</string>
-    <string name="register_email">E Mail</string>
-    <string name="register_password">Password</string>
-    <string name="register_register">REGISTER</string>
-    <string name="register_signin">Already Have Account? Signin</string>
-    <string name="login_login">LOGIN</string>
-    <string name="login_signup">Create An Account</string>
+    <!-- Login Register Strings -->
+    <string name="text_username">Username</string>
+    <string name="text_email">E Mail</string>
+    <string name="text_password">Password</string>
+    <string name="text_register">REGISTER</string>
+    <string name="login_title">Already \nHave An \nAccount?</string>
+    <string name="register_signin">Already Have An Account?</string>
+    <string name="text_login">LOGIN</string>
+    <string name="login_signup">New user? Register Now</string>
+    <string name="login_forgot">Forgot Password?</string>
     <string name="register_select_photo">SELECT PHOTO</string>
+    <string name="register_title">Here’s\nyour first\nstep with \nus! </string>
+    <string name="forgot_title">Forgot \nPassword?</string>
+
     <string name="chatlog_send">SEND</string>
 
 
@@ -40,4 +45,6 @@
     <string name="menu_send_file">Send File</string>
     <string name="menu_send_message">Send Message</string>
     <string name="menu_remove_messages">Remove All Messages</string>
+    <string name="text_forgot">Reset Password</string>
+
 </resources>

@@ -39,11 +39,11 @@ repositories {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'androidx.appcompat:appcompat:1.0.2'
-    implementation 'androidx.core:core-ktx:1.0.2'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.core:core-ktx:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
 
-    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     testİmplementation 'junit:junit:4.12'
@@ -55,11 +55,11 @@ dependencies {
     implementation 'com.squareup.retrofit2:retrofit:2.4.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
 
-    implementation 'com.google.firebase:firebase-analytics:17.0.1'
-    implementation 'com.google.firebase:firebase-core:17.1.0'
-    implementation 'com.google.firebase:firebase-auth:19.0.0'
-    implementation 'com.google.firebase:firebase-storage:19.0.0'
-    implementation 'com.google.firebase:firebase-database:19.0.0'
+    implementation 'com.google.firebase:firebase-analytics:17.2.0'
+    implementation 'com.google.firebase:firebase-core:17.2.0'
+    implementation 'com.google.firebase:firebase-auth:19.1.0'
+    implementation 'com.google.firebase:firebase-storage:19.1.0'
+    implementation 'com.google.firebase:firebase-database:19.2.0'
     implementation 'de.hdodenhof:circleimageview:3.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.0.0'
     implementation 'com.xwray:groupie:2.3.0'
@@ -70,7 +70,7 @@ dependencies {
     //Fotoapparat For Camera View
     implementation 'io.fotoapparat:fotoapparat:2.6.1'
     //Material Design For CameraView
-    implementation 'com.google.android.material:material:1.1.0-alpha10'
+    implementation 'com.google.android.material:material:1.1.0-beta01'
 
     //Swipable Button
     implementation 'com.github.stfalcon:swipeable-button:0.1.0'
@@ -80,6 +80,9 @@ dependencies {
 
     //Ebanx Swipable Button
     implementation "com.ebanx:swipe-button:0.8.3"
+
+    //Loading Button
+    implementation 'br.com.simplepass:loading-button-android:1.14.0'
 
 
 }
