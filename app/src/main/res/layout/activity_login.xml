@@ -49,13 +49,13 @@
                 android:textColorHint="@color/black">
 
                 <EditText
+                    android:textColor="@color/black"
                     android:id="@+id/login_etEmail"
                     style="@style/modifiedEditText"
                     android:hint="@string/text_email"
                     android:inputType="textEmailAddress"
                     android:maxLength="50"
-                    android:maxLines="1"
-                    android:textColor="@color/black" />
+                    android:maxLines="1" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -65,13 +65,13 @@
                 android:textColorHint="@color/black">
 
                 <EditText
+                    android:textColor="@color/black"
                     android:id="@+id/login_etPassword"
                     style="@style/modifiedEditText"
                     android:hint="@string/text_password"
                     android:inputType="textPassword"
                     android:maxLength="50"
-                    android:maxLines="1"
-                    android:textColor="@color/black" />
+                    android:maxLines="1" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
@@ -96,66 +96,6 @@
                 app:spinning_bar_padding="6dp"
                 app:spinning_bar_width="4dp" />
 
-            <TextView
-                android:id="@+id/login_registerButton"
-                style="@style/parent"
-                android:layout_marginTop="@dimen/loginViewsMargin"
-                android:onClick="onLoginClick"
-                android:text="@string/login_signup"
-                android:textAlignment="center"
-                android:textColor="@color/themeColor"
-                android:textSize="17sp"
-                android:textStyle="bold" />
-
-
-            <!--            <LinearLayout-->
-            <!--                android:layout_width="match_parent"-->
-            <!--                android:layout_height="wrap_content"-->
-            <!--                android:layout_marginTop="30dp"-->
-            <!--                android:gravity="center"-->
-            <!--                android:weightSum="12">-->
-
-            <!--                <View-->
-            <!--                    android:layout_width="0dp"-->
-            <!--                    android:layout_height="1dp"-->
-            <!--                    android:layout_weight="3"-->
-            <!--                    android:background="@color/colorPrimaryDark" />-->
-
-            <!--                <TextView-->
-            <!--                    style="@style/viewParent.headerText.NoMode"-->
-            <!--                    android:layout_width="wrap_content"-->
-            <!--                    android:layout_height="wrap_content"-->
-            <!--                    android:layout_weight="6"-->
-            <!--                    android:text="Use other Methods"-->
-            <!--                    android:textAlignment="center"-->
-            <!--                    android:textSize="12sp" />-->
-
-            <!--                <View-->
-            <!--                    android:layout_width="0dp"-->
-            <!--                    android:layout_height="1dp"-->
-            <!--                    android:layout_weight="3"-->
-            <!--                    android:background="@color/colorPrimaryDark" />-->
-
-            <!--            </LinearLayout>-->
-
-            <!--            <LinearLayout-->
-            <!--                android:layout_width="match_parent"-->
-            <!--                android:layout_height="wrap_content"-->
-            <!--                android:layout_marginTop="20dp"-->
-            <!--                android:gravity="center">-->
-
-            <!--                <ImageView-->
-            <!--                    android:layout_width="wrap_content"-->
-            <!--                    android:layout_height="wrap_content"-->
-            <!--                    android:src="@drawable/ic_facebook" />-->
-
-            <!--                <ImageView-->
-            <!--                    android:layout_width="wrap_content"-->
-            <!--                    android:layout_height="wrap_content"-->
-            <!--                    android:layout_marginLeft="10dp"-->
-            <!--                    android:src="@drawable/ic_google_plus" />-->
-            <!--            </LinearLayout>-->
-
         </LinearLayout>
     </ScrollView>
 
@@ -167,14 +107,37 @@
         android:layout_marginTop="20dp"
         android:background="@drawable/ic_side_bg" />
 
-    <ImageView
-        android:id="@+id/login_addButton"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="11dp"
         android:layout_marginBottom="30dp"
-        android:onClick="onLoginClick"
-        android:src="@drawable/ic_add_img" />
+        android:gravity="end"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/login_registerButton"
+            style="@style/parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="10dp"
+            android:onClick="onLoginClick"
+            android:text="@string/login_signup"
+            android:textColor="@color/themeColor"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/login_addButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginEnd="11dp"
+            android:onClick="onLoginClick"
+            android:src="@drawable/ic_add_img" />
+
+    </LinearLayout>
+
 </RelativeLayout>

@@ -3,6 +3,7 @@ package com.qatasoft.videocall
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
@@ -11,54 +12,37 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.qatasoft.videocall.Fragments.FriendsFragment
-import com.qatasoft.videocall.Fragments.HomeFragment
-import com.qatasoft.videocall.Fragments.NewMessageFragment
-import com.qatasoft.videocall.Fragments.SearchFragment
+import com.qatasoft.videocall.Fragments.*
 import com.qatasoft.videocall.models.LoginInfo
 import com.qatasoft.videocall.models.User
 import com.qatasoft.videocall.registerlogin.LoginActivity
+import kotlinx.android.synthetic.main.fragment_profile.*
 
 class MainActivity : AppCompatActivity() {
-    val manager = supportFragmentManager
-    val TAG = "MainActivity"
+    private val manager = supportFragmentManager
+    val logTAG = "MainActivity"
 
     private val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
             R.id.navigation_home -> {
-
                 openHomeFragment()
                 return@OnNavigationItemSelectedListener true
             }
-            R.id.navigation_search -> {
-
+            R.id.navigation_users -> {
                 openSearchFragment()
                 return@OnNavigationItemSelectedListener true
             }
-            R.id.navigation_new_messages -> {
-
-                openNewMessageFragment()
+            R.id.navigation_messages -> {
+                openMessagesFragment()
                 return@OnNavigationItemSelectedListener true
             }
-            R.id.navigation_friends -> {
-
-                openFriendsFragment()
+            R.id.navigation_settings -> {
+                openSettingsFragment()
                 return@OnNavigationItemSelectedListener true
             }
-            R.id.navigation_signout -> {
-                //Arka planda uygulama kapansa bile çalışan Servisleri kapatır.
-                stopService()
-                //Shared Preference ile telefonda bulunan kullanıcı bilgilerini silme işlemi. Uid boş gönderilirse çıkış yapar.
-                val myPreference = MyPreference(this)
-
-                myPreference.setLoginInfo(LoginInfo("", ""))
-                myPreference.setUserInfo(User("", "", "", ""))
-
-                // Firebase ile kullanıcının çıkışını sağlamak ve onu LoginActivity'e yollama işi
-                FirebaseAuth.getInstance().signOut()
-                val intent = Intent(this, LoginActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
-                startActivity(intent)
+            R.id.navigation_profile -> {
+                openProfileFragment()
+                return@OnNavigationItemSelectedListener true
             }
         }
         false
@@ -71,6 +55,23 @@ class MainActivity : AppCompatActivity() {
 
         openHomeFragment()
 
+//        //Çıkış Yapma Kodları
+//        logoutSS.setOnClickListener {
+//            //Arka planda uygulama kapansa bile çalışan Servisleri kapatır.
+//            stopService(Intent(this, BackgroundService::class.java))
+//            //Shared Preference ile telefonda bulunan kullanıcı bilgilerini silme işlemi. Uid boş gönderilirse çıkış yapar.
+//            val myPreference = MyPreference(this)
+//
+//            myPreference.setLoginInfo(LoginInfo("", ""))
+//            myPreference.setUserInfo(User("", "", "", ""))
+//
+//            // Firebase ile kullanıcının çıkışını sağlamak ve onu LoginActivity'e yollama işi
+//            FirebaseAuth.getInstance().signOut()
+//            val intent = Intent(this, LoginActivity::class.java)
+//            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
+//            startActivity(intent)
+//        }
+
         fetchUserInfo()
 
         startService()
@@ -78,7 +79,7 @@ class MainActivity : AppCompatActivity() {
         navView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
     }
 
-    fun openHomeFragment() {
+    private fun openHomeFragment() {
         val transaction = manager.beginTransaction()
         val fragment = HomeFragment()
         transaction.replace(R.id.fragmentHolder, fragment)
@@ -86,7 +87,7 @@ class MainActivity : AppCompatActivity() {
         transaction.commit()
     }
 
-    fun openSearchFragment() {
+    private fun openSearchFragment() {
         val transaction = manager.beginTransaction()
         val fragment = SearchFragment()
         transaction.replace(R.id.fragmentHolder, fragment)
@@ -102,15 +103,31 @@ class MainActivity : AppCompatActivity() {
         transaction.commit()
     }
 
-    fun openNewMessageFragment() {
+    private fun openMessagesFragment() {
         val transaction = manager.beginTransaction()
-        val fragment = NewMessageFragment()
+        val fragment = MessagesFragment()
         transaction.replace(R.id.fragmentHolder, fragment)
         transaction.addToBackStack(null)
         transaction.commit()
     }
 
-    fun startService() {
+    private fun openProfileFragment() {
+        val transaction = manager.beginTransaction()
+        val fragment = ProfileFragment()
+        transaction.replace(R.id.fragmentHolder, fragment)
+        transaction.addToBackStack(null)
+        transaction.commit()
+    }
+
+    private fun openSettingsFragment() {
+        val transaction = manager.beginTransaction()
+        val fragment = SettingsFragment()
+        transaction.replace(R.id.fragmentHolder, fragment)
+        transaction.addToBackStack(null)
+        transaction.commit()
+    }
+
+    private fun startService() {
         startService(Intent(this, BackgroundService::class.java))
     }
 
@@ -118,12 +135,12 @@ class MainActivity : AppCompatActivity() {
         stopService(Intent(this, BackgroundService::class.java))
     }
 
-    fun fetchUserInfo() {
+    private fun fetchUserInfo() {
         val ref = FirebaseDatabase.getInstance().getReference("/users")
         ref.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(p0: DataSnapshot) {
                 p0.children.forEach() {
-                    Log.d(TAG, "User Info : ${it.toString()}")
+                    Log.d(logTAG, "User Info : ${it.toString()}")
                     val user = it.getValue(User::class.java)
 
                     if (user != null && user.uid == FirebaseAuth.getInstance().uid) {
@@ -134,7 +151,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onCancelled(p0: DatabaseError) {
-                Log.d(TAG, "There is an error while fetching user datas.")
+                Log.d(logTAG, "There is an error while fetching user datas.")
             }
         })
     }

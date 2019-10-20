@@ -50,13 +50,15 @@ class LoginActivity : AppCompatActivity() {
                         mPreference.setLoginInfo(loginInfo)
 
                         startActivity(Intent(this, MainActivity::class.java))
-                        overridePendingTransition(R.anim.slide_in_right, R.anim.stay)
+                        overridePendingTransition(R.anim.right_in, R.anim.left_out)
 
                     }
                     .addOnFailureListener {
                         Log.d("LoginActivity", "There is An Error While LoginActivity : ${it.message}")
                         Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
                     }
+        } else {
+            cirLoginButton.stopAnimation()
         }
     }
 
@@ -98,16 +100,17 @@ class LoginActivity : AppCompatActivity() {
 
             R.id.login_registerButton -> {
                 startActivity(Intent(this, RegisterActivity::class.java))
-                overridePendingTransition(R.anim.stay, R.anim.stay)
+                overridePendingTransition(R.anim.right_in, R.anim.left_out)
             }
 
             R.id.login_addButton -> {
                 startActivity(Intent(this, RegisterActivity::class.java))
-                overridePendingTransition(R.anim.left_out, R.anim.stay)
+                overridePendingTransition(R.anim.right_in, R.anim.left_out)
             }
 
             R.id.login_forgotButton -> {
-                Toast.makeText(applicationContext, "Switch to ForgotActivity", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, ForgotActivity::class.java))
+                overridePendingTransition(R.anim.right_in, R.anim.left_out)
             }
         }
     }

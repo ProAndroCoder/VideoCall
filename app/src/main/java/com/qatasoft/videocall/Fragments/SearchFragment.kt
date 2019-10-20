@@ -31,19 +31,18 @@ private const val ARG_PARAM2 = "param2"
  * A simple [Fragment] subclass.
  *
  */
-class SearchFragment : Fragment(),SearchView.OnQueryTextListener {
+class SearchFragment : Fragment(), SearchView.OnQueryTextListener {
     override fun onQueryTextSubmit(query: String?): Boolean {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun onQueryTextChange(newText: String?): Boolean {
         if (newText != null) {
-            if(!newText.isEmpty()){
+            if (newText.isNotEmpty()) {
                 adapter.clear()
-                searchText=newText.toString()
+                searchText = newText.toString()
                 fetchUsers()
-            }
-            else{
+            } else {
                 adapter.clear()
             }
         }
@@ -51,10 +50,10 @@ class SearchFragment : Fragment(),SearchView.OnQueryTextListener {
     }
 
     var TAG = "SearchActivity"
-    var searchText=""
+    var searchText = ""
     val adapter = GroupAdapter<ViewHolder>()
 
-    var mUser= User("","","","")
+    var mUser = User("", "", "", "")
 
     //Companian Object sayesinde burada tanımlanan değerler diğer activityler tarafından da okunabilir
     companion object {
@@ -63,12 +62,12 @@ class SearchFragment : Fragment(),SearchView.OnQueryTextListener {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val view=inflater.inflate(R.layout.fragment_search, container, false)
+        val view = inflater.inflate(R.layout.fragment_search, container, false)
 
-        val searchview=view.searchview_et
+        val searchview = view.searchview_et
 
-        val myPreference= MyPreference(activity)
-        mUser=myPreference.getUserInfo()
+        val myPreference = MyPreference(activity)
+        mUser = myPreference.getUserInfo()
 
 
         searchview.setOnQueryTextListener(this)
@@ -87,14 +86,14 @@ class SearchFragment : Fragment(),SearchView.OnQueryTextListener {
                     Log.d(TAG, "User Info : ${it.toString()}")
                     val user = it.getValue(User::class.java)
 
-                    if(user != null){
+                    if (user != null) {
                         if (user.uid != FirebaseAuth.getInstance().uid && user.username.contains(searchText)) {
-                            adapter.add(UserItem(user,1,mUser,activity))
+                            adapter.add(UserItem(user, 1, mUser, activity))
                         }
                     }
                 }
-                if(!searchText.isEmpty()){
-                    view?.recyclerview_home?.adapter =adapter
+                if (!searchText.isEmpty()) {
+                    view?.recyclerview_home?.adapter = adapter
                 }
             }
 
