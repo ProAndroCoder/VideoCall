@@ -37,8 +37,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 @Suppress("DUPLICATE_LABEL_IN_WHEN")
 class SendVideoRequest : AppCompatActivity() {
     val logTAG = "VideoRequest"
-    var mUser = User("", "", "", "")
-    var user = User("", "", "", "")
+    var mUser = User("", "", "", "","","")
+    var user = User("", "", "", "","","")
     private var channel = "hello"
     var uid = FirebaseAuth.getInstance().uid
 
@@ -193,8 +193,8 @@ class SendVideoRequest : AppCompatActivity() {
                 val generatedToken = response.body()!!.token
                 Log.d(logTAG, "token : $generatedToken")
 
-                user = User(user.profileImageUrl, user.uid, user.username, generatedToken)
-                mUser = User(mUser.profileImageUrl, mUser.uid, mUser.username, generatedToken)
+                user = User(user.profileImageUrl, user.uid, user.username, generatedToken,"","")
+                mUser = User(mUser.profileImageUrl, mUser.uid, mUser.username, generatedToken,"","")
 
                 addVideoRequest()
             }

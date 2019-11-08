@@ -1,6 +1,7 @@
 package com.qatasoft.videocall.Fragments
 
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -14,7 +15,9 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.qatasoft.videocall.MyPreference
 import com.qatasoft.videocall.R
+import com.qatasoft.videocall.messages.ChatLogActivity
 import com.qatasoft.videocall.models.User
+import com.qatasoft.videocall.views.LatestMessageRow
 import com.qatasoft.videocall.views.UserItem
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.ViewHolder
@@ -35,20 +38,30 @@ class FriendsFragment : Fragment() {
         var TAG = "FriendsActivity"
     }
 
-    var mUser = User("", "", "", "")
+    var mUser = User("", "", "", "","","")
     val adapter = GroupAdapter<ViewHolder>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_home, container, false)
+        return inflater.inflate(R.layout.fragment_home, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         val myPreference = MyPreference(activity)
         mUser = myPreference.getUserInfo()
 
         getFriends()
 
-        // Inflate the layout for this fragment
-        return view
+        adapter.setOnItemClickListener { item, _ ->
+            val row = item as LatestMessageRow
+
+            Log.d(TAG,"ksdfkjsdajfk")
+            val intent = Intent(activity, ChatLogActivity::class.java)
+            intent.putExtra(NewMessageFragment.USER_KEY, row.user)
+            startActivity(intent)
+        }
     }
 
     fun getFriends() {
@@ -60,7 +73,7 @@ class FriendsFragment : Fragment() {
                 p0.children.forEach() {
                     val user = it.getValue(User::class.java)
 
-                    Log.d(TAG, "User Info : ${user?.username}")
+                    Log.d(TAG, "User Info sdfddffdf: ${user?.username}")
                     if (user != null && user.uid != FirebaseAuth.getInstance().uid) {
                         adapter.add(UserItem(user, 3, mUser, activity))
                     }

@@ -51,8 +51,8 @@ class VideoChatViewActivity : AppCompatActivity() {
     private var mRtcEngine: RtcEngine? = null
     private val logTAG = "VideoChatViewActivity"
     private var isCaller = false
-    private var user = User("", "", "", "")
-    private var mUser = User("", "", "", "")
+    private var user = User("", "", "", "","","")
+    private var mUser = User("", "", "", "","","")
     private var isFront = true
 
 

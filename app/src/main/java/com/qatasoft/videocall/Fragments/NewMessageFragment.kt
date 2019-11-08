@@ -34,7 +34,7 @@ private const val ARG_PARAM2 = "param2"
  */
 class NewMessageFragment : Fragment() {
     var TAG = "NewMessageActivity"
-    var mUser= User("","","","")
+    var mUser= User("","","","","","")
 
     //Companian Object sayesinde burada tanımlanan değerler diğer activityler tarafından da okunabilir
     companion object {

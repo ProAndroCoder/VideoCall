@@ -11,7 +11,7 @@
         android:id="@+id/circle_imageview_user"
         android:layout_width="70dp"
         android:layout_height="70dp"
-        android:src="@android:color/holo_green_light"
+        android:src="@android:color/white"
         app:civ_border_color="@android:color/black"
         app:civ_border_width="2dp" />
 
@@ -22,30 +22,18 @@
         android:layout_centerVertical="true"
         android:layout_marginStart="14dp"
         android:layout_toEndOf="@+id/circle_imageview_user"
-        android:background="@android:color/black"
         android:padding="5dp"
-        android:textColor="@color/colorWhite"
+        android:textColor="@android:color/black"
         android:textStyle="bold" />
 
     <ImageView
-        android:visibility="invisible"
-        android:id="@+id/img_item1"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_centerVertical="true"
-        android:layout_marginStart="100dp"
-        android:layout_marginEnd="20dp"
-        android:layout_toStartOf="@+id/img_item2"
-        android:src="@drawable/tick_ico" />
-
-    <ImageView
-        android:visibility="invisible"
-        android:id="@+id/img_item2"
+        android:id="@+id/img_tick_add"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:layout_marginEnd="10dp"
-        android:src="@drawable/reject_ico" />
+        android:layout_marginEnd="30dp"
+        android:src="@drawable/tick_ico"
+        android:visibility="visible" />
 
 </RelativeLayout>

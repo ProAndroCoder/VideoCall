@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Fragments.SettingsFragment">
+    tools:context=".MainActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -194,8 +194,10 @@
                 </RelativeLayout>
 
                 <RelativeLayout
+                    android:id="@+id/not_owner"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:onClick="profileOnClick">
 
                     <androidx.cardview.widget.CardView
                         android:layout_width="match_parent"
@@ -218,13 +220,13 @@
 
                             <TextView
                                 style="@style/viewParent.headerText"
-                                android:text="Plumping"
+                                android:text="Profile Not Owner"
                                 android:textColor="@color/primaryTextColor" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="200+ Skilled plumbers ready to work"
+                                android:text="Go to Profile Without an Owner"
                                 android:textSize="14sp"
                                 android:textStyle="bold" />
 
@@ -242,6 +244,7 @@
                 </RelativeLayout>
 
                 <RelativeLayout
+                    android:id="@+id/rel_signout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
@@ -266,13 +269,13 @@
 
                             <TextView
                                 style="@style/viewParent.headerText"
-                                android:text="Plumping"
+                                android:text="Sign Out"
                                 android:textColor="@color/primaryTextColor" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="200+ Skilled plumbers ready to work"
+                                android:text="If you want to exit from app Click Me !"
                                 android:textSize="14sp"
                                 android:textStyle="bold" />
 

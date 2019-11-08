@@ -2,16 +2,16 @@ package com.qatasoft.videocall.Fragments
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.ChildEventListener
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
+import com.qatasoft.videocall.MainActivity
 import com.qatasoft.videocall.R
 import com.qatasoft.videocall.messages.ChatLogActivity
 import com.qatasoft.videocall.models.ChatMessage
@@ -20,20 +20,38 @@ import com.qatasoft.videocall.registerlogin.LoginActivity
 import com.qatasoft.videocall.views.LatestMessageRow
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.ViewHolder
-import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.android.synthetic.main.fragment_messages.*
 
-/**
- * A simple [Fragment] subclass.
- */
-class MessagesFragment : Fragment() {
+class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
+    override fun onQueryTextSubmit(query: String?): Boolean {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun onQueryTextChange(newText: String?): Boolean {
+        if (newText != null) {
+            if (newText.isNotEmpty()) {
+                adapter.clear()
+                searchText = newText.toString()
+                fetchLatestMessages()
+                Log.d(logTAG, "TextChanged " + searchText)
+            } else {
+                adapter.clear()
+                fetchLatestMessages()
+                Log.d(logTAG, "TextChanged Else " + searchText)
+            }
+        }
+        return true
+    }
+
     companion object {
         const val logTAG = "MessagesFragment"
     }
 
+    var searchText = ""
+
     private val adapter = GroupAdapter<ViewHolder>()
-    val latestMessagesMap = HashMap<String, ChatMessage>()
-    val uid = FirebaseAuth.getInstance().uid
+    private val latestMessagesMap = HashMap<String, ChatMessage>()
+    private val mUser = MainActivity.mUser
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -52,44 +70,61 @@ class MessagesFragment : Fragment() {
             val row = item as LatestMessageRow
 
             val intent = Intent(activity, ChatLogActivity::class.java)
-            intent.putExtra(NewMessageFragment.USER_KEY, row.chatPartnerUser)
+            intent.putExtra(NewMessageFragment.USER_KEY, row.user)
             startActivity(intent)
         }
 
         fetchLatestMessages()
 
         //Kullanıcı Giriş Yapmamış ise onu LoginActivity e geri atar. Ve Geri dönemez.
-        if (uid == null) {
+        if (mUser.uid.isEmpty()) {
             val intent = Intent(activity, LoginActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intent)
         }
-    }
 
-    //Son Mesajları anlık olarak yenilemek için metod
-    private fun refreshRecyclerViewMessages() {
-        adapter.clear()
-        latestMessagesMap.values.forEach {
-            adapter.add(LatestMessageRow(it))
-        }
+        messages_searchview.setOnQueryTextListener(this)
     }
 
     private fun fetchLatestMessages() {
-        val fromId = FirebaseAuth.getInstance().uid
-        val ref = FirebaseDatabase.getInstance().getReference("/latest-messages/$fromId")
+        val uid = mUser.uid
+
+        Log.d(logTAG, "UID : $uid")
+        val ref = FirebaseDatabase.getInstance().getReference("/latest-messages/$uid")
         ref.addChildEventListener(object : ChildEventListener {
             override fun onChildAdded(p0: DataSnapshot, p1: String?) {
+                adapter.clear()
+
                 val chatMessage = p0.getValue(ChatMessage::class.java) ?: return
 
-                latestMessagesMap[p0.key!!] = chatMessage
-                refreshRecyclerViewMessages()
+                val chatPartnerId = if (chatMessage.fromId == uid) {
+                    chatMessage.toId
+                } else {
+                    chatMessage.fromId
+                }
+                val ref = FirebaseDatabase.getInstance().getReference("/users/$chatPartnerId")
+
+                ref.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(p0: DataSnapshot) {
+                        Log.d(logTAG, chatPartnerId)
+
+                        val user = p0.getValue(User::class.java)
+                        if (user!!.username.contains(searchText)) {
+                            adapter.add(LatestMessageRow(chatMessage, user))
+                        }
+                    }
+
+                    override fun onCancelled(p0: DatabaseError) {
+                        Log.d(logTAG, "There is a problem while fetching User Info : ${p0.message}")
+                    }
+                })
             }
 
             override fun onChildChanged(p0: DataSnapshot, p1: String?) {
+                adapter.clear()
                 val chatMessage = p0.getValue(ChatMessage::class.java) ?: return
 
                 latestMessagesMap[p0.key!!] = chatMessage
-                refreshRecyclerViewMessages()
             }
 
             override fun onCancelled(p0: DatabaseError) {
@@ -105,5 +140,4 @@ class MessagesFragment : Fragment() {
             }
         })
     }
-
 }

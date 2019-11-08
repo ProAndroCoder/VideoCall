@@ -19,6 +19,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.qatasoft.videocall.Fragments.NewMessageFragment
+import com.qatasoft.videocall.MainActivity
 import com.qatasoft.videocall.MyPreference
 import com.qatasoft.videocall.videoCallRequests.SendVideoRequest
 import com.squareup.picasso.NetworkPolicy
@@ -26,6 +27,8 @@ import com.squareup.picasso.Picasso
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.ViewHolder
 import kotlinx.android.synthetic.main.activity_chat_log.*
+import java.text.SimpleDateFormat
+import java.util.*
 
 class ChatLogActivity : AppCompatActivity() {
     companion object {
@@ -33,25 +36,18 @@ class ChatLogActivity : AppCompatActivity() {
     }
 
     val adapter = GroupAdapter<ViewHolder>()
-    var mUser = User("", "", "", "")
+    var mUser = MainActivity.mUser
     var user: User? = null
-    var channel = "hello"
     var uid = FirebaseAuth.getInstance().uid
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_log)
 
-        val myPreference = MyPreference(this)
-        mUser = myPreference.getUserInfo()
-
         recyclerview_chatlog.adapter = adapter
 
         //Parcelable Nesne Alma
         user = intent.getParcelableExtra(NewMessageFragment.USER_KEY) ?: null
-
-        Log.d(logTAG, "Current : ${mUser.profileImageUrl}")
-        Log.d(logTAG, "Target : ${user?.profileImageUrl}")
 
         setSupportActionBar(toolbar)
 
@@ -64,11 +60,11 @@ class ChatLogActivity : AppCompatActivity() {
 
         chat_username.text = user!!.username
 
-        chat_videocall.setOnClickListener(View.OnClickListener {
+        chat_videocall.setOnClickListener {
             val intent = Intent(this, SendVideoRequest::class.java)
             intent.putExtra(NewMessageFragment.USER_KEY, user)
             startActivity(intent)
-        })
+        }
 
         fetchMessages()
 
@@ -133,7 +129,9 @@ class ChatLogActivity : AppCompatActivity() {
 
         if (fromId == null) return
 
-        val chatMessage = toId?.let { ChatMessage(ref.key!!, text, fromId, it, System.currentTimeMillis() / 1000) }
+        val sendingTime = SimpleDateFormat("dd/M/yyyy hh:mm:ss", Locale.getDefault()).format(Date())
+
+        val chatMessage = toId?.let { ChatMessage(ref.key!!, text, fromId, it, sendingTime) }
 
         ref.setValue(chatMessage)
                 .addOnSuccessListener {

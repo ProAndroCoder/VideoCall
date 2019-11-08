@@ -17,10 +17,16 @@ import com.qatasoft.videocall.models.LoginInfo
 import com.qatasoft.videocall.models.User
 import com.qatasoft.videocall.registerlogin.LoginActivity
 import kotlinx.android.synthetic.main.fragment_profile.*
+import kotlinx.android.synthetic.main.fragment_settings.*
 
 class MainActivity : AppCompatActivity() {
     private val manager = supportFragmentManager
     val logTAG = "MainActivity"
+
+    companion object {
+        const val OwnerInfo = "IsOwnerInfo"
+        var mUser = User("", "", "", "", "", "")
+    }
 
     private val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
@@ -29,7 +35,7 @@ class MainActivity : AppCompatActivity() {
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_users -> {
-                openSearchFragment()
+                openUsersFragment()
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_messages -> {
@@ -53,24 +59,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
 
-        openHomeFragment()
+        controlSession()
 
-//        //Çıkış Yapma Kodları
-//        logoutSS.setOnClickListener {
-//            //Arka planda uygulama kapansa bile çalışan Servisleri kapatır.
-//            stopService(Intent(this, BackgroundService::class.java))
-//            //Shared Preference ile telefonda bulunan kullanıcı bilgilerini silme işlemi. Uid boş gönderilirse çıkış yapar.
-//            val myPreference = MyPreference(this)
-//
-//            myPreference.setLoginInfo(LoginInfo("", ""))
-//            myPreference.setUserInfo(User("", "", "", ""))
-//
-//            // Firebase ile kullanıcının çıkışını sağlamak ve onu LoginActivity'e yollama işi
-//            FirebaseAuth.getInstance().signOut()
-//            val intent = Intent(this, LoginActivity::class.java)
-//            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
-//            startActivity(intent)
-//        }
+        openHomeFragment()
 
         fetchUserInfo()
 
@@ -87,9 +78,9 @@ class MainActivity : AppCompatActivity() {
         transaction.commit()
     }
 
-    private fun openSearchFragment() {
+    private fun openUsersFragment() {
         val transaction = manager.beginTransaction()
-        val fragment = SearchFragment()
+        val fragment = UsersFragment()
         transaction.replace(R.id.fragmentHolder, fragment)
         transaction.addToBackStack(null)
         transaction.commit()
@@ -114,6 +105,9 @@ class MainActivity : AppCompatActivity() {
     private fun openProfileFragment() {
         val transaction = manager.beginTransaction()
         val fragment = ProfileFragment()
+        val args = Bundle()
+        args.putBoolean(OwnerInfo, true)
+        fragment.arguments = args
         transaction.replace(R.id.fragmentHolder, fragment)
         transaction.addToBackStack(null)
         transaction.commit()
@@ -140,7 +134,7 @@ class MainActivity : AppCompatActivity() {
         ref.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(p0: DataSnapshot) {
                 p0.children.forEach() {
-                    Log.d(logTAG, "User Info : ${it.toString()}")
+                    Log.d(logTAG, "User Info : $it")
                     val user = it.getValue(User::class.java)
 
                     if (user != null && user.uid == FirebaseAuth.getInstance().uid) {
@@ -154,5 +148,40 @@ class MainActivity : AppCompatActivity() {
                 Log.d(logTAG, "There is an error while fetching user datas.")
             }
         })
+    }
+
+    private fun controlSession() {
+        val myPreference = MyPreference(this)
+        mUser = myPreference.getUserInfo()
+
+        if (mUser.uid.isEmpty()) {
+            //Arka planda uygulama kapansa bile çalışan Servisleri kapatır.
+            stopService(Intent(this, BackgroundService::class.java))
+
+            //Shared Preference ile telefonda bulunan kullanıcı bilgilerini silme işlemi. Uid boş gönderilirse çıkış yapar.
+            myPreference.setLoginInfo(LoginInfo("", ""))
+            myPreference.setUserInfo(User("", "", "", "", "", ""))
+
+            // Firebase ile kullanıcının çıkışını sağlamak ve onu LoginActivity'e yollama işi
+            FirebaseAuth.getInstance().signOut()
+            val intent = Intent(this, LoginActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
+        }
+    }
+
+    fun profileOnClick(view: View) {
+        when (view.id) {
+            R.id.not_owner -> {
+                val transaction = manager.beginTransaction()
+                val fragment = ProfileFragment()
+                val args = Bundle()
+                args.putBoolean(OwnerInfo, false)
+                fragment.arguments = args
+                transaction.replace(R.id.fragmentHolder, fragment)
+                transaction.addToBackStack(null)
+                transaction.commit()
+            }
+        }
     }
 }
