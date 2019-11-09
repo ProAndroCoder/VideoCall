@@ -5,8 +5,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.qatasoft.videocall.R
 import com.qatasoft.videocall.models.ChatMessage
@@ -18,9 +16,8 @@ import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
-import com.qatasoft.videocall.Fragments.NewMessageFragment
+import com.qatasoft.videocall.Fragments.MessagesFragment.Companion.USER_KEY
 import com.qatasoft.videocall.MainActivity
-import com.qatasoft.videocall.MyPreference
 import com.qatasoft.videocall.videoCallRequests.SendVideoRequest
 import com.squareup.picasso.NetworkPolicy
 import com.squareup.picasso.Picasso
@@ -47,7 +44,7 @@ class ChatLogActivity : AppCompatActivity() {
         recyclerview_chatlog.adapter = adapter
 
         //Parcelable Nesne Alma
-        user = intent.getParcelableExtra(NewMessageFragment.USER_KEY) ?: null
+        user = intent.getParcelableExtra(USER_KEY) ?: null
 
         setSupportActionBar(toolbar)
 
@@ -62,7 +59,7 @@ class ChatLogActivity : AppCompatActivity() {
 
         chat_videocall.setOnClickListener {
             val intent = Intent(this, SendVideoRequest::class.java)
-            intent.putExtra(NewMessageFragment.USER_KEY, user)
+            intent.putExtra(USER_KEY, user)
             startActivity(intent)
         }
 
@@ -120,7 +117,7 @@ class ChatLogActivity : AppCompatActivity() {
         val text = et_message_chatlog.text.toString()
 
         val fromId = FirebaseAuth.getInstance().uid
-        val user = intent.getParcelableExtra<User>(NewMessageFragment.USER_KEY)
+        val user = intent.getParcelableExtra<User>(USER_KEY)
         val toId = user?.uid
 
         val ref = FirebaseDatabase.getInstance().getReference("/user-messages/$fromId/$toId").push()

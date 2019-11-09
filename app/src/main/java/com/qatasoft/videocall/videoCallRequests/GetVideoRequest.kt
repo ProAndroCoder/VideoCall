@@ -9,12 +9,10 @@ import android.media.RingtoneManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.firebase.database.FirebaseDatabase
 import com.qatasoft.videocall.*
-import com.qatasoft.videocall.Fragments.NewMessageFragment
+import com.qatasoft.videocall.Fragments.MessagesFragment.Companion.USER_KEY
 import com.qatasoft.videocall.messages.ChatLogActivity
 import com.qatasoft.videocall.models.User
 import com.squareup.picasso.Picasso
@@ -23,7 +21,6 @@ import io.fotoapparat.log.logcat
 import io.fotoapparat.log.loggers
 import io.fotoapparat.parameter.ScaleType
 import io.fotoapparat.selector.back
-import io.fotoapparat.view.CameraView
 import kotlinx.android.synthetic.main.activity_get_video_request.*
 
 class GetVideoRequest : AppCompatActivity() {
@@ -61,7 +58,7 @@ class GetVideoRequest : AppCompatActivity() {
             //Seçilen kişiyi ChatLogActivity'e gönderme işlemi (Mesajlaşma)
             val intent = Intent(this, ChatLogActivity::class.java)
             //Başka activitye nesne gönderme Parcelable
-            intent.putExtra(NewMessageFragment.USER_KEY, user)
+            intent.putExtra(USER_KEY, user)
             startActivity(intent)
         }
 

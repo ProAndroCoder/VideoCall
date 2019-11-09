@@ -58,9 +58,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
-
-        controlSession()
-
+        
         openHomeFragment()
 
         fetchUserInfo()
@@ -81,14 +79,6 @@ class MainActivity : AppCompatActivity() {
     private fun openUsersFragment() {
         val transaction = manager.beginTransaction()
         val fragment = UsersFragment()
-        transaction.replace(R.id.fragmentHolder, fragment)
-        transaction.addToBackStack(null)
-        transaction.commit()
-    }
-
-    fun openFriendsFragment() {
-        val transaction = manager.beginTransaction()
-        val fragment = FriendsFragment()
         transaction.replace(R.id.fragmentHolder, fragment)
         transaction.addToBackStack(null)
         transaction.commit()
@@ -142,6 +132,8 @@ class MainActivity : AppCompatActivity() {
                         myPreference.setUserInfo(user)
                     }
                 }
+
+                controlSession()
             }
 
             override fun onCancelled(p0: DatabaseError) {

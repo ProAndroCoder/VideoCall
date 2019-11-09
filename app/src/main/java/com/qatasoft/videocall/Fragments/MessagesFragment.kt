@@ -45,6 +45,7 @@ class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
 
     companion object {
         const val logTAG = "MessagesFragment"
+        const val USER_KEY = "USER_INFO_KEY"
     }
 
     var searchText = ""
@@ -70,7 +71,7 @@ class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
             val row = item as LatestMessageRow
 
             val intent = Intent(activity, ChatLogActivity::class.java)
-            intent.putExtra(NewMessageFragment.USER_KEY, row.user)
+            intent.putExtra(USER_KEY, row.user)
             startActivity(intent)
         }
 
@@ -102,9 +103,9 @@ class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
                 } else {
                     chatMessage.fromId
                 }
-                val ref = FirebaseDatabase.getInstance().getReference("/users/$chatPartnerId")
+                val ref2 = FirebaseDatabase.getInstance().getReference("/users/$chatPartnerId")
 
-                ref.addListenerForSingleValueEvent(object : ValueEventListener {
+                ref2.addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(p0: DataSnapshot) {
                         Log.d(logTAG, chatPartnerId)
 

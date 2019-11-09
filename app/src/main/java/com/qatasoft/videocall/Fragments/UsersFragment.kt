@@ -36,6 +36,10 @@ class UsersFragment : Fragment(), SearchView.OnQueryTextListener {
         return true
     }
 
+    var followedsAdapter = ArrayList<User>()
+    var followersAdapter = ArrayList<User>()
+    var allAdapter = ArrayList<User>()
+    var tabIndex = 0
     val logTAG = "UsersFragment"
     var searchText = ""
     val adapter = GroupAdapter<ViewHolder>()
@@ -52,9 +56,11 @@ class UsersFragment : Fragment(), SearchView.OnQueryTextListener {
 
         mUser = MainActivity.mUser
 
+        recyclerview_messages.adapter = adapter
+
         tabLayout.getTabAt(0)?.text = "All Users"
         tabLayout.getTabAt(1)?.text = "Followers"
-        tabLayout.addTab(tabLayout.newTab().setText("Followed"))
+        tabLayout.addTab(tabLayout.newTab().setText("Followeds"))
 
         fetchAll()
 
@@ -72,14 +78,21 @@ class UsersFragment : Fragment(), SearchView.OnQueryTextListener {
                 Log.d(logTAG, tab?.position.toString())
                 when (tab?.position) {
                     0 -> {
+                        adapter.clear()
+                        followedsAdapter.clear()
+                        tabIndex = 0
                         fetchAll()
                     }
 
                     1 -> {
+                        adapter.clear()
+                        tabIndex = 1
                         fetchFollowers()
                     }
 
                     2 -> {
+                        adapter.clear()
+                        tabIndex = 2
                         fetchFolloweds()
                     }
                 }
@@ -89,17 +102,25 @@ class UsersFragment : Fragment(), SearchView.OnQueryTextListener {
 
     //Fetching all users which contains searchtext value
     private fun fetchAll() {
-        val ref = FirebaseDatabase.getInstance().getReference("/users")
-        ref.addListenerForSingleValueEvent(object : ValueEventListener {
+        fetchFolloweds()
+
+        val all = FirebaseDatabase.getInstance().getReference("/users")
+
+        all.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(p0: DataSnapshot) {
 
                 p0.children.forEach {
-                    Log.d(logTAG, "User Info : $it")
                     val user = it.getValue(User::class.java)
 
                     if (user != null && user.uid != mUser.uid && user.username.contains(searchText)) {
-                        adapter.add(UserItem(user, 1, mUser, activity))
-                        recyclerview_messages.adapter = adapter
+                        var isFollowed = 0
+                        followedsAdapter.forEach { it1 ->
+                            if (it1.uid == user.uid) {
+                                isFollowed = 1
+                            }
+                        }
+
+                        adapter.add(UserItem(user, isFollowed, mUser, context))
                     }
                 }
             }
@@ -112,11 +133,56 @@ class UsersFragment : Fragment(), SearchView.OnQueryTextListener {
 
     //Fetching all follower users which contains searchtext value
     private fun fetchFollowers() {
+        fetchFolloweds()
 
+        val follower = FirebaseDatabase.getInstance().getReference("/friends/${mUser.uid}/followers")
+        follower.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(p0: DataSnapshot) {
+
+                p0.children.forEach {
+                    val user = it.getValue(User::class.java)
+
+                    if (user != null && user.uid != mUser.uid && user.username.contains(searchText)) {
+                        var isFollowed = 0
+                        followedsAdapter.forEach { it1 ->
+                            if (it1.uid == user.uid) {
+                                isFollowed = 1
+                            }
+                        }
+
+                        adapter.add(UserItem(user, isFollowed, mUser, context))
+                    }
+                }
+            }
+
+            override fun onCancelled(p0: DatabaseError) {
+                Log.d(logTAG, "There is an error while fetching user datas.")
+            }
+        })
     }
 
     //Fetching all followed users which contains searchtext value
     private fun fetchFolloweds() {
+        val followed = FirebaseDatabase.getInstance().getReference("/friends/${mUser.uid}/followeds")
+        followed.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(p0: DataSnapshot) {
 
+                p0.children.forEach {
+                    val user = it.getValue(User::class.java)
+
+                    if (user != null && user.uid != mUser.uid && user.username.contains(searchText)) {
+                        if (tabIndex == 2) {
+                            adapter.add(UserItem(user, 2, mUser, context))
+                        } else {
+                            followedsAdapter.add(user)
+                        }
+                    }
+                }
+            }
+
+            override fun onCancelled(p0: DatabaseError) {
+                Log.d(logTAG, "There is an error while fetching user datas.")
+            }
+        })
     }
 }

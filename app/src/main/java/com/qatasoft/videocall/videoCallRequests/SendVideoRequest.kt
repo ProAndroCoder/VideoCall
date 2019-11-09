@@ -14,7 +14,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.qatasoft.videocall.*
-import com.qatasoft.videocall.Fragments.NewMessageFragment
+import com.qatasoft.videocall.Fragments.MessagesFragment.Companion.USER_KEY
 import com.qatasoft.videocall.messages.ChatLogActivity
 import com.qatasoft.videocall.models.Token
 import com.qatasoft.videocall.models.User
@@ -37,8 +37,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 @Suppress("DUPLICATE_LABEL_IN_WHEN")
 class SendVideoRequest : AppCompatActivity() {
     val logTAG = "VideoRequest"
-    var mUser = User("", "", "", "","","")
-    var user = User("", "", "", "","","")
+    var mUser = User("", "", "", "", "", "")
+    var user = User("", "", "", "", "", "")
     private var channel = "hello"
     var uid = FirebaseAuth.getInstance().uid
 
@@ -77,7 +77,7 @@ class SendVideoRequest : AppCompatActivity() {
             //Seçilen kişiyi ChatLogActivity'e gönderme işlemi (Mesajlaşma)
             val intent = Intent(this, ChatLogActivity::class.java)
             //Başka activitye nesne gönderme Parcelable
-            intent.putExtra(NewMessageFragment.USER_KEY, user)
+            intent.putExtra(USER_KEY, user)
             startActivity(intent)
         }
     }
@@ -86,7 +86,7 @@ class SendVideoRequest : AppCompatActivity() {
         val myPreference = MyPreference(this)
         mUser = myPreference.getUserInfo()
 
-        user = intent.getParcelableExtra(NewMessageFragment.USER_KEY)
+        user = intent.getParcelableExtra(USER_KEY)!!
 
         Picasso.get().load(user.profileImageUrl).into(send_req_circleimage_user)
 
@@ -193,8 +193,8 @@ class SendVideoRequest : AppCompatActivity() {
                 val generatedToken = response.body()!!.token
                 Log.d(logTAG, "token : $generatedToken")
 
-                user = User(user.profileImageUrl, user.uid, user.username, generatedToken,"","")
-                mUser = User(mUser.profileImageUrl, mUser.uid, mUser.username, generatedToken,"","")
+                user = User(user.profileImageUrl, user.uid, user.username, generatedToken, "", "")
+                mUser = User(mUser.profileImageUrl, mUser.uid, mUser.username, generatedToken, "", "")
 
                 addVideoRequest()
             }
