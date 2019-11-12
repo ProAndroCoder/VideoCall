@@ -43,7 +43,7 @@ class MyPreference(context: Context?){
 
     //Kullanıcı bilgilerini gönderme işlemi
     fun getUserInfo(): User {
-        val user=User(preference?.getString(profileImg,"").toString(), preference?.getString(uid,"").toString(), preference?.getString(username,"").toString(),"","","")
+        val user=User(preference?.getString(profileImg,"").toString(), preference?.getString(uid,"").toString(), preference?.getString(username,"").toString(),"","","",false)
 
         return user
     }

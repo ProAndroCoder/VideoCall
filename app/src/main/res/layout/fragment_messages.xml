@@ -48,7 +48,7 @@
     </com.google.android.material.tabs.TabLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerview_messages"
+        android:id="@+id/recycler_message_user"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/tabLayout"

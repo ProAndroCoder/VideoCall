@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
 import com.google.firebase.database.DataSnapshot
@@ -14,12 +15,9 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.qatasoft.videocall.MainActivity
-
 import com.qatasoft.videocall.R
 import com.qatasoft.videocall.models.User
 import com.qatasoft.videocall.views.UserItem
-import com.xwray.groupie.GroupAdapter
-import com.xwray.groupie.ViewHolder
 import kotlinx.android.synthetic.main.fragment_messages.*
 
 class UsersFragment : Fragment(), SearchView.OnQueryTextListener {
@@ -29,22 +27,41 @@ class UsersFragment : Fragment(), SearchView.OnQueryTextListener {
 
     override fun onQueryTextChange(newText: String?): Boolean {
         if (newText != null) {
-            adapter.clear()
-            searchText = newText.toString()
-            fetchAll()
+            when (tabIndex) {
+                0 -> {
+                    searchText = newText.toString()
+                    fetchAll()
+                }
+
+                1 -> {
+                    searchText = newText.toString()
+                    fetchFollowers()
+                }
+
+                2 -> {
+                    searchText = newText.toString()
+                    fetchFolloweds()
+                }
+            }
         }
         return true
     }
 
-    var followedsAdapter = ArrayList<User>()
-    var followersAdapter = ArrayList<User>()
-    var allAdapter = ArrayList<User>()
+    //Arraylist All, Followers and Followeds
+    var all = ArrayList<User>()
+    var followers = ArrayList<User>()
+    var followeds = ArrayList<User>()
+
+    //Adapters All, Followers, Followeds
+    val allAdapter = UserItem(all, 0, MainActivity.mUser, context)
+    val followersAdapter = UserItem(followers, 0, MainActivity.mUser, context)
+    val followedsAdapter = UserItem(followeds, 1, MainActivity.mUser, context)
+
     var tabIndex = 0
     val logTAG = "UsersFragment"
     var searchText = ""
-    val adapter = GroupAdapter<ViewHolder>()
 
-    var mUser = User("", "", "", "", "", "")
+    var mUser = User("", "", "", "", "", "", false)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -56,7 +73,8 @@ class UsersFragment : Fragment(), SearchView.OnQueryTextListener {
 
         mUser = MainActivity.mUser
 
-        recyclerview_messages.adapter = adapter
+        recycler_message_user.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        recycler_message_user.adapter = allAdapter
 
         tabLayout.getTabAt(0)?.text = "All Users"
         tabLayout.getTabAt(1)?.text = "Followers"
@@ -66,6 +84,10 @@ class UsersFragment : Fragment(), SearchView.OnQueryTextListener {
 
         messages_searchview.setOnQueryTextListener(this)
 
+        tabOnSelect()
+    }
+
+    private fun tabOnSelect() {
         tabLayout.addOnTabSelectedListener(object : OnTabSelectedListener {
             override fun onTabReselected(tab: TabLayout.Tab?) {
             }
@@ -78,20 +100,18 @@ class UsersFragment : Fragment(), SearchView.OnQueryTextListener {
                 Log.d(logTAG, tab?.position.toString())
                 when (tab?.position) {
                     0 -> {
-                        adapter.clear()
-                        followedsAdapter.clear()
                         tabIndex = 0
                         fetchAll()
+
+
                     }
 
                     1 -> {
-                        adapter.clear()
                         tabIndex = 1
                         fetchFollowers()
                     }
 
                     2 -> {
-                        adapter.clear()
                         tabIndex = 2
                         fetchFolloweds()
                     }
@@ -104,25 +124,29 @@ class UsersFragment : Fragment(), SearchView.OnQueryTextListener {
     private fun fetchAll() {
         fetchFolloweds()
 
-        val all = FirebaseDatabase.getInstance().getReference("/users")
+        val allRef = FirebaseDatabase.getInstance().getReference("/users")
 
-        all.addListenerForSingleValueEvent(object : ValueEventListener {
+        allRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(p0: DataSnapshot) {
+                all.clear()
 
                 p0.children.forEach {
                     val user = it.getValue(User::class.java)
 
                     if (user != null && user.uid != mUser.uid && user.username.contains(searchText)) {
-                        var isFollowed = 0
-                        followedsAdapter.forEach { it1 ->
+                        followeds.forEach { it1 ->
                             if (it1.uid == user.uid) {
-                                isFollowed = 1
+                                user.isFollowed = true
                             }
                         }
 
-                        adapter.add(UserItem(user, isFollowed, mUser, context))
+                        all.add(user)
+                        Log.d(logTAG, "All : ${user.username}  ${all.size}")
                     }
                 }
+
+                recycler_message_user.adapter = allAdapter
+                allAdapter.notifyDataSetChanged()
             }
 
             override fun onCancelled(p0: DatabaseError) {
@@ -135,24 +159,27 @@ class UsersFragment : Fragment(), SearchView.OnQueryTextListener {
     private fun fetchFollowers() {
         fetchFolloweds()
 
-        val follower = FirebaseDatabase.getInstance().getReference("/friends/${mUser.uid}/followers")
-        follower.addListenerForSingleValueEvent(object : ValueEventListener {
+        val followerRef = FirebaseDatabase.getInstance().getReference("/friends/${mUser.uid}/followers")
+        followerRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(p0: DataSnapshot) {
+                followers.clear()
 
                 p0.children.forEach {
                     val user = it.getValue(User::class.java)
 
                     if (user != null && user.uid != mUser.uid && user.username.contains(searchText)) {
-                        var isFollowed = 0
-                        followedsAdapter.forEach { it1 ->
+                        followeds.forEach { it1 ->
                             if (it1.uid == user.uid) {
-                                isFollowed = 1
+                                user.isFollowed = true
                             }
                         }
+                        Log.d(logTAG, "Follower : ${user.username}  ${followers.size}")
 
-                        adapter.add(UserItem(user, isFollowed, mUser, context))
+                        followers.add(user)
                     }
                 }
+                recycler_message_user.adapter = followersAdapter
+                followersAdapter.notifyDataSetChanged()
             }
 
             override fun onCancelled(p0: DatabaseError) {
@@ -163,20 +190,22 @@ class UsersFragment : Fragment(), SearchView.OnQueryTextListener {
 
     //Fetching all followed users which contains searchtext value
     private fun fetchFolloweds() {
-        val followed = FirebaseDatabase.getInstance().getReference("/friends/${mUser.uid}/followeds")
-        followed.addListenerForSingleValueEvent(object : ValueEventListener {
+        val followedRef = FirebaseDatabase.getInstance().getReference("/friends/${mUser.uid}/followeds")
+        followedRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(p0: DataSnapshot) {
+                followeds.clear()
 
                 p0.children.forEach {
                     val user = it.getValue(User::class.java)
 
                     if (user != null && user.uid != mUser.uid && user.username.contains(searchText)) {
-                        if (tabIndex == 2) {
-                            adapter.add(UserItem(user, 2, mUser, context))
-                        } else {
-                            followedsAdapter.add(user)
-                        }
+                        followeds.add(user)
+                        Log.d(logTAG, "Followed : ${user.username}  ${followeds.size}")
                     }
+                }
+                if (tabIndex == 2) {
+                    recycler_message_user.adapter = followedsAdapter
+                    followedsAdapter.notifyDataSetChanged()
                 }
             }
 

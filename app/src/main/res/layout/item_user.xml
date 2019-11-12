@@ -8,7 +8,7 @@
     android:padding="10dp">
 
     <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/circle_imageview_user"
+        android:id="@+id/circleimg_user"
         android:layout_width="70dp"
         android:layout_height="70dp"
         android:src="@android:color/white"
@@ -16,12 +16,12 @@
         app:civ_border_width="2dp" />
 
     <TextView
-        android:id="@+id/username_new_message"
+        android:id="@+id/txt_username"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_marginStart="14dp"
-        android:layout_toEndOf="@+id/circle_imageview_user"
+        android:layout_toEndOf="@+id/circleimg_user"
         android:padding="5dp"
         android:textColor="@android:color/black"
         android:textStyle="bold" />

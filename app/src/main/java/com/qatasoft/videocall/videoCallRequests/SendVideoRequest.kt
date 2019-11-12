@@ -16,6 +16,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.qatasoft.videocall.*
 import com.qatasoft.videocall.Fragments.MessagesFragment.Companion.USER_KEY
 import com.qatasoft.videocall.messages.ChatLogActivity
+import com.qatasoft.videocall.models.ChatMessage
 import com.qatasoft.videocall.models.Token
 import com.qatasoft.videocall.models.User
 import com.qatasoft.videocall.request.IApiServer
@@ -33,12 +34,14 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.text.SimpleDateFormat
+import java.util.*
 
 @Suppress("DUPLICATE_LABEL_IN_WHEN")
 class SendVideoRequest : AppCompatActivity() {
     val logTAG = "VideoRequest"
-    var mUser = User("", "", "", "", "", "")
-    var user = User("", "", "", "", "", "")
+    var mUser = User("", "", "", "", "", "", false)
+    var user = User("", "", "", "", "", "", false)
     private var channel = "hello"
     var uid = FirebaseAuth.getInstance().uid
 
@@ -56,6 +59,8 @@ class SendVideoRequest : AppCompatActivity() {
         setContentView(R.layout.activity_send_video_request)
 
         getGeneralInfo()
+
+        saveVideoChatInfo()
 
         stopService(Intent(this, BackgroundService::class.java))
 
@@ -193,8 +198,8 @@ class SendVideoRequest : AppCompatActivity() {
                 val generatedToken = response.body()!!.token
                 Log.d(logTAG, "token : $generatedToken")
 
-                user = User(user.profileImageUrl, user.uid, user.username, generatedToken, "", "")
-                mUser = User(mUser.profileImageUrl, mUser.uid, mUser.username, generatedToken, "", "")
+                user = User(user.profileImageUrl, user.uid, user.username, generatedToken, "", "", false)
+                mUser = User(mUser.profileImageUrl, mUser.uid, mUser.username, generatedToken, "", "", false)
 
                 addVideoRequest()
             }
@@ -246,6 +251,19 @@ class SendVideoRequest : AppCompatActivity() {
 
             }
         })
+    }
+
+    fun saveVideoChatInfo() {
+        val sendingTime = SimpleDateFormat("dd/M/yyyy hh:mm:ss", Locale.getDefault()).format(Date())
+
+        val latestCallRef = FirebaseDatabase.getInstance().getReference("/latest-calls/${mUser.uid}/${user.uid}")
+
+        val chatMessage = ChatMessage(latestCallRef.key!!, "Outgoing Call", mUser.uid, user.uid, sendingTime)
+        latestCallRef.setValue(chatMessage)
+
+        val latestToCallRef = FirebaseDatabase.getInstance().getReference("/latest-calls/${user.uid}/${mUser.uid}")
+        val chatMessage2 = ChatMessage(latestCallRef.key!!, "Incoming Call", mUser.uid, user.uid, sendingTime)
+        latestToCallRef.setValue(chatMessage2)
     }
 }
 

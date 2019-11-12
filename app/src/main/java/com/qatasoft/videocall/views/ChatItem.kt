@@ -1,6 +1,5 @@
 package com.qatasoft.videocall.views
 
-import android.util.Log
 import com.qatasoft.videocall.models.User
 import com.squareup.picasso.Picasso
 import com.xwray.groupie.Item

@@ -9,7 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.DividerItemDecoration
-import com.google.firebase.auth.FirebaseAuth
+import com.google.android.material.tabs.TabLayout
 import com.google.firebase.database.*
 import com.qatasoft.videocall.MainActivity
 import com.qatasoft.videocall.R
@@ -29,15 +29,13 @@ class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
 
     override fun onQueryTextChange(newText: String?): Boolean {
         if (newText != null) {
-            if (newText.isNotEmpty()) {
-                adapter.clear()
+            users.clear()
+            if (tabIndex == 0) {
                 searchText = newText.toString()
-                fetchLatestMessages()
-                Log.d(logTAG, "TextChanged " + searchText)
-            } else {
-                adapter.clear()
-                fetchLatestMessages()
-                Log.d(logTAG, "TextChanged Else " + searchText)
+                fetchInfo("latest-messages")
+            } else if (tabIndex == 1) {
+                searchText = newText.toString()
+                fetchInfo("latest-calls")
             }
         }
         return true
@@ -49,6 +47,9 @@ class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
     }
 
     var searchText = ""
+    var tabIndex = 0
+    var dataAdaptor = ArrayList<ChatMessage>()
+    var users = ArrayList<User>()
 
     private val adapter = GroupAdapter<ViewHolder>()
     private val latestMessagesMap = HashMap<String, ChatMessage>()
@@ -62,10 +63,10 @@ class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        recyclerview_messages.adapter = adapter
+        recycler_message_user.adapter = adapter
 
         //Itemlar arasında ayıraç konuluyor
-        recyclerview_messages.addItemDecoration(DividerItemDecoration(activity, DividerItemDecoration.VERTICAL))
+        recycler_message_user.addItemDecoration(DividerItemDecoration(activity, DividerItemDecoration.VERTICAL))
 
         adapter.setOnItemClickListener { item, _ ->
             val row = item as LatestMessageRow
@@ -75,7 +76,7 @@ class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
             startActivity(intent)
         }
 
-        fetchLatestMessages()
+        fetchInfo("latest-messages")
 
         //Kullanıcı Giriş Yapmamış ise onu LoginActivity e geri atar. Ve Geri dönemez.
         if (mUser.uid.isEmpty()) {
@@ -85,17 +86,103 @@ class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
         }
 
         messages_searchview.setOnQueryTextListener(this)
+
+
+        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabReselected(tab: TabLayout.Tab?) {
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab?) {
+            }
+
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+
+                Log.d(logTAG, tab?.position.toString())
+                adapter.clear()
+                when (tab?.position) {
+                    0 -> {
+                        tabIndex = 0
+                        fetchInfo("latest-messages")
+                    }
+
+                    1 -> {
+                        tabIndex = 1
+                        fetchInfo("latest-calls")
+                    }
+                }
+            }
+        })
+
     }
 
-    private fun fetchLatestMessages() {
+    private fun fetchInfo(type: String) {
+        val ref = FirebaseDatabase.getInstance().getReference("/$type/${mUser.uid}")
+        ref.addChildEventListener(object : ChildEventListener {
+            override fun onChildAdded(p0: DataSnapshot, p1: String?) {
+                val data = p0.getValue(ChatMessage::class.java) ?: return
+
+                dataAdaptor.add(data)
+
+                fetchUserInfo(dataAdaptor)
+            }
+
+            override fun onChildChanged(p0: DataSnapshot, p1: String?) {
+                val data = p0.getValue(ChatMessage::class.java) ?: return
+
+                dataAdaptor.add(data)
+
+                fetchUserInfo(dataAdaptor)
+            }
+
+            override fun onCancelled(p0: DatabaseError) {
+
+            }
+
+            override fun onChildMoved(p0: DataSnapshot, p1: String?) {
+
+            }
+
+            override fun onChildRemoved(p0: DataSnapshot) {
+
+            }
+        })
+    }
+
+    fun fetchUserInfo(dataAdaptor: ArrayList<ChatMessage>) {
+        dataAdaptor.forEach {
+            val chatPartnerId = if (it.fromId == mUser.uid) {
+                it.toId
+            } else {
+                it.fromId
+            }
+
+            val ref = FirebaseDatabase.getInstance().getReference("/users/$chatPartnerId")
+
+            ref.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(p0: DataSnapshot) {
+                    users.clear()
+                    Log.d(logTAG, chatPartnerId)
+
+                    val user = p0.getValue(User::class.java)
+                    if (user!!.username.contains(searchText)) {
+                        users.add(user)
+                    }
+                }
+
+                override fun onCancelled(p0: DatabaseError) {
+                    Log.d(logTAG, "There is a problem while fetching User Info : ${p0.message}")
+                }
+            })
+        }
+    }
+
+    fun fetchLatestCalls(call: String) {
         val uid = mUser.uid
 
         Log.d(logTAG, "UID : $uid")
-        val ref = FirebaseDatabase.getInstance().getReference("/latest-messages/$uid")
+        val ref = FirebaseDatabase.getInstance().getReference("/latest-calls/$uid")
         ref.addChildEventListener(object : ChildEventListener {
             override fun onChildAdded(p0: DataSnapshot, p1: String?) {
-                adapter.clear()
-
                 val chatMessage = p0.getValue(ChatMessage::class.java) ?: return
 
                 val chatPartnerId = if (chatMessage.fromId == uid) {
@@ -107,6 +194,7 @@ class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
 
                 ref2.addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(p0: DataSnapshot) {
+                        adapter.clear()
                         Log.d(logTAG, chatPartnerId)
 
                         val user = p0.getValue(User::class.java)

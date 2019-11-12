@@ -51,7 +51,7 @@ class SettingsFragment : Fragment() {
             val myPreference = MyPreference(context)
 
             myPreference.setLoginInfo(LoginInfo("", ""))
-            myPreference.setUserInfo(User("", "", "", "","",""))
+            myPreference.setUserInfo(User("", "", "", "","","",false))
 
             // Firebase ile kullanıcının çıkışını sağlamak ve onu LoginActivity'e yollama işi
             FirebaseAuth.getInstance().signOut()
