@@ -25,8 +25,8 @@ import kotlinx.android.synthetic.main.activity_get_video_request.*
 
 class GetVideoRequest : AppCompatActivity() {
 
-    var user = User("", "", "", "","","",false)
-    private var mUser = User("", "", "", "","","",false)
+    var user = User("", "", "", "","","","",false)
+    private var mUser = User("", "", "", "","","","",false)
     private val logTAG = "GetVideoRequest"
 
     private var fotoapparat: Fotoapparat? = null

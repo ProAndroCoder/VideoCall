@@ -61,7 +61,7 @@ class UsersFragment : Fragment(), SearchView.OnQueryTextListener {
     val logTAG = "UsersFragment"
     var searchText = ""
 
-    var mUser = User("", "", "", "", "", "", false)
+    var mUser = User("", "", "", "", "", "","", false)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {

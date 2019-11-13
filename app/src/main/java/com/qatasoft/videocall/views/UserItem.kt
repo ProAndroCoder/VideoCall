@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.database.FirebaseDatabase
 import com.qatasoft.videocall.R
@@ -41,6 +40,10 @@ class UserItem(private val userList: ArrayList<User>, private val secim: Int, pr
         fun bindItems(item: User) {
             username.text = item.username
             Picasso.get().load(item.profileImageUrl).into(userImg)
+
+            userImg.setOnClickListener {
+
+            }
 
             Log.d("UsersFragment", "--- : ${item.username}")
 
@@ -118,6 +121,6 @@ class UserItem(private val userList: ArrayList<User>, private val secim: Int, pr
     }
 
     public interface OnItemClickListener {
-        fun onItemClick(position: Int)
+        fun onItemClick(item: User)
     }
 }

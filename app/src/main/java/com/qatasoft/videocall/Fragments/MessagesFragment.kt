@@ -31,9 +31,11 @@ class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
         if (newText != null) {
             users.clear()
             if (tabIndex == 0) {
+                adapter.clear()
                 searchText = newText.toString()
                 fetchInfo("latest-messages")
             } else if (tabIndex == 1) {
+                adapter.clear()
                 searchText = newText.toString()
                 fetchInfo("latest-calls")
             }
@@ -48,8 +50,7 @@ class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
 
     var searchText = ""
     var tabIndex = 0
-    var dataAdaptor = ArrayList<ChatMessage>()
-    var users = ArrayList<User>()
+    var users = ArrayList<String>()
 
     private val adapter = GroupAdapter<ViewHolder>()
     private val latestMessagesMap = HashMap<String, ChatMessage>()
@@ -116,104 +117,42 @@ class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
     }
 
     private fun fetchInfo(type: String) {
+        adapter.clear()
+
         val ref = FirebaseDatabase.getInstance().getReference("/$type/${mUser.uid}")
         ref.addChildEventListener(object : ChildEventListener {
             override fun onChildAdded(p0: DataSnapshot, p1: String?) {
                 val data = p0.getValue(ChatMessage::class.java) ?: return
 
-                dataAdaptor.add(data)
+                Log.d(logTAG, "fetchInfo username : ${data.id}")
 
-                fetchUserInfo(dataAdaptor)
+                val chatPartnerId = if (data.fromId == mUser.uid) {
+                    data.toId
+                } else {
+                    data.fromId
+                }
+
+                if (users.indexOf(chatPartnerId) < 0) {
+                    users.add(chatPartnerId)
+                    fetchUserInfo(data, chatPartnerId)
+                }
             }
 
             override fun onChildChanged(p0: DataSnapshot, p1: String?) {
                 val data = p0.getValue(ChatMessage::class.java) ?: return
 
-                dataAdaptor.add(data)
+                Log.d(logTAG, "fetchInfo username : ${data.id}")
 
-                fetchUserInfo(dataAdaptor)
-            }
-
-            override fun onCancelled(p0: DatabaseError) {
-
-            }
-
-            override fun onChildMoved(p0: DataSnapshot, p1: String?) {
-
-            }
-
-            override fun onChildRemoved(p0: DataSnapshot) {
-
-            }
-        })
-    }
-
-    fun fetchUserInfo(dataAdaptor: ArrayList<ChatMessage>) {
-        dataAdaptor.forEach {
-            val chatPartnerId = if (it.fromId == mUser.uid) {
-                it.toId
-            } else {
-                it.fromId
-            }
-
-            val ref = FirebaseDatabase.getInstance().getReference("/users/$chatPartnerId")
-
-            ref.addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(p0: DataSnapshot) {
-                    users.clear()
-                    Log.d(logTAG, chatPartnerId)
-
-                    val user = p0.getValue(User::class.java)
-                    if (user!!.username.contains(searchText)) {
-                        users.add(user)
-                    }
-                }
-
-                override fun onCancelled(p0: DatabaseError) {
-                    Log.d(logTAG, "There is a problem while fetching User Info : ${p0.message}")
-                }
-            })
-        }
-    }
-
-    fun fetchLatestCalls(call: String) {
-        val uid = mUser.uid
-
-        Log.d(logTAG, "UID : $uid")
-        val ref = FirebaseDatabase.getInstance().getReference("/latest-calls/$uid")
-        ref.addChildEventListener(object : ChildEventListener {
-            override fun onChildAdded(p0: DataSnapshot, p1: String?) {
-                val chatMessage = p0.getValue(ChatMessage::class.java) ?: return
-
-                val chatPartnerId = if (chatMessage.fromId == uid) {
-                    chatMessage.toId
+                val chatPartnerId = if (data.fromId == mUser.uid) {
+                    data.toId
                 } else {
-                    chatMessage.fromId
+                    data.fromId
                 }
-                val ref2 = FirebaseDatabase.getInstance().getReference("/users/$chatPartnerId")
 
-                ref2.addListenerForSingleValueEvent(object : ValueEventListener {
-                    override fun onDataChange(p0: DataSnapshot) {
-                        adapter.clear()
-                        Log.d(logTAG, chatPartnerId)
-
-                        val user = p0.getValue(User::class.java)
-                        if (user!!.username.contains(searchText)) {
-                            adapter.add(LatestMessageRow(chatMessage, user))
-                        }
-                    }
-
-                    override fun onCancelled(p0: DatabaseError) {
-                        Log.d(logTAG, "There is a problem while fetching User Info : ${p0.message}")
-                    }
-                })
-            }
-
-            override fun onChildChanged(p0: DataSnapshot, p1: String?) {
-                adapter.clear()
-                val chatMessage = p0.getValue(ChatMessage::class.java) ?: return
-
-                latestMessagesMap[p0.key!!] = chatMessage
+                if (users.indexOf(chatPartnerId) < 0) {
+                    users.add(chatPartnerId)
+                    fetchUserInfo(data, chatPartnerId)
+                }
             }
 
             override fun onCancelled(p0: DatabaseError) {
@@ -228,5 +167,29 @@ class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
 
             }
         })
+    }
+
+    fun fetchUserInfo(data: ChatMessage, chatPartnerId: String) {
+        val ref = FirebaseDatabase.getInstance().getReference("/users/$chatPartnerId")
+
+        ref.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(p0: DataSnapshot) {
+
+                val user = p0.getValue(User::class.java)
+
+                Log.d(logTAG, "  Size : " + users.size)
+
+                if (user!!.username.contains(searchText) && users.indexOf(chatPartnerId) >= 0) {
+                    Log.d(logTAG, user.username)
+                    users.remove(chatPartnerId)
+                    adapter.add(LatestMessageRow(data, user))
+                }
+            }
+
+            override fun onCancelled(p0: DatabaseError) {
+                Log.d(logTAG, "There is a problem while fetching User Info : ${p0.message}")
+            }
+        })
+
     }
 }

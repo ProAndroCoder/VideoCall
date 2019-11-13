@@ -40,8 +40,8 @@ import java.util.*
 @Suppress("DUPLICATE_LABEL_IN_WHEN")
 class SendVideoRequest : AppCompatActivity() {
     val logTAG = "VideoRequest"
-    var mUser = User("", "", "", "", "", "", false)
-    var user = User("", "", "", "", "", "", false)
+    var mUser = User("", "", "", "", "", "", "",false)
+    var user = User("", "", "", "", "", "", "",false)
     private var channel = "hello"
     var uid = FirebaseAuth.getInstance().uid
 
@@ -198,8 +198,8 @@ class SendVideoRequest : AppCompatActivity() {
                 val generatedToken = response.body()!!.token
                 Log.d(logTAG, "token : $generatedToken")
 
-                user = User(user.profileImageUrl, user.uid, user.username, generatedToken, "", "", false)
-                mUser = User(mUser.profileImageUrl, mUser.uid, mUser.username, generatedToken, "", "", false)
+                user = User(user.profileImageUrl, user.uid, user.username, generatedToken, "", "", "",false)
+                mUser = User(mUser.profileImageUrl, mUser.uid, mUser.username, generatedToken, "", "", "",false)
 
                 addVideoRequest()
             }

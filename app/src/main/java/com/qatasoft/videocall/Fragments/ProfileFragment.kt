@@ -16,6 +16,8 @@ class ProfileFragment : Fragment() {
     private val logTag = "ProfileFragmentLog"
     private var isEnable = false
 
+    private val mUser = MainActivity.mUser
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_profile, container, false)
@@ -24,7 +26,7 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        profile_username.text = MainActivity.mUser.username
+        getInfo()
 
         if (arguments!!.getBoolean(MainActivity.OwnerInfo)) {
             profile_btn_edit.setOnClickListener {
@@ -49,6 +51,14 @@ class ProfileFragment : Fragment() {
 
         //Back Button Clicked
         profile_img_back.setOnClickListener { activity?.onBackPressed() }
+    }
+
+    private fun getInfo() {
+        profile_username.text = mUser.username
+        profile_et_username.setText(mUser.username)
+        profile_et_email.setText(mUser.email)
+        profile_et_mobile.setText(mUser.mobile)
+        profile_et_about.setText(mUser.about)
     }
 
     //Enabling Edit

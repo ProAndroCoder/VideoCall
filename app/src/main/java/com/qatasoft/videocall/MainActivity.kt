@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val OwnerInfo = "IsOwnerInfo"
-        var mUser = User("", "", "", "", "", "",false)
+        var mUser = User("", "", "", "", "","", "", false)
     }
 
     private val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
-        
+
         openHomeFragment()
 
         fetchUserInfo()
@@ -152,7 +152,7 @@ class MainActivity : AppCompatActivity() {
 
             //Shared Preference ile telefonda bulunan kullanıcı bilgilerini silme işlemi. Uid boş gönderilirse çıkış yapar.
             myPreference.setLoginInfo(LoginInfo("", ""))
-            myPreference.setUserInfo(User("", "", "", "", "", "",false))
+            myPreference.setUserInfo(User("", "", "", "", "", "","", false))
 
             // Firebase ile kullanıcının çıkışını sağlamak ve onu LoginActivity'e yollama işi
             FirebaseAuth.getInstance().signOut()
