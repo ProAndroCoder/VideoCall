@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Toast
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -12,12 +11,11 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.qatasoft.videocall.Fragments.*
+import com.qatasoft.videocall.bottomFragments.*
 import com.qatasoft.videocall.models.LoginInfo
 import com.qatasoft.videocall.models.User
 import com.qatasoft.videocall.registerlogin.LoginActivity
-import kotlinx.android.synthetic.main.fragment_profile.*
-import kotlinx.android.synthetic.main.fragment_settings.*
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
     private val manager = supportFragmentManager
@@ -25,7 +23,8 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val OwnerInfo = "IsOwnerInfo"
-        var mUser = User("", "", "", "", "","", "", false)
+        var mUser = User("", "", "", "", "", "", "", false)
+        var nav: BottomNavigationView? = null
     }
 
     private val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
@@ -57,7 +56,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val navView: BottomNavigationView = findViewById(R.id.nav_view)
+        val navView = nav_view
+        nav = navView
 
         openHomeFragment()
 
@@ -152,7 +152,7 @@ class MainActivity : AppCompatActivity() {
 
             //Shared Preference ile telefonda bulunan kullanıcı bilgilerini silme işlemi. Uid boş gönderilirse çıkış yapar.
             myPreference.setLoginInfo(LoginInfo("", ""))
-            myPreference.setUserInfo(User("", "", "", "", "", "","", false))
+            myPreference.setUserInfo(User("", "", "", "", "", "", "", false))
 
             // Firebase ile kullanıcının çıkışını sağlamak ve onu LoginActivity'e yollama işi
             FirebaseAuth.getInstance().signOut()

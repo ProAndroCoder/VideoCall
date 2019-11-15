@@ -1,4 +1,4 @@
-package com.qatasoft.videocall.Fragments
+package com.qatasoft.videocall.bottomFragments
 
 
 import android.content.Intent
@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import com.google.firebase.auth.FirebaseAuth
 import com.qatasoft.videocall.BackgroundService
-import com.qatasoft.videocall.MainActivity
 import com.qatasoft.videocall.MyPreference
 
 import com.qatasoft.videocall.R
@@ -17,7 +16,6 @@ import com.qatasoft.videocall.models.LoginInfo
 import com.qatasoft.videocall.models.User
 import com.qatasoft.videocall.registerlogin.LoginActivity
 import kotlinx.android.synthetic.main.fragment_settings.*
-import kotlinx.android.synthetic.main.item_messages.*
 
 /**
  * A simple [Fragment] subclass.

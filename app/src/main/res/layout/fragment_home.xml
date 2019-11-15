@@ -1,16 +1,184 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".Fragments.HomeFragment">
+    tools:context=".bottomFragments.HomeFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerview_home"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+        android:layout_height="match_parent">
 
-</FrameLayout>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.denzcoskun.imageslider.ImageSlider
+                android:id="@+id/image_slider"
+                android:layout_width="wrap_content"
+                android:layout_height="300dp"
+                app:auto_cycle="true"
+                app:corner_radius="5"
+                app:delay="0"
+                app:period="1000" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@id/image_slider"
+                android:layout_marginBottom="40dp"
+                android:orientation="vertical">
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/home_messaging"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="15dp"
+                    app:cardBackgroundColor="@color/whiteBodyColor"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="8dp">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="120dp"
+                        android:padding="8dp">
+
+                        <de.hdodenhof.circleimageview.CircleImageView
+                            android:id="@+id/img_message_home"
+                            android:layout_width="70dp"
+                            android:layout_height="70dp"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/img_plumping"
+                            app:civ_border_color="@android:color/black"
+                            app:civ_border_width="0.1dp" />
+
+                        <TextView
+                            style="@style/viewParent.headerText"
+                            android:layout_width="match_parent"
+                            android:layout_centerInParent="true"
+                            android:layout_gravity="center"
+                            android:layout_toEndOf="@id/img_message_home"
+                            android:text="@string/messaging_home"
+                            android:textAlignment="center"
+                            android:textColor="@color/primaryTextColor" />
+
+                    </RelativeLayout>
+
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/home_video_calling"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="15dp"
+                    app:cardBackgroundColor="@color/whiteBodyColor"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="8dp">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="120dp"
+                        android:padding="8dp">
+
+                        <de.hdodenhof.circleimageview.CircleImageView
+                            android:id="@+id/img_video_home"
+                            android:layout_width="70dp"
+                            android:layout_height="70dp"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/img_plumping"
+                            app:civ_border_color="@android:color/black"
+                            app:civ_border_width="0.1dp" />
+
+                        <TextView
+                            style="@style/viewParent.headerText"
+                            android:layout_width="match_parent"
+                            android:layout_centerInParent="true"
+                            android:layout_gravity="center"
+                            android:layout_toEndOf="@id/img_video_home"
+                            android:text="@string/video_calling_home"
+                            android:textAlignment="center"
+                            android:textColor="@color/primaryTextColor" />
+
+                    </RelativeLayout>
+
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/home_find_friends"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="15dp"
+                    app:cardBackgroundColor="@color/whiteBodyColor"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="8dp">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="120dp"
+                        android:padding="8dp">
+
+                        <de.hdodenhof.circleimageview.CircleImageView
+                            android:id="@+id/img_user_home"
+                            android:layout_width="70dp"
+                            android:layout_height="70dp"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/img_plumping"
+                            app:civ_border_color="@android:color/black"
+                            app:civ_border_width="0.1dp" />
+
+                        <TextView
+                            style="@style/viewParent.headerText"
+                            android:layout_width="match_parent"
+                            android:layout_centerInParent="true"
+                            android:layout_gravity="center"
+                            android:layout_toEndOf="@id/img_user_home"
+                            android:text="@string/user_find_home"
+                            android:textAlignment="center"
+                            android:textColor="@color/primaryTextColor" />
+
+                    </RelativeLayout>
+
+                </androidx.cardview.widget.CardView>
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+    <LinearLayout
+        android:id="@+id/linear_login"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@android:color/holo_blue_dark"
+        android:orientation="horizontal"
+        android:weightSum="2">
+
+        <TextView
+            android:id="@+id/home_login"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="20dp"
+            android:text="@string/text_login"
+            android:textAlignment="center"
+            android:textColor="@color/whiteTextColor"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/home_register"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="20dp"
+            android:text="@string/text_register"
+            android:textAlignment="center"
+            android:textColor="@color/whiteTextColor"
+            android:textStyle="bold" />
+    </LinearLayout>
+</RelativeLayout>

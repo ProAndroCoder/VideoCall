@@ -1,4 +1,4 @@
-package com.qatasoft.videocall.Fragments
+package com.qatasoft.videocall.bottomFragments
 
 import android.os.Bundle
 import android.util.Log
@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
 import com.google.firebase.database.DataSnapshot
@@ -61,7 +62,7 @@ class UsersFragment : Fragment(), SearchView.OnQueryTextListener {
     val logTAG = "UsersFragment"
     var searchText = ""
 
-    var mUser = User("", "", "", "", "", "","", false)
+    var mUser = User("", "", "", "", "", "", "", false)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -73,7 +74,7 @@ class UsersFragment : Fragment(), SearchView.OnQueryTextListener {
 
         mUser = MainActivity.mUser
 
-        recycler_message_user.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        recycler_message_user.layoutManager = LinearLayoutManager(this.context)
         recycler_message_user.adapter = allAdapter
 
         tabLayout.getTabAt(0)?.text = "All Users"
@@ -101,18 +102,19 @@ class UsersFragment : Fragment(), SearchView.OnQueryTextListener {
                 when (tab?.position) {
                     0 -> {
                         tabIndex = 0
+                        recycler_message_user.adapter = allAdapter
                         fetchAll()
-
-
                     }
 
                     1 -> {
                         tabIndex = 1
+                        recycler_message_user.adapter = followersAdapter
                         fetchFollowers()
                     }
 
                     2 -> {
                         tabIndex = 2
+                        recycler_message_user.adapter = followedsAdapter
                         fetchFolloweds()
                     }
                 }
@@ -144,9 +146,8 @@ class UsersFragment : Fragment(), SearchView.OnQueryTextListener {
                         Log.d(logTAG, "All : ${user.username}  ${all.size}")
                     }
                 }
-
-                recycler_message_user.adapter = allAdapter
                 allAdapter.notifyDataSetChanged()
+
             }
 
             override fun onCancelled(p0: DatabaseError) {
@@ -178,8 +179,8 @@ class UsersFragment : Fragment(), SearchView.OnQueryTextListener {
                         followers.add(user)
                     }
                 }
-                recycler_message_user.adapter = followersAdapter
                 followersAdapter.notifyDataSetChanged()
+
             }
 
             override fun onCancelled(p0: DatabaseError) {
@@ -203,10 +204,8 @@ class UsersFragment : Fragment(), SearchView.OnQueryTextListener {
                         Log.d(logTAG, "Followed : ${user.username}  ${followeds.size}")
                     }
                 }
-                if (tabIndex == 2) {
-                    recycler_message_user.adapter = followedsAdapter
-                    followedsAdapter.notifyDataSetChanged()
-                }
+                followedsAdapter.notifyDataSetChanged()
+
             }
 
             override fun onCancelled(p0: DatabaseError) {

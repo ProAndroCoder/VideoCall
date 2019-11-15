@@ -14,7 +14,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.qatasoft.videocall.*
-import com.qatasoft.videocall.Fragments.MessagesFragment.Companion.USER_KEY
+import com.qatasoft.videocall.bottomFragments.MessagesFragment.Companion.USER_KEY
 import com.qatasoft.videocall.messages.ChatLogActivity
 import com.qatasoft.videocall.models.ChatMessage
 import com.qatasoft.videocall.models.Token

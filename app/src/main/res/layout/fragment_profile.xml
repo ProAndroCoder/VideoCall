@@ -7,8 +7,7 @@
     android:background="@color/profileBackground"
     android:fitsSystemWindows="true"
     android:theme="@style/AppTheme.ProfileTheme"
-    tools:context=".Fragments.ProfileFragment">
-
+    tools:context=".bottomFragments.ProfileFragment">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar"
@@ -107,7 +106,7 @@
         android:layout_height="match_parent"
         android:layout_below="@+id/app_bar"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:context=".Fragments.ProfileFragment"
+        tools:context=".bottomFragments.ProfileFragment"
         tools:showIn="@layout/fragment_profile">
 
         <LinearLayout

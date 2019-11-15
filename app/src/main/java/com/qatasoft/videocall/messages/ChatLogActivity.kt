@@ -16,7 +16,7 @@ import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
-import com.qatasoft.videocall.Fragments.MessagesFragment.Companion.USER_KEY
+import com.qatasoft.videocall.bottomFragments.MessagesFragment.Companion.USER_KEY
 import com.qatasoft.videocall.MainActivity
 import com.qatasoft.videocall.videoCallRequests.SendVideoRequest
 import com.squareup.picasso.NetworkPolicy

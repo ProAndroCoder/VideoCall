@@ -23,15 +23,14 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         style="@style/parent.contentLayout"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:context=".Fragments.SettingsFragment"
-        tools:showIn="@layout/fragment_settings">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <LinearLayout
+                android:padding="10dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">

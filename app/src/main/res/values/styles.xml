@@ -184,6 +184,5 @@
     <!--styles for Settings-->
     <style name="parent.contentLayout">
         <item name="android:background">@color/contentBodyColor</item>
-        <item name="android:padding">@dimen/normalPadding</item>
     </style>
 </resources>

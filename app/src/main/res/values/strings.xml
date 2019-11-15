@@ -66,5 +66,8 @@
     <string name="messages_messages">Messages</string>
     <string name="messages_calls">Calls</string>
     <string name="profile_account_info">Account Info</string>
+    <string name="messaging_home">Messaging</string>
+    <string name="video_calling_home">Video Calling</string>
+    <string name="user_find_home">Find Friends</string>
 
 </resources>

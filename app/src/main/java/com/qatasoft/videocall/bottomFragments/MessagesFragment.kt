@@ -1,5 +1,6 @@
-package com.qatasoft.videocall.Fragments
+package com.qatasoft.videocall.bottomFragments
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -23,6 +24,8 @@ import com.xwray.groupie.ViewHolder
 import kotlinx.android.synthetic.main.fragment_messages.*
 
 class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
+
+
     override fun onQueryTextSubmit(query: String?): Boolean {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
@@ -53,7 +56,6 @@ class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
     var users = ArrayList<String>()
 
     private val adapter = GroupAdapter<ViewHolder>()
-    private val latestMessagesMap = HashMap<String, ChatMessage>()
     private val mUser = MainActivity.mUser
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -63,6 +65,13 @@ class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+
+        if (HomeFragment.isMessage) {
+            tabLayout.getTabAt(0)?.select()
+        } else {
+            tabLayout.getTabAt(1)?.select()
+        }
 
         recycler_message_user.adapter = adapter
 

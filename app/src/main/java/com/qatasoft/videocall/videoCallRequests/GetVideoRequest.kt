@@ -12,7 +12,7 @@ import android.util.Log
 import androidx.core.content.ContextCompat
 import com.google.firebase.database.FirebaseDatabase
 import com.qatasoft.videocall.*
-import com.qatasoft.videocall.Fragments.MessagesFragment.Companion.USER_KEY
+import com.qatasoft.videocall.bottomFragments.MessagesFragment.Companion.USER_KEY
 import com.qatasoft.videocall.messages.ChatLogActivity
 import com.qatasoft.videocall.models.User
 import com.squareup.picasso.Picasso
