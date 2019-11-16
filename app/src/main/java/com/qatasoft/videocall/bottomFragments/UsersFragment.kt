@@ -53,14 +53,14 @@ class UsersFragment : Fragment(), SearchView.OnQueryTextListener {
     var followers = ArrayList<User>()
     var followeds = ArrayList<User>()
 
-    //Adapters All, Followers, Followeds
-    val allAdapter = UserItem(all, 0, MainActivity.mUser, context)
-    val followersAdapter = UserItem(followers, 0, MainActivity.mUser, context)
-    val followedsAdapter = UserItem(followeds, 1, MainActivity.mUser, context)
 
     var tabIndex = 0
     val logTAG = "UsersFragment"
     var searchText = ""
+
+    var allAdapter: UserItem? = null
+    var followersAdapter: UserItem? = null
+    var followedsAdapter: UserItem? = null
 
     var mUser = User("", "", "", "", "", "", "", false)
 
@@ -71,6 +71,13 @@ class UsersFragment : Fragment(), SearchView.OnQueryTextListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val manager = activity!!.supportFragmentManager
+
+        //Adapters All, Followers, Followeds
+        allAdapter = UserItem(all, 0, MainActivity.mUser, manager)
+        followersAdapter = UserItem(followers, 0, MainActivity.mUser, manager)
+        followedsAdapter = UserItem(followeds, 1, MainActivity.mUser, manager)
 
         mUser = MainActivity.mUser
 
@@ -146,7 +153,7 @@ class UsersFragment : Fragment(), SearchView.OnQueryTextListener {
                         Log.d(logTAG, "All : ${user.username}  ${all.size}")
                     }
                 }
-                allAdapter.notifyDataSetChanged()
+                allAdapter?.notifyDataSetChanged()
 
             }
 
@@ -179,7 +186,7 @@ class UsersFragment : Fragment(), SearchView.OnQueryTextListener {
                         followers.add(user)
                     }
                 }
-                followersAdapter.notifyDataSetChanged()
+                followersAdapter?.notifyDataSetChanged()
 
             }
 
@@ -204,7 +211,7 @@ class UsersFragment : Fragment(), SearchView.OnQueryTextListener {
                         Log.d(logTAG, "Followed : ${user.username}  ${followeds.size}")
                     }
                 }
-                followedsAdapter.notifyDataSetChanged()
+                followedsAdapter?.notifyDataSetChanged()
 
             }
 
@@ -212,5 +219,12 @@ class UsersFragment : Fragment(), SearchView.OnQueryTextListener {
                 Log.d(logTAG, "There is an error while fetching user datas.")
             }
         })
+    }
+
+    fun <T : RecyclerView.ViewHolder> T.listen(event: (position: Int, type: Int) -> Unit): T {
+        itemView.setOnClickListener {
+            event.invoke(adapterPosition, itemViewType)
+        }
+        return this
     }
 }

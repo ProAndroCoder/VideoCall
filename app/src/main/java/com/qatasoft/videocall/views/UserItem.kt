@@ -1,25 +1,33 @@
 package com.qatasoft.videocall.views
 
-import android.content.Context
+import android.content.Intent
+import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.RelativeLayout
 import android.widget.TextView
+import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.database.FirebaseDatabase
+import com.qatasoft.videocall.MainActivity
 import com.qatasoft.videocall.R
+import com.qatasoft.videocall.bottomFragments.MessagesFragment.Companion.USER_KEY
+import com.qatasoft.videocall.bottomFragments.ProfileFragment
+import com.qatasoft.videocall.messages.ChatLogActivity
 import com.qatasoft.videocall.models.User
 import com.squareup.picasso.Picasso
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.item_user.view.*
 
-class UserItem(private val userList: ArrayList<User>, private val secim: Int, private val mUser: User, private val mContext: Context?) : RecyclerView.Adapter<UserItem.UserViewHolder>() {
+class UserItem(private val userList: ArrayList<User>, private val secim: Int, private val mUser: User, private val manager: FragmentManager) : RecyclerView.Adapter<UserItem.UserViewHolder>() {
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_user, parent, false)
         Log.d("UsersFragment", "--- : ${userList.size}")
-        return UserViewHolder(view, secim, mUser, mContext)
+        return UserViewHolder(view, secim, mUser, manager)
     }
 
     override fun getItemCount(): Int {
@@ -32,17 +40,37 @@ class UserItem(private val userList: ArrayList<User>, private val secim: Int, pr
         holder.bindItems(userList[position])
     }
 
-    class UserViewHolder(view: View, private val secim: Int, private val mUser: User, private val mContext: Context?) : RecyclerView.ViewHolder(view) {
+    class UserViewHolder(val view: View, private val secim: Int, private val mUser: User, private val manager: FragmentManager) : RecyclerView.ViewHolder(view) {
         val username: TextView = view.txt_username
         private val userImg: CircleImageView = view.circleimg_user
         private val tickAddImg: ImageView = view.img_tick_add
+        private val relativeUser: RelativeLayout = view.relative_user
 
         fun bindItems(item: User) {
             username.text = item.username
             Picasso.get().load(item.profileImageUrl).into(userImg)
 
-            userImg.setOnClickListener {
+            //SetOnItemClickListener !!!
+            relativeUser.setOnClickListener {
+                val intent = Intent(view.context, ChatLogActivity::class.java)
+                intent.putExtra(USER_KEY, item)
+                view.context.startActivity(intent)
+            }
 
+            userImg.setOnClickListener {
+                val nav = MainActivity.nav
+                nav!!.selectedItemId = R.id.navigation_profile
+                nav.visibility = View.GONE
+
+
+                val transaction = manager.beginTransaction()
+                val fragment = ProfileFragment()
+                val args = Bundle()
+                args.putBoolean(MainActivity.OwnerInfo, false)
+                fragment.arguments = args
+                transaction.replace(R.id.fragmentHolder, fragment)
+                transaction.addToBackStack(null)
+                transaction.commit()
             }
 
             Log.d("UsersFragment", "--- : ${item.username}")
@@ -118,9 +146,5 @@ class UserItem(private val userList: ArrayList<User>, private val secim: Int, pr
                         Log.d("UsersFragment", "there is a problem : $it")
                     }
         }
-    }
-
-    public interface OnItemClickListener {
-        fun onItemClick(item: User)
     }
 }

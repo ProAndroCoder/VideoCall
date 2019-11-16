@@ -1,6 +1,7 @@
 package com.qatasoft.videocall.bottomFragments
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -27,7 +28,9 @@ class ProfileFragment : Fragment() {
 
         getInfo()
 
-        if (arguments!!.getBoolean(MainActivity.OwnerInfo)) {
+        val isOwner = arguments!!.getBoolean(MainActivity.OwnerInfo)
+        Log.d(logTag, " Deneme : $isOwner")
+        if (isOwner) {
             profile_btn_edit.setOnClickListener {
                 enableEdit()
             }
@@ -46,10 +49,6 @@ class ProfileFragment : Fragment() {
             profile_btn_send_cancel.visibility = View.VISIBLE
             profile_btn_edit.visibility = View.GONE
         }
-
-
-        //Back Button Clicked
-        profile_img_back.setOnClickListener { activity?.onBackPressed() }
     }
 
     private fun getInfo() {

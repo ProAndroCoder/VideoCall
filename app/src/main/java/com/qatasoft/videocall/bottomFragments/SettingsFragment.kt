@@ -40,22 +40,17 @@ class SettingsFragment : Fragment() {
     }
 
     private fun signOut() {
-        rel_signout.setOnClickListener {
-
-            //Arka planda uygulama kapansa bile çalışan Servisleri kapatır.
-
-            activity!!.stopService(Intent(context, BackgroundService::class.java))
-            //Shared Preference ile telefonda bulunan kullanıcı bilgilerini silme işlemi. Uid boş gönderilirse çıkış yapar.
-            val myPreference = MyPreference(context)
-
-            myPreference.setLoginInfo(LoginInfo("", ""))
-            myPreference.setUserInfo(User("", "", "", "","","","",false))
-
-            // Firebase ile kullanıcının çıkışını sağlamak ve onu LoginActivity'e yollama işi
-            FirebaseAuth.getInstance().signOut()
-            val intent = Intent(context, LoginActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(intent)
-        }
+//        activity!!.stopService(Intent(context, BackgroundService::class.java))
+//        //Shared Preference ile telefonda bulunan kullanıcı bilgilerini silme işlemi. Uid boş gönderilirse çıkış yapar.
+//        val myPreference = MyPreference(context)
+//
+//        myPreference.setLoginInfo(LoginInfo("", ""))
+//        myPreference.setUserInfo(User("", "", "", "","","","",false))
+//
+//        // Firebase ile kullanıcının çıkışını sağlamak ve onu LoginActivity'e yollama işi
+//        FirebaseAuth.getInstance().signOut()
+//        val intent = Intent(context, LoginActivity::class.java)
+//        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
+//        startActivity(intent)
     }
 }

@@ -12,6 +12,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.qatasoft.videocall.bottomFragments.*
+import com.qatasoft.videocall.models.GeneralInfo
 import com.qatasoft.videocall.models.LoginInfo
 import com.qatasoft.videocall.models.User
 import com.qatasoft.videocall.registerlogin.LoginActivity
@@ -25,6 +26,8 @@ class MainActivity : AppCompatActivity() {
         const val OwnerInfo = "IsOwnerInfo"
         var mUser = User("", "", "", "", "", "", "", false)
         var nav: BottomNavigationView? = null
+        var isVisible = true
+        var isOwner = true
     }
 
     private val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
@@ -96,7 +99,7 @@ class MainActivity : AppCompatActivity() {
         val transaction = manager.beginTransaction()
         val fragment = ProfileFragment()
         val args = Bundle()
-        args.putBoolean(OwnerInfo, true)
+        args.putBoolean(OwnerInfo, isOwner)
         fragment.arguments = args
         transaction.replace(R.id.fragmentHolder, fragment)
         transaction.addToBackStack(null)
@@ -115,7 +118,7 @@ class MainActivity : AppCompatActivity() {
         startService(Intent(this, BackgroundService::class.java))
     }
 
-    fun stopService() {
+    private fun stopService() {
         stopService(Intent(this, BackgroundService::class.java))
     }
 
@@ -164,15 +167,61 @@ class MainActivity : AppCompatActivity() {
 
     fun profileOnClick(view: View) {
         when (view.id) {
-            R.id.not_owner -> {
-                val transaction = manager.beginTransaction()
-                val fragment = ProfileFragment()
-                val args = Bundle()
-                args.putBoolean(OwnerInfo, false)
-                fragment.arguments = args
-                transaction.replace(R.id.fragmentHolder, fragment)
-                transaction.addToBackStack(null)
-                transaction.commit()
+            R.id.card_about -> {
+                val generalInfo = GeneralInfo("https://d2v9y0dukr6mq2.cloudfront.net/video/thumbnail/V1xq1AADx/videoblocks-group-of-people-connecting-via-smart-phones-close-up-of-hands-using-cell-phones-and-text-messaging-4k-20s-30s_swzcjc3hwz_thumbnail-full01.png", "Messaging Tab Info", "This is general Messaging Tab Info")
+                val intent = Intent(this, GeneralInfoActivity::class.java)
+                intent.putExtra("GeneralInfo", generalInfo)
+                startActivity(intent)
+            }
+
+            R.id.card_statistics -> {
+                val generalInfo = GeneralInfo("https://d2v9y0dukr6mq2.cloudfront.net/video/thumbnail/V1xq1AADx/videoblocks-group-of-people-connecting-via-smart-phones-close-up-of-hands-using-cell-phones-and-text-messaging-4k-20s-30s_swzcjc3hwz_thumbnail-full01.png", "Messaging Tab Info", "This is general Messaging Tab Info")
+                val intent = Intent(this, GeneralInfoActivity::class.java)
+                intent.putExtra("GeneralInfo", generalInfo)
+                startActivity(intent)
+            }
+
+            R.id.card_announcements -> {
+                val generalInfo = GeneralInfo("https://d2v9y0dukr6mq2.cloudfront.net/video/thumbnail/V1xq1AADx/videoblocks-group-of-people-connecting-via-smart-phones-close-up-of-hands-using-cell-phones-and-text-messaging-4k-20s-30s_swzcjc3hwz_thumbnail-full01.png", "Messaging Tab Info", "This is general Messaging Tab Info")
+                val intent = Intent(this, GeneralInfoActivity::class.java)
+                intent.putExtra("GeneralInfo", generalInfo)
+                startActivity(intent)
+            }
+
+            R.id.card_help -> {
+                val generalInfo = GeneralInfo("https://d2v9y0dukr6mq2.cloudfront.net/video/thumbnail/V1xq1AADx/videoblocks-group-of-people-connecting-via-smart-phones-close-up-of-hands-using-cell-phones-and-text-messaging-4k-20s-30s_swzcjc3hwz_thumbnail-full01.png", "Messaging Tab Info", "This is general Messaging Tab Info")
+                val intent = Intent(this, GeneralInfoActivity::class.java)
+                intent.putExtra("GeneralInfo", generalInfo)
+                startActivity(intent)
+            }
+
+            R.id.card_rules -> {
+                val generalInfo = GeneralInfo("https://d2v9y0dukr6mq2.cloudfront.net/video/thumbnail/V1xq1AADx/videoblocks-group-of-people-connecting-via-smart-phones-close-up-of-hands-using-cell-phones-and-text-messaging-4k-20s-30s_swzcjc3hwz_thumbnail-full01.png", "Messaging Tab Info", "This is general Messaging Tab Info")
+                val intent = Intent(this, GeneralInfoActivity::class.java)
+                intent.putExtra("GeneralInfo", generalInfo)
+                startActivity(intent)
+            }
+
+            R.id.card_privacy -> {
+                val generalInfo = GeneralInfo("https://d2v9y0dukr6mq2.cloudfront.net/video/thumbnail/V1xq1AADx/videoblocks-group-of-people-connecting-via-smart-phones-close-up-of-hands-using-cell-phones-and-text-messaging-4k-20s-30s_swzcjc3hwz_thumbnail-full01.png", "Messaging Tab Info", "This is general Messaging Tab Info")
+                val intent = Intent(this, GeneralInfoActivity::class.java)
+                intent.putExtra("GeneralInfo", generalInfo)
+                startActivity(intent)
+            }
+
+            R.id.card_signout -> {
+                stopService()
+                //Shared Preference ile telefonda bulunan kullanıcı bilgilerini silme işlemi. Uid boş gönderilirse çıkış yapar.
+                val myPreference = MyPreference(this)
+
+                myPreference.setLoginInfo(LoginInfo("", ""))
+                myPreference.setUserInfo(User("", "", "", "", "", "", "", false))
+
+                // Firebase ile kullanıcının çıkışını sağlamak ve onu LoginActivity'e yollama işi
+                FirebaseAuth.getInstance().signOut()
+                val intent = Intent(this, LoginActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(intent)
             }
         }
     }
