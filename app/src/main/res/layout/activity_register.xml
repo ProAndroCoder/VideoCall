@@ -54,6 +54,16 @@
                     android:layout_margin="10dp"
                     android:orientation="vertical">
 
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/circleimg_profile"
+                        android:layout_width="120dp"
+                        android:layout_height="120dp"
+                        android:layout_gravity="center"
+                        android:onClick="onRegisterClick"
+                        android:src="@drawable/ic_profile"
+                        app:civ_border_color="@color/primaryTextColor"
+                        app:civ_border_width="1dp" />
+
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/textInputName"
                         style="@style/parent"
@@ -102,7 +112,23 @@
                             android:textColor="@color/black" />
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <br.com.simplepass.loading_button_lib.customViews.CircularProgressButton
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/textInputPasswordAgain"
+                        style="@style/parent"
+                        android:layout_marginTop="@dimen/loginViewsMargin"
+                        android:textColorHint="@color/black">
+
+                        <EditText
+                            android:id="@+id/register_etPasswordAgain"
+                            style="@style/modifiedEditText"
+                            android:hint="@string/text_password_again"
+                            android:inputType="textPassword"
+                            android:maxLength="50"
+                            android:maxLines="1"
+                            android:textColor="@color/black" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
                         android:id="@+id/cirRegisterButton"
                         style="@style/loginButton"
                         android:layout_gravity="center_horizontal"

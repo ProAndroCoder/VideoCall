@@ -50,11 +50,11 @@
 
 
                 <androidx.cardview.widget.CardView
-                    android:onClick="profileOnClick"
                     android:id="@+id/card_about"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="15dp"
+                    android:onClick="settingsOnClick"
                     app:cardBackgroundColor="@color/whiteBodyColor"
                     app:cardCornerRadius="16dp"
                     app:cardElevation="8dp">
@@ -93,6 +93,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="15dp"
+                    android:onClick="settingsOnClick"
                     app:cardBackgroundColor="@color/whiteBodyColor"
                     app:cardCornerRadius="16dp"
                     app:cardElevation="8dp">
@@ -131,6 +132,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="15dp"
+                    android:onClick="settingsOnClick"
                     app:cardBackgroundColor="@color/whiteBodyColor"
                     app:cardCornerRadius="16dp"
                     app:cardElevation="8dp">
@@ -169,6 +171,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="15dp"
+                    android:onClick="settingsOnClick"
                     app:cardBackgroundColor="@color/whiteBodyColor"
                     app:cardCornerRadius="16dp"
                     app:cardElevation="8dp">
@@ -208,6 +211,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="15dp"
+                    android:onClick="settingsOnClick"
                     app:cardBackgroundColor="@color/whiteBodyColor"
                     app:cardCornerRadius="16dp"
                     app:cardElevation="8dp">
@@ -243,11 +247,11 @@
 
 
                 <androidx.cardview.widget.CardView
-                    android:onClick="profileOnClick"
                     android:id="@+id/card_privacy"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="15dp"
+                    android:onClick="settingsOnClick"
                     app:cardBackgroundColor="@color/whiteBodyColor"
                     app:cardCornerRadius="16dp"
                     app:cardElevation="8dp">
@@ -286,6 +290,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="15dp"
+                    android:onClick="settingsOnClick"
                     app:cardBackgroundColor="@color/whiteBodyColor"
                     app:cardCornerRadius="16dp"
                     app:cardElevation="8dp">

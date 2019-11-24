@@ -3,6 +3,8 @@ package com.qatasoft.videocall.registerlogin
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
@@ -17,8 +19,11 @@ import kotlinx.android.synthetic.main.activity_login.*
 
 class LoginActivity : AppCompatActivity() {
     companion object {
-        const val logTAG = "LoginActivity"
+        const val logTAG = "LoginActivityInfo"
     }
+
+    var email: String = ""
+    var password: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,73 +34,83 @@ class LoginActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_login)
 
+        hideSystemUI()
+
         directLogin()
     }
 
+    private fun hideSystemUI() {
+        this.window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
+                or View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
+                or View.SYSTEM_UI_FLAG_IMMERSIVE)
+    }
+
     private fun performLogin() {
-        val email = login_etEmail.text.toString()
-        val password = login_etPassword.text.toString()
+        Log.d(logTAG, "email : $email")
+        Log.d(logTAG, "password : $password")
 
-        if (!(email.isEmpty() || password.isEmpty())) {
-            Log.d(logTAG, "email : $email")
-            Log.d(logTAG, "password : $password")
-
-            FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener {
-                        if (!it.isSuccessful) return@addOnCompleteListener
-
-                        val loginInfo = LoginInfo(email, password)
-
-                        val mPreference = MyPreference(this)
-                        mPreference.setLoginInfo(loginInfo)
-
-                        startActivity(Intent(this, MainActivity::class.java))
-                        overridePendingTransition(R.anim.right_in, R.anim.left_out)
-
-                    }
-                    .addOnFailureListener {
-                        Log.d("LoginActivity", "There is An Error While LoginActivity : ${it.message}")
-                        Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
-                    }
-        } else {
-            cirLoginButton.stopAnimation()
+        if (email.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, resources.getString(R.string.empty_values), Toast.LENGTH_SHORT).show()
+            cirLoginButton.revertAnimation()
+            return
         }
+
+        if (!email.matches(Regex("[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+"))) {
+            Toast.makeText(this, resources.getString(R.string.not_valid_email), Toast.LENGTH_SHORT).show()
+            cirLoginButton.revertAnimation()
+            return
+        }
+
+        FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener {
+                    if (!it.isSuccessful) return@addOnCompleteListener
+
+                    val loginInfo = LoginInfo(email, password)
+
+                    val mPreference = MyPreference(this)
+
+                    Log.d(logTAG, "email : " + email + " password : " + password + " 1")
+                    mPreference.setLoginInfo(loginInfo)
+
+                    cirLoginButton.revertAnimation()
+
+                    startActivity(Intent(this, MainActivity::class.java))
+                    overridePendingTransition(R.anim.right_in, R.anim.left_out)
+                }
+                .addOnFailureListener {
+                    cirLoginButton.revertAnimation()
+
+                    Log.d("LoginActivity", "There is An Error While LoginActivity : ${it.message}")
+                    Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
+                }
     }
 
     //Önceden giriş yapılmış ise ve çıkış yapılmamış ise o bilgilerle giriş yapar.
     private fun directLogin() {
-        val myPreference = MyPreference(this)
-        val loginInfo: LoginInfo = myPreference.getLoginInfo()
-        if (myPreference.isLoggedIn() && !loginInfo.email.equals("")) {
-            FirebaseAuth.getInstance().signInWithEmailAndPassword(loginInfo.email, loginInfo.password)
-                    .addOnCompleteListener {
-                        if (!it.isSuccessful) return@addOnCompleteListener
+        val loginInfo: LoginInfo = MyPreference(this).getLoginInfo()
 
-                        startActivity(Intent(this, MainActivity::class.java))
-                    }
-                    .addOnFailureListener {
-                        Log.d("LoginActivity", "There is An Error While LoginActivity : ${it.message}")
-                        Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
-                    }
-        }
-    }
+        email = loginInfo.email
+        password = loginInfo.password
 
-    override fun dispatchKeyEvent(event: KeyEvent?): Boolean {
-        if (event!!.keyCode == KeyEvent.KEYCODE_SPACE && event.action == KeyEvent.ACTION_UP) {
-            Toast.makeText(this, "SPACE PRESSED", Toast.LENGTH_LONG).show()
-            return true
+        if (email != "" || password != "") {
+            cirLoginButton.startAnimation {
+                performLogin()
+            }
         }
-        return super.dispatchKeyEvent(event)
     }
 
     fun onLoginClick(view: View) {
         when (view.id) {
             R.id.cirLoginButton -> {
-                cirLoginButton.startAnimation()
+                email = login_etEmail.text.toString()
+                password = login_etPassword.text.toString()
 
-                performLogin()
-
-                cirLoginButton.stopAnimation()
+                cirLoginButton.startAnimation {
+                    performLogin()
+                }
             }
 
             R.id.login_registerButton -> {

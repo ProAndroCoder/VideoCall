@@ -24,7 +24,6 @@ import kotlinx.android.synthetic.main.fragment_messages.*
 
 class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
 
-
     override fun onQueryTextSubmit(query: String?): Boolean {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
@@ -50,7 +49,7 @@ class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
         const val USER_KEY = "USER_INFO_KEY"
     }
 
-    var searchText = ""
+    private var searchText = ""
     var tabIndex = 0
     var users = ArrayList<String>()
 
@@ -65,11 +64,12 @@ class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
         if (HomeFragment.isMessage) {
             tabLayout.getTabAt(0)?.select()
+            fetchInfo("latest-messages")
         } else {
             tabLayout.getTabAt(1)?.select()
+            fetchInfo("latest-calls")
         }
 
         recycler_message_user.adapter = adapter
@@ -85,7 +85,6 @@ class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
             startActivity(intent)
         }
 
-        fetchInfo("latest-messages")
 
         //Kullanıcı Giriş Yapmamış ise onu LoginActivity e geri atar. Ve Geri dönemez.
         if (mUser.uid.isEmpty()) {

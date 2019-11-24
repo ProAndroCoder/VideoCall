@@ -9,14 +9,16 @@ import android.view.ViewGroup
 import android.widget.EditText
 import androidx.core.content.ContextCompat
 import com.qatasoft.videocall.MainActivity
+import com.qatasoft.videocall.MainActivity.Companion.mUser
+import com.qatasoft.videocall.MyPreference
 import com.qatasoft.videocall.R
+import com.qatasoft.videocall.models.User
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_profile.*
 
 class ProfileFragment : Fragment() {
-    private val logTag = "ProfileFragmentLog"
+    private val logTAG = "ProfileFragmentLog"
     private var isEnable = false
-
-    private val mUser = MainActivity.mUser
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -26,10 +28,12 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        Log.d(logTAG, "email nnn : " + mUser.email)
+
         getInfo()
 
         val isOwner = arguments!!.getBoolean(MainActivity.OwnerInfo)
-        Log.d(logTag, " Deneme : $isOwner")
+        Log.d(logTAG, " Deneme : $isOwner")
         if (isOwner) {
             profile_btn_edit.setOnClickListener {
                 enableEdit()
@@ -37,10 +41,24 @@ class ProfileFragment : Fragment() {
 
             profile_btn_send_cancel.setOnClickListener {
                 disableEdit()
+                getInfo()
             }
 
             profile_btn_follow_save.setOnClickListener {
+                val username = profile_et_username.text.toString()
+                val email = profile_et_email.text.toString()
+                val mobile = profile_et_mobile.text.toString()
+                val about = profile_et_about.text.toString()
+
+                val myPreference = MyPreference(context)
+                mUser = User(mUser.profileImageUrl, mUser.uid, username, mUser.token, about, mobile, email, mUser.isFollowed)
+
+                myPreference.setUserInfo(mUser)
+
+                mUser = myPreference.getUserInfo()
+                Log.d(logTAG, "email : " + myPreference.getUserInfo().email)
                 disableEdit()
+                getInfo()
             }
         } else {
             profile_img_back.visibility = View.VISIBLE
@@ -52,6 +70,10 @@ class ProfileFragment : Fragment() {
     }
 
     private fun getInfo() {
+        if (mUser.profileImageUrl != "") {
+            Picasso.get().load(mUser.profileImageUrl).into(circleimg_profile)
+        }
+
         profile_username.text = mUser.username
         profile_et_username.setText(mUser.username)
         profile_et_email.setText(mUser.email)

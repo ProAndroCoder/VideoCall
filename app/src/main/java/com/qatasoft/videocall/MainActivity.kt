@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val OwnerInfo = "IsOwnerInfo"
-        var mUser = User("", "", "", "", "", "", "", false)
+        var mUser = User()
         var nav: BottomNavigationView? = null
         var isVisible = true
         var isOwner = true
@@ -165,45 +165,45 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun profileOnClick(view: View) {
+    fun settingsOnClick(view: View) {
         when (view.id) {
             R.id.card_about -> {
-                val generalInfo = GeneralInfo("https://d2v9y0dukr6mq2.cloudfront.net/video/thumbnail/V1xq1AADx/videoblocks-group-of-people-connecting-via-smart-phones-close-up-of-hands-using-cell-phones-and-text-messaging-4k-20s-30s_swzcjc3hwz_thumbnail-full01.png", "Messaging Tab Info", "This is general Messaging Tab Info")
+                val generalInfo = GeneralInfo("https://d2v9y0dukr6mq2.cloudfront.net/video/thumbnail/V1xq1AADx/videoblocks-group-of-people-connecting-via-smart-phones-close-up-of-hands-using-cell-phones-and-text-messaging-4k-20s-30s_swzcjc3hwz_thumbnail-full01.png", "About Tab Info", "This is general About Tab Info")
                 val intent = Intent(this, GeneralInfoActivity::class.java)
                 intent.putExtra("GeneralInfo", generalInfo)
                 startActivity(intent)
             }
 
             R.id.card_statistics -> {
-                val generalInfo = GeneralInfo("https://d2v9y0dukr6mq2.cloudfront.net/video/thumbnail/V1xq1AADx/videoblocks-group-of-people-connecting-via-smart-phones-close-up-of-hands-using-cell-phones-and-text-messaging-4k-20s-30s_swzcjc3hwz_thumbnail-full01.png", "Messaging Tab Info", "This is general Messaging Tab Info")
+                val generalInfo = GeneralInfo("https://d2v9y0dukr6mq2.cloudfront.net/video/thumbnail/V1xq1AADx/videoblocks-group-of-people-connecting-via-smart-phones-close-up-of-hands-using-cell-phones-and-text-messaging-4k-20s-30s_swzcjc3hwz_thumbnail-full01.png", "Statistic Tab Info", "This is general Statistic Tab Info")
                 val intent = Intent(this, GeneralInfoActivity::class.java)
                 intent.putExtra("GeneralInfo", generalInfo)
                 startActivity(intent)
             }
 
             R.id.card_announcements -> {
-                val generalInfo = GeneralInfo("https://d2v9y0dukr6mq2.cloudfront.net/video/thumbnail/V1xq1AADx/videoblocks-group-of-people-connecting-via-smart-phones-close-up-of-hands-using-cell-phones-and-text-messaging-4k-20s-30s_swzcjc3hwz_thumbnail-full01.png", "Messaging Tab Info", "This is general Messaging Tab Info")
+                val generalInfo = GeneralInfo("https://d2v9y0dukr6mq2.cloudfront.net/video/thumbnail/V1xq1AADx/videoblocks-group-of-people-connecting-via-smart-phones-close-up-of-hands-using-cell-phones-and-text-messaging-4k-20s-30s_swzcjc3hwz_thumbnail-full01.png", "Announcements Tab Info", "This is general Announcements Tab Info")
                 val intent = Intent(this, GeneralInfoActivity::class.java)
                 intent.putExtra("GeneralInfo", generalInfo)
                 startActivity(intent)
             }
 
             R.id.card_help -> {
-                val generalInfo = GeneralInfo("https://d2v9y0dukr6mq2.cloudfront.net/video/thumbnail/V1xq1AADx/videoblocks-group-of-people-connecting-via-smart-phones-close-up-of-hands-using-cell-phones-and-text-messaging-4k-20s-30s_swzcjc3hwz_thumbnail-full01.png", "Messaging Tab Info", "This is general Messaging Tab Info")
+                val generalInfo = GeneralInfo("https://d2v9y0dukr6mq2.cloudfront.net/video/thumbnail/V1xq1AADx/videoblocks-group-of-people-connecting-via-smart-phones-close-up-of-hands-using-cell-phones-and-text-messaging-4k-20s-30s_swzcjc3hwz_thumbnail-full01.png", "Help Tab Info", "This is general Help Tab Info")
                 val intent = Intent(this, GeneralInfoActivity::class.java)
                 intent.putExtra("GeneralInfo", generalInfo)
                 startActivity(intent)
             }
 
             R.id.card_rules -> {
-                val generalInfo = GeneralInfo("https://d2v9y0dukr6mq2.cloudfront.net/video/thumbnail/V1xq1AADx/videoblocks-group-of-people-connecting-via-smart-phones-close-up-of-hands-using-cell-phones-and-text-messaging-4k-20s-30s_swzcjc3hwz_thumbnail-full01.png", "Messaging Tab Info", "This is general Messaging Tab Info")
+                val generalInfo = GeneralInfo("https://d2v9y0dukr6mq2.cloudfront.net/video/thumbnail/V1xq1AADx/videoblocks-group-of-people-connecting-via-smart-phones-close-up-of-hands-using-cell-phones-and-text-messaging-4k-20s-30s_swzcjc3hwz_thumbnail-full01.png", "Rules Tab Info", "This is general Rules Tab Info")
                 val intent = Intent(this, GeneralInfoActivity::class.java)
                 intent.putExtra("GeneralInfo", generalInfo)
                 startActivity(intent)
             }
 
             R.id.card_privacy -> {
-                val generalInfo = GeneralInfo("https://d2v9y0dukr6mq2.cloudfront.net/video/thumbnail/V1xq1AADx/videoblocks-group-of-people-connecting-via-smart-phones-close-up-of-hands-using-cell-phones-and-text-messaging-4k-20s-30s_swzcjc3hwz_thumbnail-full01.png", "Messaging Tab Info", "This is general Messaging Tab Info")
+                val generalInfo = GeneralInfo("https://d2v9y0dukr6mq2.cloudfront.net/video/thumbnail/V1xq1AADx/videoblocks-group-of-people-connecting-via-smart-phones-close-up-of-hands-using-cell-phones-and-text-messaging-4k-20s-30s_swzcjc3hwz_thumbnail-full01.png", "Privacy Tab Info", "This is general Privacy Tab Info")
                 val intent = Intent(this, GeneralInfoActivity::class.java)
                 intent.putExtra("GeneralInfo", generalInfo)
                 startActivity(intent)

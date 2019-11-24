@@ -70,7 +70,7 @@
                             android:textColor="@color/black" />
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <br.com.simplepass.loading_button_lib.customViews.CircularProgressButton
+                    <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
                         android:id="@+id/cirForgotButton"
                         style="@style/loginButton"
                         android:layout_gravity="center_horizontal"

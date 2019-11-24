@@ -59,12 +59,12 @@ dependencies {
     //Firebase Implementation
     implementation 'com.google.firebase:firebase-analytics:17.2.1'
     implementation 'com.google.firebase:firebase-core:17.2.1'
-    implementation 'com.google.firebase:firebase-auth:19.1.0'
+    implementation 'com.google.firebase:firebase-auth:19.2.0'
     implementation 'com.google.firebase:firebase-storage:19.1.0'
     implementation 'com.google.firebase:firebase-database:19.2.0'
 
     implementation 'de.hdodenhof:circleimageview:3.0.0'
-    implementation 'androidx.recyclerview:recyclerview:1.0.0'
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'com.xwray:groupie:2.3.0'
     implementation 'com.squareup.picasso:picasso:2.71828'
 
@@ -73,7 +73,7 @@ dependencies {
     //Fotoapparat For Camera View
     implementation 'io.fotoapparat:fotoapparat:2.6.1'
     //Material Design For CameraView
-    implementation 'com.google.android.material:material:1.2.0-alpha01'
+    implementation 'com.google.android.material:material:1.2.0-alpha02'
 
     //Swipable Button
     implementation 'com.github.stfalcon:swipeable-button:0.1.0'
@@ -85,7 +85,7 @@ dependencies {
     implementation "com.ebanx:swipe-button:0.8.3"
 
     //Loading Button
-    implementation 'br.com.simplepass:loading-button-android:1.14.0'
+    implementation 'br.com.simplepass:loading-button-android:2.2.0'
 
     //ImageSlider Show
     implementation 'com.github.denzcoskun:ImageSlideshow:0.0.6'
