@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import com.google.firebase.database.FirebaseDatabase
 import com.qatasoft.videocall.MainActivity
 import com.qatasoft.videocall.MainActivity.Companion.mUser
 import com.qatasoft.videocall.MyPreference
@@ -18,6 +19,7 @@ import com.qatasoft.videocall.messages.ChatLogActivity
 import com.qatasoft.videocall.models.User
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_profile.*
+import kotlinx.android.synthetic.main.item_user.*
 
 class ProfileFragment : Fragment() {
     private val logTAG = "ProfileFragmentLog"
@@ -82,9 +84,11 @@ class ProfileFragment : Fragment() {
             profile_btn_follow_save.visibility = View.VISIBLE
 
             profile_btn_follow_save.setOnClickListener {
-                Toast.makeText(context, "Follow Stuffs : "+user!!.isFollowed, Toast.LENGTH_LONG).show()
-
-
+                if (user!!.isFollowed) {
+                    removeFollowed(user)
+                } else {
+                    addToFollowed(user)
+                }
             }
             profile_btn_send_cancel.visibility = View.VISIBLE
 
@@ -100,6 +104,15 @@ class ProfileFragment : Fragment() {
     private fun getInfo(userInfo: User) {
         if (userInfo.profileImageUrl != "") {
             Picasso.get().load(userInfo.profileImageUrl).into(circleimg_profile)
+        }
+
+        //Changing DrawableLeft of Button
+        if (userInfo.isFollowed) {
+            profile_btn_follow_save.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.tick_ico, 0, 0, 0)
+            profile_btn_follow_save.text = "Followed"
+        } else {
+            profile_btn_follow_save.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.add_ico, 0, 0, 0)
+            profile_btn_follow_save.text = "Follow"
         }
 
         profile_username.text = userInfo.username
@@ -156,5 +169,48 @@ class ProfileFragment : Fragment() {
     private fun setEtDisable(et: EditText) {
         et.isEnabled = false
         et.background = context?.let { ContextCompat.getDrawable(it, R.drawable.rounded_et_deactive) }
+    }
+
+    private fun addToFollowed(userInfo: User) {
+        val followed = FirebaseDatabase.getInstance().getReference("/friends/${mUser.uid}/followeds/${userInfo.uid}")
+        followed.setValue(userInfo)
+                .addOnSuccessListener {
+                    profile_btn_follow_save.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.tick_ico, 0, 0, 0)
+                    profile_btn_follow_save.text = "Followed"
+                    userInfo.isFollowed = true
+                }
+                .addOnFailureListener {
+                    Log.d("UsersFragment", "there is a problem : $it")
+                }
+
+        val follower = FirebaseDatabase.getInstance().getReference("/friends/${userInfo.uid}/followers/${mUser.uid}")
+        follower.setValue(mUser)
+                .addOnSuccessListener {
+                }
+                .addOnFailureListener {
+                    Log.d("UsersFragment", "there is a problem : $it")
+                }
+    }
+
+    private fun removeFollowed(userInfo: User) {
+        val followed = FirebaseDatabase.getInstance().getReference("/friends/${mUser.uid}/followeds/${userInfo.uid}")
+        followed.removeValue()
+                .addOnSuccessListener {
+                    profile_btn_follow_save.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.add_ico, 0, 0, 0)
+                    profile_btn_follow_save.text = "Follow"
+                    userInfo.isFollowed = false
+                }
+                .addOnFailureListener {
+                    Log.d("UsersFragment", "there is a problem : $it")
+                }
+
+        val follower = FirebaseDatabase.getInstance().getReference("/friends/${userInfo.uid}/followers/${mUser.uid}")
+        follower.removeValue()
+                .addOnSuccessListener {
+
+                }
+                .addOnFailureListener {
+                    Log.d("UsersFragment", "there is a problem : $it")
+                }
     }
 }
