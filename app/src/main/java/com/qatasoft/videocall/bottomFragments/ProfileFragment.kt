@@ -1,5 +1,6 @@
 package com.qatasoft.videocall.bottomFragments
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -7,11 +8,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.qatasoft.videocall.MainActivity
 import com.qatasoft.videocall.MainActivity.Companion.mUser
 import com.qatasoft.videocall.MyPreference
 import com.qatasoft.videocall.R
+import com.qatasoft.videocall.messages.ChatLogActivity
 import com.qatasoft.videocall.models.User
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_profile.*
@@ -19,6 +22,7 @@ import kotlinx.android.synthetic.main.fragment_profile.*
 class ProfileFragment : Fragment() {
     private val logTAG = "ProfileFragmentLog"
     private var isEnable = false
+    var isOwner = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -28,20 +32,21 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        Log.d(logTAG, "email nnn : " + mUser.email)
+        Log.d(logTAG, "email : " + mUser.email)
 
-        getInfo()
+        isOwner = arguments!!.getBoolean(MainActivity.IsOwnerInfo)
 
-        val isOwner = arguments!!.getBoolean(MainActivity.OwnerInfo)
-        Log.d(logTAG, " Deneme : $isOwner")
+        Log.d(logTAG, " Is Owner : $isOwner")
+
         if (isOwner) {
+            getInfo(mUser)
             profile_btn_edit.setOnClickListener {
                 enableEdit()
             }
 
             profile_btn_send_cancel.setOnClickListener {
                 disableEdit()
-                getInfo()
+                getInfo(mUser)
             }
 
             profile_btn_follow_save.setOnClickListener {
@@ -56,29 +61,52 @@ class ProfileFragment : Fragment() {
                 myPreference.setUserInfo(mUser)
 
                 mUser = myPreference.getUserInfo()
-                Log.d(logTAG, "email : " + myPreference.getUserInfo().email)
+                Log.d(logTAG, "email -: " + myPreference.getUserInfo().email)
                 disableEdit()
-                getInfo()
+                getInfo(mUser)
             }
         } else {
+            val user = arguments!!.getParcelable<User>(MainActivity.OwnerInfo)
+            if (user != null) {
+                getInfo(user)
+            }
+
             profile_img_back.visibility = View.VISIBLE
 
+            profile_img_back.setOnClickListener {
+                val nav = MainActivity.nav
+                nav!!.selectedItemId = R.id.navigation_home
+                nav.visibility = View.VISIBLE
+            }
+
             profile_btn_follow_save.visibility = View.VISIBLE
+
+            profile_btn_follow_save.setOnClickListener {
+                Toast.makeText(context, "Follow Stuffs : "+user!!.isFollowed, Toast.LENGTH_LONG).show()
+
+
+            }
             profile_btn_send_cancel.visibility = View.VISIBLE
+
+            profile_btn_send_cancel.setOnClickListener {
+                val intent = Intent(activity, ChatLogActivity::class.java)
+                intent.putExtra(MessagesFragment.USER_KEY, user)
+                startActivity(intent)
+            }
             profile_btn_edit.visibility = View.GONE
         }
     }
 
-    private fun getInfo() {
-        if (mUser.profileImageUrl != "") {
-            Picasso.get().load(mUser.profileImageUrl).into(circleimg_profile)
+    private fun getInfo(userInfo: User) {
+        if (userInfo.profileImageUrl != "") {
+            Picasso.get().load(userInfo.profileImageUrl).into(circleimg_profile)
         }
 
-        profile_username.text = mUser.username
-        profile_et_username.setText(mUser.username)
-        profile_et_email.setText(mUser.email)
-        profile_et_mobile.setText(mUser.mobile)
-        profile_et_about.setText(mUser.about)
+        profile_username.text = userInfo.username
+        profile_et_username.setText(userInfo.username)
+        profile_et_email.setText(userInfo.email)
+        profile_et_mobile.setText(userInfo.mobile)
+        profile_et_about.setText(userInfo.about)
     }
 
     //Enabling Edit

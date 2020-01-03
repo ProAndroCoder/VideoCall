@@ -2,8 +2,10 @@ package com.qatasoft.videocall
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -23,11 +25,12 @@ class MainActivity : AppCompatActivity() {
     val logTAG = "MainActivity"
 
     companion object {
-        const val OwnerInfo = "IsOwnerInfo"
+        const val IsOwnerInfo = "IsOwnerInfo"
+        const val OwnerInfo = "OwnerInfo"
         var mUser = User()
         var nav: BottomNavigationView? = null
         var isVisible = true
-        var isOwner = true
+        var isBackPressedToExit = false
     }
 
     private val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
@@ -99,7 +102,7 @@ class MainActivity : AppCompatActivity() {
         val transaction = manager.beginTransaction()
         val fragment = ProfileFragment()
         val args = Bundle()
-        args.putBoolean(OwnerInfo, isOwner)
+        args.putBoolean(IsOwnerInfo, true)
         fragment.arguments = args
         transaction.replace(R.id.fragmentHolder, fragment)
         transaction.addToBackStack(null)
@@ -163,6 +166,28 @@ class MainActivity : AppCompatActivity() {
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intent)
         }
+    }
+
+    override fun onBackPressed() {
+        //If double clicked then exit app - Sending to HomeActivity to Exit App
+        if (isBackPressedToExit) {
+            Toast.makeText(this, "Exiting", Toast.LENGTH_LONG).show()
+            val intent = Intent(this, HomeActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+            intent.putExtra("Exit me", true)
+            startActivity(intent)
+            finish()
+
+        } else {// If back button clicked one time then fetch to navigation_home
+            nav!!.selectedItemId = R.id.navigation_home
+            nav!!.visibility = View.VISIBLE
+
+            isBackPressedToExit = true
+            Toast.makeText(this, "Press Back Again To Exit App", Toast.LENGTH_LONG).show()
+
+            Handler().postDelayed({ isBackPressedToExit = false }, 2000)
+        }
+
     }
 
     fun settingsOnClick(view: View) {

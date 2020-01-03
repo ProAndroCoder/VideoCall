@@ -62,11 +62,11 @@ class UserItem(private val userList: ArrayList<User>, private val secim: Int, pr
                 nav!!.selectedItemId = R.id.navigation_profile
                 nav.visibility = View.GONE
 
-
                 val transaction = manager.beginTransaction()
                 val fragment = ProfileFragment()
                 val args = Bundle()
-                args.putBoolean(MainActivity.OwnerInfo, false)
+                args.putBoolean(MainActivity.IsOwnerInfo, false)
+                args.putParcelable(MainActivity.OwnerInfo, item)
                 fragment.arguments = args
                 transaction.replace(R.id.fragmentHolder, fragment)
                 transaction.addToBackStack(null)
@@ -92,6 +92,7 @@ class UserItem(private val userList: ArrayList<User>, private val secim: Int, pr
 
         private fun followedImgProcess(item: User) {
             tickAddImg.setImageResource(R.drawable.tick_ico)
+            item.isFollowed = true
 
             tickAddImg.setOnClickListener {
 
@@ -102,6 +103,7 @@ class UserItem(private val userList: ArrayList<User>, private val secim: Int, pr
 
         private fun unFollowedImgProcess(item: User) {
             tickAddImg.setImageResource(R.drawable.add_ico)
+            item.isFollowed = false
 
             tickAddImg.setOnClickListener {
                 addToFollowed(item)
