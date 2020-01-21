@@ -44,6 +44,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "110345427936-195a2vo43p55fabp4vgkvrdv8h8qv6vf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.qatasoft.videocall",
+            "certificate_hash": "a61d51b7a5b98effaafd345527f201aa5d910b29"
+          }
+        },
+        {
           "client_id": "110345427936-oo8b33o6fcvksv2ihrnsudoec7etu107.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

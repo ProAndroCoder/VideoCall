@@ -53,12 +53,12 @@ dependencies {
     //VideoCalling Agora Base SDK
     implementation 'io.agora.rtc:full-sdk:2.4.1'
 
-    implementation 'com.squareup.retrofit2:retrofit:2.4.0'
-    implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.5.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.5.0'
 
     //Firebase Implementation
-    implementation 'com.google.firebase:firebase-analytics:17.2.1'
-    implementation 'com.google.firebase:firebase-core:17.2.1'
+    implementation 'com.google.firebase:firebase-analytics:17.2.2'
+    implementation 'com.google.firebase:firebase-core:17.2.2'
     implementation 'com.google.firebase:firebase-auth:19.2.0'
     implementation 'com.google.firebase:firebase-storage:19.1.0'
     implementation 'com.google.firebase:firebase-database:19.2.0'
@@ -73,7 +73,7 @@ dependencies {
     //Fotoapparat For Camera View
     implementation 'io.fotoapparat:fotoapparat:2.6.1'
     //Material Design For CameraView
-    implementation 'com.google.android.material:material:1.2.0-alpha02'
+    implementation 'com.google.android.material:material:1.2.0-alpha03'
 
     //Swipable Button
     implementation 'com.github.stfalcon:swipeable-button:0.1.0'
@@ -89,6 +89,9 @@ dependencies {
 
     //ImageSlider Show
     implementation 'com.github.denzcoskun:ImageSlideshow:0.0.6'
+
+    //Dmax Spots Dialog
+    implementation 'com.github.d-max:spots-dialog:1.1@aar'
 
 
 }

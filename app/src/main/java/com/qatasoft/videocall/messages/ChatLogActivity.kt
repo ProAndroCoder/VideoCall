@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.qatasoft.videocall.R
 import com.qatasoft.videocall.models.ChatMessage
@@ -16,6 +18,8 @@ import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 import com.qatasoft.videocall.bottomFragments.MessagesFragment.Companion.USER_KEY
 import com.qatasoft.videocall.MainActivity
 import com.qatasoft.videocall.videoCallRequests.SendVideoRequest
@@ -23,6 +27,7 @@ import com.squareup.picasso.NetworkPolicy
 import com.squareup.picasso.Picasso
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.ViewHolder
+import dmax.dialog.SpotsDialog
 import kotlinx.android.synthetic.main.activity_chat_log.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -32,6 +37,10 @@ class ChatLogActivity : AppCompatActivity() {
         const val logTAG = "ChatLogActivity"
     }
 
+    lateinit var mStorageRef: StorageReference
+    lateinit var mAlertDialog: android.app.AlertDialog
+
+    val PICK_IMAGE_CODE = 23
     val adapter = GroupAdapter<ViewHolder>()
     var mUser = MainActivity.mUser
     var user: User? = null
@@ -68,6 +77,10 @@ class ChatLogActivity : AppCompatActivity() {
         btn_send_chatlog.setOnClickListener {
             Log.d(logTAG, "Attempt to send message ...")
             performSendMessage()
+        }
+
+        img_attachment_chatlog.setOnClickListener {
+            sendAttachment()
         }
     }
 
@@ -167,6 +180,37 @@ class ChatLogActivity : AppCompatActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun sendAttachment() {
+        val filename= UUID.randomUUID().toString()
+        mAlertDialog = SpotsDialog.Builder().setContext(this).build()
+        mStorageRef = FirebaseStorage.getInstance().getReference("Attachments/image/$filename")
+
+        val intent = Intent()
+        intent.type = "image/*"
+        intent.action = Intent.ACTION_GET_CONTENT
+        startActivityForResult(Intent.createChooser(intent, "Select Attachment"), PICK_IMAGE_CODE)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        Log.d(logTAG,data!!.type.toString())
+        if (requestCode == PICK_IMAGE_CODE) {
+            mAlertDialog.show()
+            val uploadTask = mStorageRef.putFile(data!!.data!!).continueWithTask { task ->
+                if (!task.isSuccessful) {
+                    Toast.makeText(this@ChatLogActivity, "Fail", Toast.LENGTH_SHORT).show()
+                }
+                mStorageRef.downloadUrl
+            }.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val url = task.result.toString()
+                    Log.d(logTAG, url)
+                    mAlertDialog.dismiss()
+                }
+            }
+        }
     }
 }
 
