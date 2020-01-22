@@ -20,6 +20,9 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import com.jaiselrahman.filepicker.activity.FilePickerActivity
+import com.jaiselrahman.filepicker.config.Configurations
+import com.jaiselrahman.filepicker.model.MediaFile
 import com.qatasoft.videocall.bottomFragments.MessagesFragment.Companion.USER_KEY
 import com.qatasoft.videocall.MainActivity
 import com.qatasoft.videocall.videoCallRequests.SendVideoRequest
@@ -40,7 +43,9 @@ class ChatLogActivity : AppCompatActivity() {
     lateinit var mStorageRef: StorageReference
     lateinit var mAlertDialog: android.app.AlertDialog
 
+    val FILE_REQUEST_CODE = 24
     val PICK_IMAGE_CODE = 23
+    val maxSize = 200000000
     val adapter = GroupAdapter<ViewHolder>()
     var mUser = MainActivity.mUser
     var user: User? = null
@@ -83,7 +88,6 @@ class ChatLogActivity : AppCompatActivity() {
             sendAttachment()
         }
     }
-
 
     private fun fetchMessages() {
         adapter.clear()
@@ -183,31 +187,67 @@ class ChatLogActivity : AppCompatActivity() {
     }
 
     private fun sendAttachment() {
-        val filename= UUID.randomUUID().toString()
+        val intent = Intent(this, FilePickerActivity::class.java)
+        intent.putExtra(FilePickerActivity.CONFIGS, Configurations.Builder()
+                .setCheckPermission(true)
+                .enableVideoCapture(true)
+                .setShowImages(true)
+                .setShowVideos(true)
+                .setShowAudios(true)
+                .setShowFiles(true)
+                .enableImageCapture(true)
+                .setMaxSelection(10)
+                .setSkipZeroSizeFiles(true)
+                .build())
+        startActivityForResult(intent, FILE_REQUEST_CODE)
+
+        val filename = UUID.randomUUID().toString()
         mAlertDialog = SpotsDialog.Builder().setContext(this).build()
         mStorageRef = FirebaseStorage.getInstance().getReference("Attachments/image/$filename")
 
-        val intent = Intent()
-        intent.type = "image/*"
-        intent.action = Intent.ACTION_GET_CONTENT
-        startActivityForResult(Intent.createChooser(intent, "Select Attachment"), PICK_IMAGE_CODE)
+
+        //val intent = Intent()
+        //intent.type = "image/*"
+        //intent.action = Intent.ACTION_GET_CONTENT
+        //startActivityForResult(Intent.createChooser(intent, "Select Attachment"), PICK_IMAGE_CODE)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        Log.d(logTAG, "message")
         super.onActivityResult(requestCode, resultCode, data)
-        Log.d(logTAG,data!!.type.toString())
-        if (requestCode == PICK_IMAGE_CODE) {
-            mAlertDialog.show()
-            val uploadTask = mStorageRef.putFile(data!!.data!!).continueWithTask { task ->
-                if (!task.isSuccessful) {
-                    Toast.makeText(this@ChatLogActivity, "Fail", Toast.LENGTH_SHORT).show()
+
+        when (requestCode) {
+            FILE_REQUEST_CODE -> {
+                Log.d(logTAG, "message2")
+
+                val files: ArrayList<MediaFile> = data!!.getParcelableArrayListExtra(FilePickerActivity.MEDIA_FILES)!!
+                var sumSize: Long = 0
+                files.forEach { item ->
+                    sumSize += item.size
+
+                    Log.d(logTAG, "OK : " + item.mimeType + "  " + item.size + "  " + item.mediaType + "  " + item.name + "  " + item.thumbnail + "  " + item.height + "  " + sumSize)
                 }
-                mStorageRef.downloadUrl
-            }.addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val url = task.result.toString()
-                    Log.d(logTAG, url)
-                    mAlertDialog.dismiss()
+
+                if (sumSize <= maxSize) {
+                    Toast.makeText(this, "Size of Files : $sumSize", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "Files are bigger than 200 MB", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            PICK_IMAGE_CODE -> {
+                mAlertDialog.show()
+                val uploadTask = mStorageRef.putFile(data!!.data!!).continueWithTask { task ->
+                    if (!task.isSuccessful) {
+                        Toast.makeText(this@ChatLogActivity, "Fail", Toast.LENGTH_SHORT).show()
+                    }
+                    mStorageRef.downloadUrl
+                }.addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        val url = task.result.toString()
+                        Log.d(logTAG, url)
+                        mAlertDialog.dismiss()
+                    }
                 }
             }
         }
