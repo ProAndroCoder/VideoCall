@@ -36,7 +36,6 @@ import io.agora.rtc.IRtcEngineEventHandler
 import io.agora.rtc.RtcEngine
 import io.agora.rtc.video.VideoCanvas
 import io.agora.rtc.video.VideoEncoderConfiguration
-import kotlinx.android.synthetic.main.activity_chat_log.*
 import kotlinx.android.synthetic.main.activity_video_chat_view.*
 import kotlinx.android.synthetic.main.activity_video_chat_view.rel
 import kotlinx.android.synthetic.main.menu_left_drawer_live_call.*
@@ -51,8 +50,8 @@ class VideoChatViewActivity : AppCompatActivity() {
     private var mRtcEngine: RtcEngine? = null
     private val logTAG = "VideoChatViewActivity"
     private var isCaller = false
-    private var user = User("", "", "", "","","","",false)
-    private var mUser = User("", "", "", "","","","",false)
+    private var user = User("", "", "", "", "", "", "", false)
+    private var mUser = User("", "", "", "", "", "", "", false)
     private var isFront = true
 
 
@@ -148,10 +147,10 @@ class VideoChatViewActivity : AppCompatActivity() {
                     Log.d(logTAG, chatMessage.text)
                     val currentUser = mUser
 
-                    if (FirebaseAuth.getInstance().uid == chatMessage.fromId && user.uid == chatMessage.toId) {
-                        adapter.add(ChatFromItem(chatMessage.text, currentUser))
-                    } else if (FirebaseAuth.getInstance().uid == chatMessage.toId && user.uid == chatMessage.fromId) {
-                        adapter.add(ChatToItem(chatMessage.text, user))
+                    if (fromId == chatMessage.fromId && user.uid == chatMessage.toId) {
+                        adapter.add(ChatFromItem(chatMessage, currentUser))
+                    } else if (fromId == chatMessage.toId && user.uid == chatMessage.fromId) {
+                        adapter.add(ChatToItem(chatMessage, user))
                     }
 
                     live_chat.scrollToPosition(adapter.itemCount - 1)

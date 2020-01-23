@@ -4,8 +4,8 @@ import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
 
 
-class ChatMessage(val id: String, val text: String, val fromId: String, val toId: String, val sendingTime: String) {
-    constructor() : this("", "", "", "", "")
+class ChatMessage(val id: String, val text: String, val fromId: String, val toId: String, val sendingTime: String, val attachmentUrl: String, val attachmentName: String, val attachmentType: String) {
+    constructor() : this("", "", "", "", "", "", "", "")
 }
 
 class LoginInfo(val email: String, val password: String) {
