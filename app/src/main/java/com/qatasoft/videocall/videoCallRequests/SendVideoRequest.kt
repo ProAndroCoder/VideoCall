@@ -253,16 +253,16 @@ class SendVideoRequest : AppCompatActivity() {
         })
     }
 
-    fun saveVideoChatInfo() {
+    private fun saveVideoChatInfo() {
         val sendingTime = SimpleDateFormat("dd/M/yyyy hh:mm:ss", Locale.getDefault()).format(Date())
 
         val latestCallRef = FirebaseDatabase.getInstance().getReference("/latest-calls/${mUser.uid}/${user.uid}")
 
-        val chatMessage = ChatMessage(latestCallRef.key!!, "Outgoing Call", mUser.uid, user.uid, sendingTime, "", "", "")
+        val chatMessage = ChatMessage(latestCallRef.key!!, "Outgoing Call", mUser.uid, user.uid, sendingTime)
         latestCallRef.setValue(chatMessage)
 
         val latestToCallRef = FirebaseDatabase.getInstance().getReference("/latest-calls/${user.uid}/${mUser.uid}")
-        val chatMessage2 = ChatMessage(latestCallRef.key!!, "Incoming Call", mUser.uid, user.uid, sendingTime, "", "", "")
+        val chatMessage2 = ChatMessage(latestCallRef.key!!, "Incoming Call", mUser.uid, user.uid, sendingTime)
         latestToCallRef.setValue(chatMessage2)
     }
 }

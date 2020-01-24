@@ -51,7 +51,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="10dp"
-                        android:text="Hello this is a message"
+                        android:text="Hello"
                         android:textColor="@android:color/black" />
 
                     <TextView

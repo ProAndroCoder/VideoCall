@@ -131,8 +131,6 @@ class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
             override fun onChildAdded(p0: DataSnapshot, p1: String?) {
                 val data = p0.getValue(ChatMessage::class.java) ?: return
 
-                Log.d(logTAG, "fetchInfo username : ${data.id}")
-
                 val chatPartnerId = if (data.fromId == mUser.uid) {
                     data.toId
                 } else {
@@ -147,8 +145,6 @@ class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
 
             override fun onChildChanged(p0: DataSnapshot, p1: String?) {
                 val data = p0.getValue(ChatMessage::class.java) ?: return
-
-                Log.d(logTAG, "fetchInfo username : ${data.id}")
 
                 val chatPartnerId = if (data.fromId == mUser.uid) {
                     data.toId
