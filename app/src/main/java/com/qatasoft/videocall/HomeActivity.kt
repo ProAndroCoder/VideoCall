@@ -17,7 +17,7 @@ class HomeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.fragment_home)
 
-        if( intent.getBooleanExtra("Exit me", false)){
+        if (intent.getBooleanExtra("Exit me", false)) {
             finish();
             return; // add this to prevent from doing unnecessary stuffs
         }

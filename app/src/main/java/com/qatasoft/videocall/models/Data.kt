@@ -1,11 +1,9 @@
 package com.qatasoft.videocall.models
 
-import android.net.Uri
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
 
-
-class ChatMessage(val text: String, val fromId: String, val toId: String, val sendingTime: String, var attachmentUrl: String = "", val attachmentName: String = "", val attachmentType: String = "", val fileUri: String = "") {
+class ChatMessage(val text: String, val fromId: String, val toId: String, val sendingTime: String, var attachmentUrl: String = "", val attachmentName: String = "", val attachmentType: String = "", val fileUri: String = "", var refKey: String = "") {
     constructor() : this("", "", "", "")
 }
 
@@ -26,4 +24,11 @@ class User(val profileImageUrl: String, val uid: String, val username: String, v
 @Parcelize
 class GeneralInfo(val img_general_url: String, val title: String, val text: String) : Parcelable {
     constructor() : this("", "", "")
+}
+
+class FileType {
+    val IMAGE = "image"
+    val VIDEO = "video"
+    val DOCUMENT = "document"
+    val AUDIO = "audio"
 }

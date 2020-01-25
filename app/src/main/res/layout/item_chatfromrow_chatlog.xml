@@ -57,10 +57,18 @@
                         android:visibility="gone" />
                 </LinearLayout>
 
+                <ImageView
+                    android:id="@+id/img_from_chatlog"
+                    android:layout_width="250dp"
+                    android:layout_height="200dp"
+                    android:src="@color/colorAero"
+                    android:visibility="gone" />
+
                 <LinearLayout
                     android:id="@+id/linear_progress_from_chatlog"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
                     android:layout_toEndOf="@+id/linear_from_chatlog"
                     android:visibility="gone">
 
@@ -79,13 +87,6 @@
 
                 </LinearLayout>
 
-
-                <ImageView
-                    android:id="@+id/img_from_chatlog"
-                    android:layout_width="250dp"
-                    android:layout_height="200dp"
-                    android:src="@color/colorAero"
-                    android:visibility="gone" />
 
             </RelativeLayout>
 

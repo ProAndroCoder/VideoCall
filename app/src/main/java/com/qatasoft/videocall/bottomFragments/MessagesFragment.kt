@@ -138,7 +138,7 @@ class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
                 }
 
                 if (users.indexOf(chatPartnerId) < 0) {
-                    users.add(chatPartnerId)
+                    users.add(chatPartnerId!!)
                     fetchUserInfo(data, chatPartnerId)
                 }
             }
@@ -153,7 +153,7 @@ class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
                 }
 
                 if (users.indexOf(chatPartnerId) < 0) {
-                    users.add(chatPartnerId)
+                    users.add(chatPartnerId!!)
                     fetchUserInfo(data, chatPartnerId)
                 }
             }
