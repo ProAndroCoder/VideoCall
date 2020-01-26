@@ -3,6 +3,7 @@ package com.qatasoft.videocall
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.MediaController
 import com.denzcoskun.imageslider.models.SlideModel
 import com.qatasoft.videocall.models.GeneralInfo
 import com.qatasoft.videocall.registerlogin.LoginActivity
@@ -10,6 +11,12 @@ import com.qatasoft.videocall.registerlogin.RegisterActivity
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_general_info.*
 import kotlinx.android.synthetic.main.fragment_home.*
+import android.util.DisplayMetrics
+import androidx.core.app.ComponentActivity.ExtraData
+import androidx.core.content.ContextCompat.getSystemService
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+import android.widget.LinearLayout
+
 
 class HomeActivity : AppCompatActivity() {
 

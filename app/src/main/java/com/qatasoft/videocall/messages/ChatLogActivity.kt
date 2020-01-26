@@ -32,13 +32,14 @@ import com.xwray.groupie.ViewHolder
 import kotlinx.android.synthetic.main.activity_chat_log.*
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.coroutines.coroutineContext
 
 class ChatLogActivity : AppCompatActivity() {
     companion object {
-        const val logTAG = "ChatLogActivity"
+        const val logTAG = "ChatLogActivityLogs"
     }
 
-    val fileType = FileType()
+    private val fileType = FileType()
 
     private lateinit var mFiles: ArrayList<MediaFile>
     private lateinit var toId: String
@@ -64,9 +65,6 @@ class ChatLogActivity : AppCompatActivity() {
         recyclerview_chatlog.adapter = adapter
 
         getChatInfo()
-
-
-
 
         chat_videocall.setOnClickListener {
             val intent = Intent(this, SendVideoRequest::class.java)
@@ -148,7 +146,7 @@ class ChatLogActivity : AppCompatActivity() {
                     val currentUser = mUser
 
                     if (fromId == chatMessage.fromId && user.uid == chatMessage.toId) {
-                        adapter.add(ChatFromItem(chatMessage, currentUser))
+                        adapter.add(ChatFromItem(chatMessage, currentUser, applicationContext))
                     } else if (fromId == chatMessage.toId && user.uid == chatMessage.fromId) {
                         adapter.add(ChatToItem(chatMessage, user))
                     }
@@ -193,7 +191,7 @@ class ChatLogActivity : AppCompatActivity() {
                     mFiles.forEach { item ->
                         sumSize += item.size
 
-                        Log.d(logTAG, "OK : " + item.mimeType + "  " + item.size + "  " + item.mediaType + "  " + item.name + "  " + item.thumbnail + "  " + item.height + "  " + sumSize)
+                        Log.d(logTAG, "OK : " + item.mimeType + "  " + item.size + "  " + item.mediaType + "  " + item.name + "  " + item.thumbnail + "  " + item.height + "  " + sumSize + "  " + item.thumbnail + "  " + item.path)
 
                         attachmentType = getTypeOfFile(item.mimeType)
                         attachmentName = item.name

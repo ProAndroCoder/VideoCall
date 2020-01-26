@@ -1,8 +1,16 @@
 package com.qatasoft.videocall.views
 
+import android.content.Context
+import android.media.MediaPlayer
 import android.net.Uri
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
+import android.view.WindowManager
+import android.widget.MediaController
+import android.widget.RelativeLayout
+import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import com.github.abdularis.buttonprogress.DownloadButtonProgress
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
@@ -17,11 +25,14 @@ import com.qatasoft.videocall.messages.ChatLogActivity
 import com.qatasoft.videocall.models.ChatMessage
 import com.qatasoft.videocall.models.FileType
 import com.qatasoft.videocall.request.FirebaseControl
+import kotlinx.android.synthetic.main.activity_general_info.*
 import kotlinx.android.synthetic.main.item_chatfromrow_chatlog.view.*
 import kotlinx.android.synthetic.main.item_chattorow_chatlog.view.*
 import java.util.*
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.coroutineContext
 
-class ChatFromItem(private var chatMessage: ChatMessage, val user: User) : Item<ViewHolder>() {
+class ChatFromItem(private var chatMessage: ChatMessage, val user: User, val context: Context) : Item<ViewHolder>() {
     val logTag = "ChatFromItemLog"
     val fileType = FileType()
 
@@ -40,15 +51,70 @@ class ChatFromItem(private var chatMessage: ChatMessage, val user: User) : Item<
                     }
                     item.txt_message_from_chatlog.visibility = View.GONE
                     item.img_from_chatlog.visibility = View.VISIBLE
-
                 }
 
                 fileType.VIDEO -> {
+                    Log.d(logTag, "url :" + chatMessage.attachmentUrl)
+                    if (chatMessage.attachmentUrl.isEmpty()) {
+                        sendAttachment(viewHolder)
+                    } else {
+                        item.linear_progress_from_chatlog.visibility = View.VISIBLE
+                        item.progress_from_chatlog.idleIcon = ContextCompat.getDrawable(context, R.drawable.ic_play)
+                        item.progress_from_chatlog.setIdle()
+
+                        item.progress_from_chatlog.setOnClickListener {
+                            Log.d(logTag, "Video Play From Uri")
+                        }
+                        //Picasso.get().load(chatMessage.attachmentUrl).into(item.img_from_chatlog)
+                    }
+                    Log.d(logTag, "Video Place")
+
+                    item.txt_message_from_chatlog.visibility = View.GONE
+                    item.videoView_from_chatlog.visibility = View.VISIBLE
+
+                    item.videoView_from_chatlog.setVideoURI(chatMessage.fileUri.toUri())
+                    var mediaController = MediaController(context)
+
+                    item.videoView_from_chatlog.setMediaController(mediaController)
+
+                    /*val metrics2 = DisplayMetrics()
+
+                    val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+
+                    windowManager.defaultDisplay.getMetrics(metrics2)
+                    val params2 = item.videoView_from_chatlog.layoutParams as RelativeLayout.LayoutParams
+                    params2.width = (300 * metrics2.density).toInt()
+                    params2.height = (250 * metrics2.density).toInt()
+                    params2.leftMargin = 30
+                    item.videoView_from_chatlog.layoutParams = params2
+*/
+                    item.videoView_from_chatlog.requestFocus()
+
+                    item.videoView_from_chatlog.seekTo(2)
                 }
 
                 fileType.AUDIO -> {
                     if (chatMessage.attachmentUrl.isEmpty()) {
                         sendAttachment(viewHolder)
+                    } else {
+                        item.linear_progress_from_chatlog.visibility = View.VISIBLE
+                        item.progress_from_chatlog.idleIcon = ContextCompat.getDrawable(context, R.drawable.ic_play)
+                        item.progress_from_chatlog.setIdle()
+
+                        val mp = MediaPlayer.create(context, chatMessage.fileUri.toUri())
+
+                        item.progress_from_chatlog.setOnClickListener {
+                            Log.d(logTag, "Sound Play From Uri")
+                            if (mp.isPlaying) {
+                                mp.pause()
+                                item.progress_from_chatlog.idleIcon = ContextCompat.getDrawable(context, R.drawable.ic_play)
+                                item.progress_from_chatlog.setIdle()
+                            } else {
+                                mp.start()
+                                item.progress_from_chatlog.idleIcon = ContextCompat.getDrawable(context, R.drawable.ic_add_img)
+                                item.progress_from_chatlog.setIdle()
+                            }
+                        }
                     }
                     item.txt_attachmentType_from_chatlog.visibility = View.VISIBLE
                     item.img_attachmentType_from_chatlog.visibility = View.VISIBLE
@@ -117,9 +183,39 @@ class ChatFromItem(private var chatMessage: ChatMessage, val user: User) : Item<
 
                 item.progress_from_chatlog.setFinish()
 
-                if (chatMessage.attachmentType == "image") {
-                    Log.d(logTag, "url 2 :" + chatMessage.attachmentUrl)
-                    Picasso.get().load(chatMessage.attachmentUrl).into(item.img_from_chatlog)
+                when (chatMessage.attachmentType) {
+                    fileType.IMAGE -> {
+                        Log.d(logTag, "url 2 :" + chatMessage.attachmentUrl)
+                        Picasso.get().load(chatMessage.attachmentUrl).into(item.img_from_chatlog)
+                    }
+                    fileType.VIDEO -> {
+                        item.linear_progress_from_chatlog.visibility = View.VISIBLE
+                        item.progress_from_chatlog.setIdle()
+
+                        item.progress_from_chatlog.setOnClickListener {
+                            Log.d(logTag, "Video Play From Uri")
+                        }
+                    }
+                    fileType.AUDIO -> {
+                        item.linear_progress_from_chatlog.visibility = View.VISIBLE
+                        item.progress_from_chatlog.idleIcon = ContextCompat.getDrawable(context, R.drawable.ic_play)
+                        item.progress_from_chatlog.setIdle()
+
+                        val mp = MediaPlayer.create(context, chatMessage.fileUri.toUri())
+
+                        item.progress_from_chatlog.setOnClickListener {
+                            Log.d(logTag, "Sound Play From Uri")
+                            if (mp.isPlaying) {
+                                mp.pause()
+                                item.progress_from_chatlog.idleIcon = ContextCompat.getDrawable(context, R.drawable.ic_play)
+                                item.progress_from_chatlog.setIdle()
+                            } else {
+                                mp.start()
+                                item.progress_from_chatlog.idleIcon = ContextCompat.getDrawable(context, R.drawable.ic_add_img)
+                                item.progress_from_chatlog.setIdle()
+                            }
+                        }
+                    }
                 }
             }
         }.addOnFailureListener {
@@ -134,6 +230,7 @@ class ChatFromItem(private var chatMessage: ChatMessage, val user: User) : Item<
             override fun onCancelButtonClick(view: View?) {
                 Log.d(logTag, "Cancel Clicked")
                 uploadTask.cancel()
+                item.progress_from_chatlog.setIdle()
             }
 
             override fun onIdleButtonClick(view: View?) {
