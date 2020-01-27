@@ -10,12 +10,12 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import androidx.core.content.ContextCompat
+import com.bumptech.glide.Glide
 import com.google.firebase.database.FirebaseDatabase
 import com.qatasoft.videocall.*
 import com.qatasoft.videocall.bottomFragments.MessagesFragment.Companion.USER_KEY
 import com.qatasoft.videocall.messages.ChatLogActivity
 import com.qatasoft.videocall.models.User
-import com.squareup.picasso.Picasso
 import io.fotoapparat.Fotoapparat
 import io.fotoapparat.log.logcat
 import io.fotoapparat.log.loggers
@@ -81,7 +81,7 @@ class GetVideoRequest : AppCompatActivity() {
 
         user = intent.getParcelableExtra(SendVideoRequest.TEMP_TOKEN)!!
 
-        Picasso.get().load(user.profileImageUrl).into(get_req_circleimage_user)
+        Glide.with(this).load(user.profileImageUrl).into(get_req_circleimage_user)
 
         get_req_text_username.text = user.username
     }

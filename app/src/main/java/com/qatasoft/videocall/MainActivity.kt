@@ -31,6 +31,8 @@ class MainActivity : AppCompatActivity() {
         var nav: BottomNavigationView? = null
         var isVisible = true
         var isBackPressedToExit = false
+        const val keyViewActivityUri = "KEY_VIEW_ACTIVITY_URI"
+        const val keyViewActivityType = "KEY_VIEW_ACTIVITY_TYPE"
     }
 
     private val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->

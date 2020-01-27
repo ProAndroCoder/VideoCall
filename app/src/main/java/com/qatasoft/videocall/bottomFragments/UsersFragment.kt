@@ -75,9 +75,9 @@ class UsersFragment : Fragment(), SearchView.OnQueryTextListener {
         val manager = activity!!.supportFragmentManager
 
         //Adapters All, Followers, Followeds
-        allAdapter = UserItem(all, 0, MainActivity.mUser, manager)
-        followersAdapter = UserItem(followers, 0, MainActivity.mUser, manager)
-        followedsAdapter = UserItem(followeds, 1, MainActivity.mUser, manager)
+        allAdapter = UserItem(all, 0, MainActivity.mUser, manager,context!!)
+        followersAdapter = UserItem(followers, 0, MainActivity.mUser, manager,context!!)
+        followedsAdapter = UserItem(followeds, 1, MainActivity.mUser, manager,context!!)
 
         mUser = MainActivity.mUser
 

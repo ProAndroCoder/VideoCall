@@ -1,13 +1,13 @@
 package com.qatasoft.videocall.messages
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
 import com.qatasoft.videocall.R
 import com.qatasoft.videocall.models.ChatMessage
 import com.qatasoft.videocall.models.User
@@ -23,16 +23,16 @@ import com.jaiselrahman.filepicker.config.Configurations
 import com.jaiselrahman.filepicker.model.MediaFile
 import com.qatasoft.videocall.bottomFragments.MessagesFragment.Companion.USER_KEY
 import com.qatasoft.videocall.MainActivity
+import com.qatasoft.videocall.ViewActivity
 import com.qatasoft.videocall.models.FileType
 import com.qatasoft.videocall.request.FirebaseControl
 import com.qatasoft.videocall.videoCallRequests.SendVideoRequest
-import com.squareup.picasso.Picasso
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.ViewHolder
 import kotlinx.android.synthetic.main.activity_chat_log.*
+import kotlinx.android.synthetic.main.activity_chat_log.toolbar
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.coroutines.coroutineContext
 
 class ChatLogActivity : AppCompatActivity() {
     companion object {
@@ -88,7 +88,7 @@ class ChatLogActivity : AppCompatActivity() {
         fromId = FirebaseAuth.getInstance().uid!!
         toId = user.uid
 
-        Picasso.get().load(user.profileImageUrl).into(chat_userImage)
+        Glide.with(this).load(user.profileImageUrl).into(chat_userImage)
 
         chat_username.text = user.username
 
@@ -148,7 +148,7 @@ class ChatLogActivity : AppCompatActivity() {
                     if (fromId == chatMessage.fromId && user.uid == chatMessage.toId) {
                         adapter.add(ChatFromItem(chatMessage, currentUser, applicationContext))
                     } else if (fromId == chatMessage.toId && user.uid == chatMessage.fromId) {
-                        adapter.add(ChatToItem(chatMessage, user))
+                        adapter.add(ChatToItem(chatMessage, user, applicationContext))
                     }
                 }
                 recyclerview_chatlog.scrollToPosition(adapter.itemCount - 1)
@@ -191,7 +191,7 @@ class ChatLogActivity : AppCompatActivity() {
                     mFiles.forEach { item ->
                         sumSize += item.size
 
-                        Log.d(logTAG, "OK : " + item.mimeType + "  " + item.size + "  " + item.mediaType + "  " + item.name + "  " + item.thumbnail + "  " + item.height + "  " + sumSize + "  " + item.thumbnail + "  " + item.path)
+                        Log.d(logTAG, "OK : " + item.mimeType + "  " + item.size + "  " + item.mediaType + "  " + item.name + " path: " + item.path + "  " + item.uri + "  " + sumSize)
 
                         attachmentType = getTypeOfFile(item.mimeType)
                         attachmentName = item.name
@@ -240,7 +240,7 @@ class ChatLogActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.remove_chatlog -> {
-                val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${mUser.uid}/${user!!.uid}")
+                val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${mUser.uid}/${user.uid}")
 
                 ref.removeValue()
 

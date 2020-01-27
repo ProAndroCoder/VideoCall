@@ -54,7 +54,6 @@ class VideoChatViewActivity : AppCompatActivity() {
     private var mUser = User("", "", "", "", "", "", "", false)
     private var isFront = true
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_video_chat_view)
@@ -150,7 +149,7 @@ class VideoChatViewActivity : AppCompatActivity() {
                     if (fromId == chatMessage.fromId && user.uid == chatMessage.toId) {
                         adapter.add(ChatFromItem(chatMessage, currentUser,applicationContext))
                     } else if (fromId == chatMessage.toId && user.uid == chatMessage.fromId) {
-                        adapter.add(ChatToItem(chatMessage, user))
+                        adapter.add(ChatToItem(chatMessage, user,applicationContext))
                     }
 
                     live_chat.scrollToPosition(adapter.itemCount - 1)

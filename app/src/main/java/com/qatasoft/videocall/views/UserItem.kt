@@ -1,5 +1,6 @@
 package com.qatasoft.videocall.views
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -11,6 +12,7 @@ import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.google.firebase.database.FirebaseDatabase
 import com.qatasoft.videocall.MainActivity
 import com.qatasoft.videocall.R
@@ -18,16 +20,15 @@ import com.qatasoft.videocall.bottomFragments.MessagesFragment.Companion.USER_KE
 import com.qatasoft.videocall.bottomFragments.ProfileFragment
 import com.qatasoft.videocall.messages.ChatLogActivity
 import com.qatasoft.videocall.models.User
-import com.squareup.picasso.Picasso
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.item_user.view.*
 
-class UserItem(private val userList: ArrayList<User>, private val secim: Int, private val mUser: User, private val manager: FragmentManager) : RecyclerView.Adapter<UserItem.UserViewHolder>() {
+class UserItem(private val userList: ArrayList<User>, private val secim: Int, private val mUser: User, private val manager: FragmentManager, val context: Context) : RecyclerView.Adapter<UserItem.UserViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_user, parent, false)
         Log.d("UsersFragment", "--- : ${userList.size}")
-        return UserViewHolder(view, secim, mUser, manager)
+        return UserViewHolder(view, secim, mUser, manager,context)
     }
 
     override fun getItemCount(): Int {
@@ -40,7 +41,7 @@ class UserItem(private val userList: ArrayList<User>, private val secim: Int, pr
         holder.bindItems(userList[position])
     }
 
-    class UserViewHolder(val view: View, private val secim: Int, private val mUser: User, private val manager: FragmentManager) : RecyclerView.ViewHolder(view) {
+    class UserViewHolder(val view: View, private val secim: Int, private val mUser: User, private val manager: FragmentManager, val context: Context) : RecyclerView.ViewHolder(view) {
         val username: TextView = view.txt_username
         private val userImg: CircleImageView = view.circleimg_user
         private val tickAddImg: ImageView = view.img_tick_add
@@ -48,7 +49,7 @@ class UserItem(private val userList: ArrayList<User>, private val secim: Int, pr
 
         fun bindItems(item: User) {
             username.text = item.username
-            Picasso.get().load(item.profileImageUrl).into(userImg)
+            Glide.with(context).load(item.profileImageUrl).into(userImg)
 
             //SetOnItemClickListener !!!
             relativeUser.setOnClickListener {

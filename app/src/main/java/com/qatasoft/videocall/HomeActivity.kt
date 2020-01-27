@@ -8,7 +8,6 @@ import com.denzcoskun.imageslider.models.SlideModel
 import com.qatasoft.videocall.models.GeneralInfo
 import com.qatasoft.videocall.registerlogin.LoginActivity
 import com.qatasoft.videocall.registerlogin.RegisterActivity
-import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_general_info.*
 import kotlinx.android.synthetic.main.fragment_home.*
 import android.util.DisplayMetrics

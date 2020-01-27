@@ -1,5 +1,6 @@
 package com.qatasoft.videocall.bottomFragments
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -185,7 +186,7 @@ class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
                 if (user!!.username.contains(searchText) && users.indexOf(chatPartnerId) >= 0) {
                     Log.d(logTAG, user.username)
                     users.remove(chatPartnerId)
-                    adapter.add(LatestMessageRow(data, user))
+                    adapter.add(LatestMessageRow(data, user, context!!))
                 }
             }
 
