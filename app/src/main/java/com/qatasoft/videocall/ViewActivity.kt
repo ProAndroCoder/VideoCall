@@ -5,18 +5,14 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.MediaController
-import android.widget.Toast
 import androidx.core.net.toUri
 import com.bumptech.glide.Glide
 import com.qatasoft.videocall.MainActivity.Companion.keyViewActivityType
 import com.qatasoft.videocall.MainActivity.Companion.keyViewActivityUri
-import com.qatasoft.videocall.messages.ChatLogActivity.Companion.logTAG
-import com.qatasoft.videocall.models.FileType
-import kotlinx.android.synthetic.main.activity_general_info.*
+import com.qatasoft.videocall.models.Tools
 import kotlinx.android.synthetic.main.activity_view.*
 
 class ViewActivity : AppCompatActivity() {
-    private val fileType = FileType()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,7 +26,7 @@ class ViewActivity : AppCompatActivity() {
         //videoview_view.setVideoPath("/storage/emulated/0/Movies/VID_20200122_113026.mp4")
 
         when (type) {
-            fileType.VIDEO -> {
+            Tools.video -> {
                 videoview_view.setVideoURI(uri)
                 val mediaController = MediaController(this)
 
@@ -44,7 +40,7 @@ class ViewActivity : AppCompatActivity() {
 
                 videoview_view.start()
             }
-            fileType.IMAGE -> {
+            Tools.image -> {
                 videoview_view.visibility = View.GONE
                 img_view.visibility = View.VISIBLE
                 Glide.with(this).load(uri).into(img_view)

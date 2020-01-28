@@ -23,8 +23,7 @@ import com.jaiselrahman.filepicker.config.Configurations
 import com.jaiselrahman.filepicker.model.MediaFile
 import com.qatasoft.videocall.bottomFragments.MessagesFragment.Companion.USER_KEY
 import com.qatasoft.videocall.MainActivity
-import com.qatasoft.videocall.ViewActivity
-import com.qatasoft.videocall.models.FileType
+import com.qatasoft.videocall.models.Tools
 import com.qatasoft.videocall.request.FirebaseControl
 import com.qatasoft.videocall.videoCallRequests.SendVideoRequest
 import com.xwray.groupie.GroupAdapter
@@ -38,8 +37,6 @@ class ChatLogActivity : AppCompatActivity() {
     companion object {
         const val logTAG = "ChatLogActivityLogs"
     }
-
-    private val fileType = FileType()
 
     private lateinit var mFiles: ArrayList<MediaFile>
     private lateinit var toId: String
@@ -217,17 +214,17 @@ class ChatLogActivity : AppCompatActivity() {
 
     private fun getTypeOfFile(mimeType: String): String {
         return when {
-            mimeType.contains(fileType.IMAGE) -> {
-                fileType.IMAGE
+            mimeType.contains("image") -> {
+                Tools.image
             }
-            mimeType.contains(fileType.VIDEO) -> {
-                fileType.VIDEO
+            mimeType.contains(Tools.video.toLowerCase()) -> {
+                Tools.video
             }
-            mimeType.contains(fileType.AUDIO) -> {
-                fileType.AUDIO
+            mimeType.contains(Tools.audio.toLowerCase()) -> {
+                Tools.audio
             }
             else -> {
-                fileType.DOCUMENT
+                Tools.document
             }
         }
     }

@@ -2,6 +2,7 @@ package com.qatasoft.videocall
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Environment
 import android.os.Handler
 import android.util.Log
 import android.view.View
@@ -16,13 +17,16 @@ import com.google.firebase.database.ValueEventListener
 import com.qatasoft.videocall.bottomFragments.*
 import com.qatasoft.videocall.models.GeneralInfo
 import com.qatasoft.videocall.models.LoginInfo
+import com.qatasoft.videocall.models.Tools
 import com.qatasoft.videocall.models.User
 import com.qatasoft.videocall.registerlogin.LoginActivity
 import kotlinx.android.synthetic.main.activity_main.*
+import java.io.File
+
 
 class MainActivity : AppCompatActivity() {
     private val manager = supportFragmentManager
-    val logTAG = "MainActivity"
+    val logTAG = "MainActivityLogs"
 
     companion object {
         const val IsOwnerInfo = "IsOwnerInfo"
@@ -74,6 +78,12 @@ class MainActivity : AppCompatActivity() {
         startService()
 
         navView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
+
+        createFoldersIfNotExist()
+    }
+
+    private fun createFoldersIfNotExist() {
+        Tools.createDirectories(this)
     }
 
     private fun openHomeFragment() {

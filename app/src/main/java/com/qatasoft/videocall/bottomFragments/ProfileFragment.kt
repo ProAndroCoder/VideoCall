@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.google.firebase.database.FirebaseDatabase
@@ -16,17 +15,14 @@ import com.qatasoft.videocall.MainActivity
 import com.qatasoft.videocall.MainActivity.Companion.mUser
 import com.qatasoft.videocall.MyPreference
 import com.qatasoft.videocall.R
-import com.qatasoft.videocall.Tools
 import com.qatasoft.videocall.messages.ChatLogActivity
 import com.qatasoft.videocall.models.User
 import kotlinx.android.synthetic.main.fragment_profile.*
-import kotlinx.android.synthetic.main.item_user.*
 
 class ProfileFragment : Fragment() {
     private val logTAG = "ProfileFragmentLog"
     private var isEnable = false
     var isOwner = false
-    val tools=Tools()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {

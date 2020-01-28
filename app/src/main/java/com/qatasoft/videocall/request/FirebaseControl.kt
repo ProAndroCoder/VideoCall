@@ -39,6 +39,7 @@ class FirebaseControl {
             //If message an attachment then first time do not send toRef to Firebase when attachment sends then we send toRef too
             if (!isAttachment) {
                 //To Messages
+                chatMessage.fileUri = ""
                 val toRef = mDatabase.child(chatMessage.toId).child(chatMessage.fromId)
                 val latestToRef = lDatabase.child(chatMessage.toId).child(chatMessage.fromId)
 
