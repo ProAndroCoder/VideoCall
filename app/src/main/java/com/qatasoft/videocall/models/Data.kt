@@ -1,9 +1,7 @@
 package com.qatasoft.videocall.models
 
 import android.content.Context
-import android.os.Environment
 import android.os.Parcelable
-import android.util.Log
 import android.widget.Toast
 import kotlinx.android.parcel.Parcelize
 import java.io.File
@@ -38,22 +36,24 @@ class Tools {
         const val document = "Document"
         const val audio = "Audio"
 
-        fun getExternalDirectory(context: Context): String {
-            return context.getExternalFilesDir(null).toString()
-        }
+        //ProjectName for using Path
+
+        fun getPath(pathType: String): String = "/VideoCall/$pathType/"
+
+        fun getExternalPath(context: Context): String = context.getExternalFilesDir(null).toString()
+
+        fun getAbsolutePath(context: Context, pathType: String): String = getExternalPath(context) + getPath(pathType)
 
         //Creates Main Directories If Not Exists
         fun createDirectories(context: Context) {
             val directories = ArrayList<File>()
 
-            val externalPath = context.getExternalFilesDir(null)
+            val externalPath = getExternalPath(context)
 
-            Toast.makeText(context, "Hello : $externalPath", Toast.LENGTH_LONG).show()
-
-            directories.add(File(externalPath, "VideoCall/${audio}/Sent"))
-            directories.add(File(externalPath, "VideoCall/${document}/Sent"))
-            directories.add(File(externalPath, "VideoCall/${image}/Sent"))
-            directories.add(File(externalPath, "VideoCall/${video}/Sent"))
+            directories.add(File(externalPath, getPath(image) + "Sent"))
+            directories.add(File(externalPath, getPath(video) + "Sent"))
+            directories.add(File(externalPath, getPath(document) + "Sent"))
+            directories.add(File(externalPath, getPath(audio) + "Sent"))
 
             directories.forEach { file ->
                 try {

@@ -200,7 +200,7 @@ class ChatLogActivity : AppCompatActivity() {
 
                         val sendingTime = SimpleDateFormat("dd/M/yyyy hh:mm:ss", Locale.getDefault()).format(Date())
 
-                        val chatMessage = ChatMessage("", fromId, toId, sendingTime, attachmentUrl, attachmentName, attachmentType, item.uri.toString())
+                        val chatMessage = ChatMessage("", fromId, toId, sendingTime, attachmentUrl, attachmentName, attachmentType, item.path)
 
                         firebaseControl.performSendMessage(chatMessage, true)
                     }

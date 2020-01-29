@@ -12,6 +12,7 @@ import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.startActivity
+import androidx.core.graphics.PathUtils
 import androidx.core.net.toUri
 import com.bumptech.glide.Glide
 import com.downloader.Error
@@ -33,6 +34,7 @@ import com.xwray.groupie.Item
 import com.xwray.groupie.ViewHolder
 import kotlinx.android.synthetic.main.item_chatfromrow_chatlog.view.*
 import kotlinx.android.synthetic.main.item_chattorow_chatlog.view.*
+import java.io.File
 import java.util.*
 
 class ChatFromItem(var chatMessage: ChatMessage, val user: User, val context: Context) : Item<ViewHolder>() {
@@ -54,13 +56,7 @@ class ChatFromItem(var chatMessage: ChatMessage, val user: User, val context: Co
                         sendAttachment(viewHolder)
                     } else {
                         //Show Image in ViewActivity
-                        item.img_from_chatlog.setOnClickListener {
-                            val intent = Intent(context, ViewActivity::class.java)
-                            intent.flags = FLAG_ACTIVITY_NEW_TASK
-                            intent.putExtra(keyViewActivityUri, chatMessage.fileUri)
-                            intent.putExtra(keyViewActivityType, Tools.image)
-                            startActivity(context, intent, null)
-                        }
+                        viewSettings(viewHolder)
                     }
                 }
 
@@ -80,26 +76,17 @@ class ChatFromItem(var chatMessage: ChatMessage, val user: User, val context: Co
 
                         setImage(chatMessage.fileUri, item.img_from_chatlog)
 
-                        item.img_from_chatlog.setOnClickListener {
-                            //Send to ViewActivity
-                            val intent = Intent(context, ViewActivity::class.java)
-                            intent.flags = FLAG_ACTIVITY_NEW_TASK
-                            intent.putExtra(keyViewActivityUri, chatMessage.fileUri)
-                            intent.putExtra(keyViewActivityType, Tools.video)
-                            startActivity(context, intent, null)
-                            Log.d(logTag, "VideoView")
-                        }
+                        viewSettings(viewHolder)
                     }
                 }
 
-                Tools.audio -> {
+                Tools.audio, Tools.document -> {
                     item.linear_progress_from_chatlog.visibility = View.VISIBLE
 
                     //Set position of Progress Button
                     val lp = item.linear_progress_from_chatlog.layoutParams as RelativeLayout.LayoutParams
                     lp.addRule(RelativeLayout.END_OF, R.id.linear_from_chatlog)
                     item.linear_progress_from_chatlog.layoutParams = lp
-
 
                     item.txt_attachmentType_from_chatlog.visibility = View.VISIBLE
                     item.img_attachmentType_from_chatlog.visibility = View.VISIBLE
@@ -112,38 +99,9 @@ class ChatFromItem(var chatMessage: ChatMessage, val user: User, val context: Co
                     if (chatMessage.attachmentUrl.isEmpty()) {
                         sendAttachment(viewHolder)
                     } else {
-                        item.progress_from_chatlog.idleIcon = ContextCompat.getDrawable(context, R.drawable.ic_play)
-                        item.progress_from_chatlog.setIdle()
-
-                        val mp = MediaPlayer.create(context, chatMessage.fileUri.toUri())
-
-                        item.progress_from_chatlog.setOnClickListener {
-                            Log.d(logTag, "Sound Play From Uri")
-                            if (mp.isPlaying) {
-                                mp.pause()
-                                item.progress_from_chatlog.idleIcon = ContextCompat.getDrawable(context, R.drawable.ic_play)
-                                item.progress_from_chatlog.setIdle()
-                            } else {
-                                mp.start()
-                                item.progress_from_chatlog.idleIcon = ContextCompat.getDrawable(context, R.drawable.ic_add_img)
-                                item.progress_from_chatlog.setIdle()
-                            }
-                        }
+                        //Send Source to ViewActivity for Showing
+                        viewSettings(viewHolder)
                     }
-
-
-                }
-                Tools.document -> {
-                    if (chatMessage.attachmentUrl.isEmpty()) {
-                        sendAttachment(viewHolder)
-                    }
-                    item.txt_attachmentType_from_chatlog.visibility = View.VISIBLE
-                    item.img_attachmentType_from_chatlog.visibility = View.VISIBLE
-
-                    item.txt_message_from_chatlog.text = chatMessage.attachmentName
-                    item.txt_attachmentType_from_chatlog.text = chatMessage.attachmentType
-
-                    item.img_attachmentType_from_chatlog.setImageResource(R.drawable.ic_document)
                 }
             }
         } else {
@@ -156,6 +114,8 @@ class ChatFromItem(var chatMessage: ChatMessage, val user: User, val context: Co
     }
 
     private fun sendAttachment(viewHolder: ViewHolder) {
+        copyFileToPath()
+
         val item = viewHolder.itemView
 
         item.linear_progress_from_chatlog.visibility = View.VISIBLE
@@ -194,15 +154,7 @@ class ChatFromItem(var chatMessage: ChatMessage, val user: User, val context: Co
                 when (chatMessage.attachmentType) {
                     Tools.image -> {
                         //Show Image in ViewActivity
-
-                        item.img_from_chatlog.setOnClickListener {
-                            val intent = Intent(context, ViewActivity::class.java)
-                            intent.flags = FLAG_ACTIVITY_NEW_TASK
-                            intent.putExtra(keyViewActivityUri, chatMessage.fileUri)
-                            intent.putExtra(keyViewActivityType, Tools.image)
-                            startActivity(context, intent, null)
-                        }
-
+                        viewSettings(viewHolder)
                     }
 
                     Tools.video -> {
@@ -210,40 +162,11 @@ class ChatFromItem(var chatMessage: ChatMessage, val user: User, val context: Co
                         item.progress_from_chatlog.setIdle()
 
                         //VideoView Activity
-                        item.img_from_chatlog.setOnClickListener {
-                            Log.d(logTag, "Switch to ViewActivity")
-
-                            val intent = Intent(context, ViewActivity::class.java)
-                            intent.flags = FLAG_ACTIVITY_NEW_TASK
-                            intent.putExtra(keyViewActivityUri, chatMessage.fileUri)
-                            intent.putExtra(keyViewActivityType, Tools.video)
-                            startActivity(context, intent, null)
-                        }
+                        viewSettings(viewHolder)
                     }
 
-                    Tools.audio -> {
-                        //Set position of Progress Button
-                        val lp = item.linear_progress_from_chatlog.layoutParams as RelativeLayout.LayoutParams
-                        lp.addRule(RelativeLayout.END_OF, R.id.linear_from_chatlog)
-                        item.linear_progress_from_chatlog.layoutParams = lp
-
-                        item.progress_from_chatlog.idleIcon = ContextCompat.getDrawable(context, R.drawable.ic_play)
-                        item.progress_from_chatlog.setIdle()
-
-                        val mp = MediaPlayer.create(context, chatMessage.fileUri.toUri())
-
-                        item.progress_from_chatlog.setOnClickListener {
-                            Log.d(logTag, "Sound Play From Uri")
-                            if (mp.isPlaying) {
-                                mp.pause()
-                                item.progress_from_chatlog.idleIcon = ContextCompat.getDrawable(context, R.drawable.ic_play)
-                                item.progress_from_chatlog.setIdle()
-                            } else {
-                                mp.start()
-                                item.progress_from_chatlog.idleIcon = ContextCompat.getDrawable(context, R.drawable.ic_add_img)
-                                item.progress_from_chatlog.setIdle()
-                            }
-                        }
+                    Tools.audio, Tools.document -> {
+                        viewSettings(viewHolder)
                     }
                 }
             }
@@ -273,6 +196,77 @@ class ChatFromItem(var chatMessage: ChatMessage, val user: User, val context: Co
         })
     }
 
+    private fun copyFileToPath() {
+        try {
+            val copyFile = File(chatMessage.fileUri)
+
+            val targetFile = File(Tools.getAbsolutePath(context, chatMessage.attachmentType) + "/" + chatMessage.attachmentName)
+
+            copyFile.copyTo(targetFile, true)
+
+            val uri = targetFile.toURI().toString()
+            chatMessage.fileUri = uri
+
+        } catch (e: Throwable) {
+            getText(e.message.toString())
+        }
+    }
+
+    private fun getText(text: String) {
+        Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
+    }
+
+    //Send image,video and doc's source to ViewActivity for Showing
+    private fun viewSettings(viewHolder: ViewHolder) {
+        val item = viewHolder.itemView
+
+        when (chatMessage.attachmentType) {
+            Tools.image, Tools.video -> {
+                item.card_from_chatlog.setOnClickListener {
+                    val intent = Intent(context, ViewActivity::class.java)
+                    intent.flags = FLAG_ACTIVITY_NEW_TASK
+                    intent.putExtra(keyViewActivityUri, chatMessage.fileUri)
+                    intent.putExtra(keyViewActivityType, chatMessage.attachmentType)
+                    startActivity(context, intent, null)
+                }
+
+                item.progress_from_chatlog.setOnClickListener {
+                    val intent = Intent(context, ViewActivity::class.java)
+                    intent.flags = FLAG_ACTIVITY_NEW_TASK
+                    intent.putExtra(keyViewActivityUri, chatMessage.fileUri)
+                    intent.putExtra(keyViewActivityType, chatMessage.attachmentType)
+                    startActivity(context, intent, null)
+                }
+            }
+            Tools.document -> {
+                item.card_from_chatlog.setOnClickListener {
+                    getText("Showing Document")
+                }
+            }
+            Tools.audio -> {
+                item.progress_from_chatlog.idleIcon = ContextCompat.getDrawable(context, R.drawable.ic_play)
+                item.progress_from_chatlog.setIdle()
+
+                item.progress_from_chatlog.setOnClickListener {
+                    val mp = MediaPlayer.create(context, chatMessage.fileUri.toUri())
+
+                    item.progress_from_chatlog.setOnClickListener {
+                        Log.d(logTag, "Sound Play From Uri")
+                        if (mp.isPlaying) {
+                            mp.pause()
+                            item.progress_from_chatlog.idleIcon = ContextCompat.getDrawable(context, R.drawable.ic_play)
+                            item.progress_from_chatlog.setIdle()
+                        } else {
+                            mp.start()
+                            item.progress_from_chatlog.idleIcon = ContextCompat.getDrawable(context, R.drawable.ic_info)
+                            item.progress_from_chatlog.setIdle()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private fun setImage(imageUrl: String, image: ImageView) {
         Glide.with(context).load(imageUrl).into(image)
     }
@@ -291,28 +285,18 @@ class ChatToItem(private val chatMessage: ChatMessage, val user: User, val conte
 
         if (chatMessage.text.isEmpty()) {
 
-            Toast.makeText(context, "FileUri isEmpty:${chatMessage.fileUri.isEmpty()}", Toast.LENGTH_LONG).show()
-
             when (chatMessage.attachmentType) {
                 Tools.image -> {
                     item.txt_message_to_chatlog.visibility = View.GONE
                     item.img_to_chatlog.visibility = View.VISIBLE
 
+                    setImage(chatMessage.attachmentUrl, item.img_to_chatlog)
+
                     if (chatMessage.fileUri.isEmpty()) {
-                        setImage(chatMessage.attachmentUrl, item.img_to_chatlog)
                         downloadAttachment(viewHolder)
-
                     } else {
-                        setImage(chatMessage.fileUri, item.img_to_chatlog)
-
                         //Show Image in ViewActivity
-                        item.img_to_chatlog.setOnClickListener {
-                            val intent = Intent(context, ViewActivity::class.java)
-                            intent.flags = FLAG_ACTIVITY_NEW_TASK
-                            intent.putExtra(keyViewActivityUri, chatMessage.fileUri)
-                            intent.putExtra(keyViewActivityType, Tools.image)
-                            startActivity(context, intent, null)
-                        }
+                        viewSettings(viewHolder)
                     }
                 }
 
@@ -320,14 +304,12 @@ class ChatToItem(private val chatMessage: ChatMessage, val user: User, val conte
                     item.txt_message_to_chatlog.visibility = View.GONE
                     item.img_to_chatlog.visibility = View.VISIBLE
 
+                    setImage(chatMessage.attachmentUrl, item.img_to_chatlog)
+
                     if (chatMessage.fileUri.isEmpty()) {
-
-                        setImage(chatMessage.attachmentUrl, item.img_to_chatlog)
-
                         downloadAttachment(viewHolder)
-                    } else {
-                        setImage(chatMessage.fileUri, item.img_to_chatlog)
 
+                    } else {
                         //Show video in ViewActivity
                         item.linear_progress_to_chatlog.visibility = View.VISIBLE
                         item.progress_to_chatlog.idleIcon = ContextCompat.getDrawable(context, R.drawable.ic_play)
@@ -335,26 +317,17 @@ class ChatToItem(private val chatMessage: ChatMessage, val user: User, val conte
 
                         setImage(chatMessage.fileUri, item.img_to_chatlog)
 
-                        item.img_to_chatlog.setOnClickListener {
-                            //Send to ViewActivity
-                            val intent = Intent(context, ViewActivity::class.java)
-                            intent.flags = FLAG_ACTIVITY_NEW_TASK
-                            intent.putExtra(keyViewActivityUri, chatMessage.fileUri)
-                            intent.putExtra(keyViewActivityType, Tools.video)
-                            startActivity(context, intent, null)
-                            Log.d(logTag, "VideoView")
-                        }
+                        viewSettings(viewHolder)
                     }
                 }
 
-                Tools.audio -> {
+                Tools.audio, Tools.document -> {
                     item.linear_progress_to_chatlog.visibility = View.VISIBLE
 
                     //Set position of Progress Button
                     val lp = item.linear_progress_to_chatlog.layoutParams as RelativeLayout.LayoutParams
                     lp.addRule(RelativeLayout.END_OF, R.id.linear_to_chatlog)
                     item.linear_progress_to_chatlog.layoutParams = lp
-
 
                     item.txt_attachmentType_to_chatlog.visibility = View.VISIBLE
                     item.img_attachmentType_to_chatlog.visibility = View.VISIBLE
@@ -367,36 +340,9 @@ class ChatToItem(private val chatMessage: ChatMessage, val user: User, val conte
                     if (chatMessage.fileUri.isEmpty()) {
                         downloadAttachment(viewHolder)
                     } else {
-                        item.progress_to_chatlog.idleIcon = ContextCompat.getDrawable(context, R.drawable.ic_play)
-                        item.progress_to_chatlog.setIdle()
-
-                        val mp = MediaPlayer.create(context, chatMessage.fileUri.toUri())
-
-                        item.progress_to_chatlog.setOnClickListener {
-                            Log.d(logTag, "Sound Play to Uri")
-                            if (mp.isPlaying) {
-                                mp.pause()
-                                item.progress_to_chatlog.idleIcon = ContextCompat.getDrawable(context, R.drawable.ic_play)
-                                item.progress_to_chatlog.setIdle()
-                            } else {
-                                mp.start()
-                                item.progress_to_chatlog.idleIcon = ContextCompat.getDrawable(context, R.drawable.ic_add_img)
-                                item.progress_to_chatlog.setIdle()
-                            }
-                        }
+                        //Send Source to ViewActivity for Showing
+                        viewSettings(viewHolder)
                     }
-                }
-                Tools.document -> {
-                    if (chatMessage.fileUri.isEmpty()) {
-                        downloadAttachment(viewHolder)
-                    }
-                    item.txt_attachmentType_to_chatlog.visibility = View.VISIBLE
-                    item.img_attachmentType_to_chatlog.visibility = View.VISIBLE
-
-                    item.txt_message_to_chatlog.text = chatMessage.attachmentName
-                    item.txt_attachmentType_to_chatlog.text = chatMessage.attachmentType
-
-                    item.img_attachmentType_to_chatlog.setImageResource(R.drawable.ic_document)
                 }
             }
         } else {
@@ -425,8 +371,9 @@ class ChatToItem(private val chatMessage: ChatMessage, val user: User, val conte
 
         PRDownloader.initialize(context, config)
 
-        val downloadDirectory = Tools.getExternalDirectory(context) + "/VideoCall" + "/${chatMessage.attachmentType}"
-        val fileUri = downloadDirectory + "/${chatMessage.attachmentName}".toUri()
+        val downloadDirectory = Tools.getAbsolutePath(context, chatMessage.attachmentType)
+        //val downloadDirectory = Tools.getPath(chatMessage.attachmentType)
+        val fileUri = File(downloadDirectory + "/${chatMessage.attachmentName}").toURI().toString()
 
         val downloadTask = PRDownloader.download(chatMessage.attachmentUrl, downloadDirectory, chatMessage.attachmentName).build()
         val downloadId = downloadTask.downloadId
@@ -467,15 +414,7 @@ class ChatToItem(private val chatMessage: ChatMessage, val user: User, val conte
                 when (chatMessage.attachmentType) {
                     Tools.image -> {
                         //Show Image in ViewActivity
-
-                        item.img_to_chatlog.setOnClickListener {
-                            val intent = Intent(context, ViewActivity::class.java)
-                            intent.flags = FLAG_ACTIVITY_NEW_TASK
-                            intent.putExtra(keyViewActivityUri, chatMessage.fileUri)
-                            intent.putExtra(keyViewActivityType, Tools.image)
-                            startActivity(context, intent, null)
-                        }
-
+                        viewSettings(viewHolder)
                     }
 
                     Tools.video -> {
@@ -483,40 +422,11 @@ class ChatToItem(private val chatMessage: ChatMessage, val user: User, val conte
                         item.progress_to_chatlog.setIdle()
 
                         //VideoView Activity
-                        item.img_to_chatlog.setOnClickListener {
-                            Log.d(logTag, "Switch to ViewActivity")
-
-                            val intent = Intent(context, ViewActivity::class.java)
-                            intent.flags = FLAG_ACTIVITY_NEW_TASK
-                            intent.putExtra(keyViewActivityUri, chatMessage.fileUri)
-                            intent.putExtra(keyViewActivityType, Tools.video)
-                            startActivity(context, intent, null)
-                        }
+                        viewSettings(viewHolder)
                     }
 
-                    Tools.audio -> {
-                        //Set position of Progress Button
-                        val lp = item.linear_progress_to_chatlog.layoutParams as RelativeLayout.LayoutParams
-                        lp.addRule(RelativeLayout.END_OF, R.id.linear_to_chatlog)
-                        item.linear_progress_to_chatlog.layoutParams = lp
-
-                        item.progress_to_chatlog.idleIcon = ContextCompat.getDrawable(context, R.drawable.ic_play)
-                        item.progress_to_chatlog.setIdle()
-
-                        val mp = MediaPlayer.create(context, chatMessage.fileUri.toUri())
-
-                        item.progress_to_chatlog.setOnClickListener {
-                            Log.d(logTag, "Sound Play To Uri")
-                            if (mp.isPlaying) {
-                                mp.pause()
-                                item.progress_to_chatlog.idleIcon = ContextCompat.getDrawable(context, R.drawable.ic_play)
-                                item.progress_to_chatlog.setIdle()
-                            } else {
-                                mp.start()
-                                item.progress_to_chatlog.idleIcon = ContextCompat.getDrawable(context, R.drawable.ic_add_img)
-                                item.progress_to_chatlog.setIdle()
-                            }
-                        }
+                    Tools.audio, Tools.document -> {
+                        viewSettings(viewHolder)
                     }
                 }
             }
@@ -542,6 +452,61 @@ val downloadDirectory = "VideoCall" + "/${chatMessage.attachmentType}"
         val id = downloadManager.enqueue(request)*/
 
 
+    }
+
+    //Send image,video and doc's source to ViewActivity for Showing
+    private fun viewSettings(viewHolder: ViewHolder) {
+        val item = viewHolder.itemView
+
+        when (chatMessage.attachmentType) {
+            Tools.image, Tools.video -> {
+                item.card_to_chatlog.setOnClickListener {
+                    val intent = Intent(context, ViewActivity::class.java)
+                    intent.flags = FLAG_ACTIVITY_NEW_TASK
+                    intent.putExtra(keyViewActivityUri, chatMessage.fileUri)
+                    intent.putExtra(keyViewActivityType, chatMessage.attachmentType)
+                    startActivity(context, intent, null)
+                }
+
+                item.progress_to_chatlog.setOnClickListener {
+                    val intent = Intent(context, ViewActivity::class.java)
+                    intent.flags = FLAG_ACTIVITY_NEW_TASK
+                    intent.putExtra(keyViewActivityUri, chatMessage.fileUri)
+                    intent.putExtra(keyViewActivityType, chatMessage.attachmentType)
+                    startActivity(context, intent, null)
+                }
+            }
+            Tools.document -> {
+                item.card_to_chatlog.setOnClickListener {
+                    getText("Showing Document")
+                }
+            }
+            Tools.audio -> {
+                item.progress_to_chatlog.idleIcon = ContextCompat.getDrawable(context, R.drawable.ic_play)
+                item.progress_to_chatlog.setIdle()
+
+                item.progress_to_chatlog.setOnClickListener {
+                    val mp = MediaPlayer.create(context, chatMessage.fileUri.toUri())
+
+                    item.progress_to_chatlog.setOnClickListener {
+                        Log.d(logTag, "Sound Play To Uri")
+                        if (mp.isPlaying) {
+                            mp.pause()
+                            item.progress_to_chatlog.idleIcon = ContextCompat.getDrawable(context, R.drawable.ic_play)
+                            item.progress_to_chatlog.setIdle()
+                        } else {
+                            mp.start()
+                            item.progress_to_chatlog.idleIcon = ContextCompat.getDrawable(context, R.drawable.ic_info)
+                            item.progress_to_chatlog.setIdle()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun getText(text: String) {
+        Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
     }
 
     private fun setImage(imageUrl: String, image: ImageView) {
