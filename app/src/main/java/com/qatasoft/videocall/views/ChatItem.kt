@@ -199,7 +199,7 @@ class ChatFromItem(var chatMessage: ChatMessage, val user: User, val context: Co
         try {
             val copyFile = File(chatMessage.fileUri)
 
-            val targetFile = File(Tools.getAbsolutePath(context, chatMessage.attachmentType) + "/" + chatMessage.attachmentName)
+            val targetFile = File(Tools.getAbsolutePath(context, chatMessage.attachmentType) + "/Sent/" + chatMessage.attachmentName)
 
             copyFile.copyTo(targetFile, true)
 
@@ -289,9 +289,8 @@ class ChatToItem(private val chatMessage: ChatMessage, val user: User, val conte
                     item.txt_message_to_chatlog.visibility = View.GONE
                     item.img_to_chatlog.visibility = View.VISIBLE
 
-                    setImage(chatMessage.attachmentUrl, item.img_to_chatlog)
-
                     if (chatMessage.fileUri.isEmpty()) {
+                        setImage(chatMessage.attachmentUrl, item.img_to_chatlog)
                         downloadAttachment(viewHolder)
                     } else {
                         //Show Image in ViewActivity
@@ -303,9 +302,8 @@ class ChatToItem(private val chatMessage: ChatMessage, val user: User, val conte
                     item.txt_message_to_chatlog.visibility = View.GONE
                     item.img_to_chatlog.visibility = View.VISIBLE
 
-                    setImage(chatMessage.attachmentUrl, item.img_to_chatlog)
-
                     if (chatMessage.fileUri.isEmpty()) {
+                        setImage(chatMessage.attachmentUrl, item.img_to_chatlog)
                         downloadAttachment(viewHolder)
 
                     } else {
@@ -459,6 +457,8 @@ val downloadDirectory = "VideoCall" + "/${chatMessage.attachmentType}"
 
         when (chatMessage.attachmentType) {
             Tools.image, Tools.video -> {
+                setImage(chatMessage.fileUri, item.img_to_chatlog)
+
                 item.card_to_chatlog.setOnClickListener {
                     val intent = Intent(context, ViewActivity::class.java)
                     intent.flags = FLAG_ACTIVITY_NEW_TASK

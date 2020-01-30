@@ -55,7 +55,7 @@ class FBaseControl {
     }
 
     //Fetching user according to searchtext value
-    fun fetchUsers(path: String, data: ArrayList<User>, searchText: String): ArrayList<User> {
+    fun fetchUsers(path: String, data: ArrayList<User>, searchText: String = ""): ArrayList<User> {
         val allRef = FirebaseDatabase.getInstance().getReference(path)
 
         allRef.addListenerForSingleValueEvent(object : ValueEventListener {

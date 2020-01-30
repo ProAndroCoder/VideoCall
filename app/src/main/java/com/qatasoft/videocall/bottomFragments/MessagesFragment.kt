@@ -21,6 +21,7 @@ import com.qatasoft.videocall.views.LatestMessageRow
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.ViewHolder
 import com.qatasoft.videocall.models.Tools
+import com.qatasoft.videocall.request.FBaseControl
 import kotlinx.android.synthetic.main.fragment_messages.*
 
 class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
@@ -37,26 +38,16 @@ class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
     private val adapter = GroupAdapter<ViewHolder>()
     private val mUser = MainActivity.mUser
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    val fBaseControl = FBaseControl()
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_messages, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (HomeFragment.isMessage) {
-            tabLayout.getTabAt(0)?.select()
-            fetchInfo(Tools.messageType)
-        } else {
-            tabLayout.getTabAt(1)?.select()
-            fetchInfo(Tools.callType)
-        }
-
-        recycler_message_user.adapter = adapter
-
-        //Itemlar arasında ayıraç konuluyor
-        recycler_message_user.addItemDecoration(DividerItemDecoration(activity, DividerItemDecoration.VERTICAL))
+        getInfo()
 
         adapter.setOnItemClickListener { item, _ ->
             val row = item as LatestMessageRow
@@ -66,46 +57,41 @@ class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
             startActivity(intent)
         }
 
+        controlSession()
 
-        //Kullanıcı Giriş Yapmamış ise onu LoginActivity e geri atar. Ve Geri dönemez.
+        messages_searchview.setOnQueryTextListener(this)
+
+        tabOnSelect()
+    }
+
+    private fun controlSession() {
+        //Kullanıcı Giriş Yapmamış ise onu LoginActivity'e geri atar. Ve Geri dönemez.
         if (mUser.uid.isEmpty()) {
             val intent = Intent(activity, LoginActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intent)
         }
+    }
 
-        messages_searchview.setOnQueryTextListener(this)
 
+    private fun getInfo() {
+        if (HomeFragment.isMessage) {
+            tabLayout.getTabAt(0)?.select()
+            fetchInfo(Tools.messageType)
+        } else {
+            tabLayout.getTabAt(1)?.select()
+            fetchInfo(Tools.callType)
+        }
 
-        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabReselected(tab: TabLayout.Tab?) {
-            }
+        //Itemlar arasında ayıraç konuluyor
+        recycler_message_user.addItemDecoration(DividerItemDecoration(activity, DividerItemDecoration.VERTICAL))
 
-            override fun onTabUnselected(tab: TabLayout.Tab?) {
-            }
-
-            override fun onTabSelected(tab: TabLayout.Tab?) {
-
-                Log.d(logTAG, tab?.position.toString())
-                adapter.clear()
-                when (tab?.position) {
-                    0 -> {
-                        tabIndex = 0
-                        fetchInfo("latest-messages")
-                    }
-
-                    1 -> {
-                        tabIndex = 1
-                        fetchInfo("latest-calls")
-                    }
-                }
-            }
-        })
-
+        recycler_message_user.adapter = adapter
     }
 
     private fun fetchInfo(type: String) {
         adapter.clear()
+        users.clear()
 
         val ref = FirebaseDatabase.getInstance().getReference("/$type/${mUser.uid}")
         ref.addChildEventListener(object : ChildEventListener {
@@ -119,7 +105,7 @@ class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
                 }
 
                 if (users.indexOf(chatPartnerId) < 0) {
-                    users.add(chatPartnerId!!)
+                    users.add(chatPartnerId)
                     fetchUserInfo(data, chatPartnerId)
                 }
             }
@@ -134,7 +120,7 @@ class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
                 }
 
                 if (users.indexOf(chatPartnerId) < 0) {
-                    users.add(chatPartnerId!!)
+                    users.add(chatPartnerId)
                     fetchUserInfo(data, chatPartnerId)
                 }
             }
@@ -174,25 +160,51 @@ class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
                 Log.d(logTAG, "There is a problem while fetching User Info : ${p0.message}")
             }
         })
-
     }
 
     //Serchs user from firebase with text which user input
-    fun searchUserFromFirebase(newText: String?): Boolean {
+    private fun searchUserFromFirebase(newText: String?): Boolean {
         if (newText != null) {
             users.clear()
             if (tabIndex == 0) {
                 adapter.clear()
                 searchText = newText.toString()
-                fetchInfo("latest-messages")
+                fetchInfo(Tools.messageType)
             } else if (tabIndex == 1) {
                 adapter.clear()
                 searchText = newText.toString()
-                fetchInfo("latest-calls")
+                fetchInfo(Tools.callType)
             }
             return true
         }
         return false
+    }
+
+    private fun tabOnSelect() {
+        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabReselected(tab: TabLayout.Tab?) {
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab?) {
+            }
+
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+
+                Log.d(logTAG, tab?.position.toString())
+                adapter.clear()
+                when (tab?.position) {
+                    0 -> {
+                        tabIndex = 0
+                        fetchInfo(Tools.messageType)
+                    }
+
+                    1 -> {
+                        tabIndex = 1
+                        fetchInfo(Tools.callType)
+                    }
+                }
+            }
+        })
     }
 
     override fun onQueryTextSubmit(query: String?): Boolean {

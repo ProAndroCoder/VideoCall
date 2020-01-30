@@ -203,13 +203,6 @@ class UsersFragment : Fragment(), SearchView.OnQueryTextListener {
         })
     }
 
-    fun <T : RecyclerView.ViewHolder> T.listen(event: (position: Int, type: Int) -> Unit): T {
-        itemView.setOnClickListener {
-            event.invoke(adapterPosition, itemViewType)
-        }
-        return this
-    }
-
     private fun searchUsersFromFBase(newText: String?): Boolean {
         if (newText != null) {
             when (tabIndex) {

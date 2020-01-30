@@ -58,6 +58,8 @@ class SendVideoRequest : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_send_video_request)
 
+        requestPermission()
+
         getGeneralInfo()
 
         saveVideoChatInfo()
@@ -172,8 +174,7 @@ class SendVideoRequest : AppCompatActivity() {
     }
 
     private fun hasNoPermissions(): Boolean {
-        return ContextCompat.checkSelfPermission(this,
-                Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
     }
 
     private fun requestPermission() {

@@ -25,8 +25,8 @@ import kotlinx.android.synthetic.main.activity_get_video_request.*
 
 class GetVideoRequest : AppCompatActivity() {
 
-    var user = User("", "", "", "","","","",false)
-    private var mUser = User("", "", "", "","","","",false)
+    var user = User("", "", "", "", "", "", "", false)
+    private var mUser = User("", "", "", "", "", "", "", false)
     private val logTAG = "GetVideoRequest"
 
     private var fotoapparat: Fotoapparat? = null
@@ -37,6 +37,8 @@ class GetVideoRequest : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_get_video_request)
+
+        requestPermission()
 
         getGeneralInfo()
 
@@ -93,7 +95,6 @@ class GetVideoRequest : AppCompatActivity() {
             ringtone!!.stop()
         }
         moveTaskToBack(true)
-
     }
 
     private fun confirmCall() {
