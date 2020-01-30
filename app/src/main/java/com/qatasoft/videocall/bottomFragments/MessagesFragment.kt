@@ -1,6 +1,5 @@
 package com.qatasoft.videocall.bottomFragments
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -21,29 +20,10 @@ import com.qatasoft.videocall.registerlogin.LoginActivity
 import com.qatasoft.videocall.views.LatestMessageRow
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.ViewHolder
+import com.qatasoft.videocall.models.Tools
 import kotlinx.android.synthetic.main.fragment_messages.*
 
 class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
-
-    override fun onQueryTextSubmit(query: String?): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun onQueryTextChange(newText: String?): Boolean {
-        if (newText != null) {
-            users.clear()
-            if (tabIndex == 0) {
-                adapter.clear()
-                searchText = newText.toString()
-                fetchInfo("latest-messages")
-            } else if (tabIndex == 1) {
-                adapter.clear()
-                searchText = newText.toString()
-                fetchInfo("latest-calls")
-            }
-        }
-        return true
-    }
 
     companion object {
         const val logTAG = "MessagesFragment"
@@ -67,10 +47,10 @@ class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
 
         if (HomeFragment.isMessage) {
             tabLayout.getTabAt(0)?.select()
-            fetchInfo("latest-messages")
+            fetchInfo(Tools.messageType)
         } else {
             tabLayout.getTabAt(1)?.select()
-            fetchInfo("latest-calls")
+            fetchInfo(Tools.callType)
         }
 
         recycler_message_user.adapter = adapter
@@ -195,5 +175,31 @@ class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
             }
         })
 
+    }
+
+    //Serchs user from firebase with text which user input
+    fun searchUserFromFirebase(newText: String?): Boolean {
+        if (newText != null) {
+            users.clear()
+            if (tabIndex == 0) {
+                adapter.clear()
+                searchText = newText.toString()
+                fetchInfo("latest-messages")
+            } else if (tabIndex == 1) {
+                adapter.clear()
+                searchText = newText.toString()
+                fetchInfo("latest-calls")
+            }
+            return true
+        }
+        return false
+    }
+
+    override fun onQueryTextSubmit(query: String?): Boolean {
+        return searchUserFromFirebase(query)
+    }
+
+    override fun onQueryTextChange(newText: String?): Boolean {
+        return searchUserFromFirebase(newText)
     }
 }

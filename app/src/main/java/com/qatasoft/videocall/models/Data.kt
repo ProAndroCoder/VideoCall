@@ -36,6 +36,17 @@ class Tools {
         const val document = "Document"
         const val audio = "Audio"
 
+        //Values for MessagesFragment
+        const val messageType = "latest-messages"
+        const val callType = "latest-calls"
+
+        //Values for UsersFragment
+        const val userAll = "USER_TYPE_ALL"
+        const val userFollower = "USER_TYPE_FOLLOWER"
+        const val userFollowed = "USER_TYPE_FOLLOWED"
+        const val addFollowed = "ADD_FOLLOWEDS"
+        const val removeFollowed = "REMOVE_FOLLOWEDS"
+
         //ProjectName for using Path
 
         fun getPath(pathType: String): String = "/VideoCall/$pathType/"

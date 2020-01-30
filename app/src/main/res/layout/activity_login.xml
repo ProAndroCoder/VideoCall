@@ -92,9 +92,9 @@
                 android:onClick="onLoginClick"
                 android:text="@string/text_login"
                 app:initialCornerAngle="27dp"
-                app:spinning_bar_color="#FFF"
-                app:spinning_bar_padding="6dp"
-                app:spinning_bar_width="4dp" />
+                app:spinning_bar_padding="10dp"
+                app:spinning_bar_width="3dp"
+                app:spinning_bar_color="#FFF"/>
 
         </LinearLayout>
     </ScrollView>

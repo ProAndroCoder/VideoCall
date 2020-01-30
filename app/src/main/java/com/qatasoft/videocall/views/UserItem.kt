@@ -19,16 +19,18 @@ import com.qatasoft.videocall.R
 import com.qatasoft.videocall.bottomFragments.MessagesFragment.Companion.USER_KEY
 import com.qatasoft.videocall.bottomFragments.ProfileFragment
 import com.qatasoft.videocall.messages.ChatLogActivity
+import com.qatasoft.videocall.models.Tools
 import com.qatasoft.videocall.models.User
+import com.qatasoft.videocall.request.FBaseControl
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.item_user.view.*
 
-class UserItem(private val userList: ArrayList<User>, private val secim: Int, private val mUser: User, private val manager: FragmentManager, val context: Context) : RecyclerView.Adapter<UserItem.UserViewHolder>() {
+class UserItem(private val userList: ArrayList<User>, private val userType: String, private val mUser: User, private val manager: FragmentManager, val context: Context) : RecyclerView.Adapter<UserItem.UserViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_user, parent, false)
         Log.d("UsersFragment", "--- : ${userList.size}")
-        return UserViewHolder(view, secim, mUser, manager,context)
+        return UserViewHolder(view, userType, mUser, manager, context)
     }
 
     override fun getItemCount(): Int {
@@ -41,11 +43,13 @@ class UserItem(private val userList: ArrayList<User>, private val secim: Int, pr
         holder.bindItems(userList[position])
     }
 
-    class UserViewHolder(val view: View, private val secim: Int, private val mUser: User, private val manager: FragmentManager, val context: Context) : RecyclerView.ViewHolder(view) {
+    class UserViewHolder(val view: View, private val userType: String, private val mUser: User, private val manager: FragmentManager, val context: Context) : RecyclerView.ViewHolder(view) {
         val username: TextView = view.txt_username
         private val userImg: CircleImageView = view.circleimg_user
         private val tickAddImg: ImageView = view.img_tick_add
         private val relativeUser: RelativeLayout = view.relative_user
+
+        val fBaseControl = FBaseControl()
 
         fun bindItems(item: User) {
             username.text = item.username
@@ -76,18 +80,20 @@ class UserItem(private val userList: ArrayList<User>, private val secim: Int, pr
 
             Log.d("UsersFragment", "--- : ${item.username}")
 
-            //Design tickAddImg according to isFollowed
-            if (secim == 0) {
-                tickAddImg.visibility = View.VISIBLE
-                if (item.isFollowed) {
-                    item.isFollowed = false
-                    followedImgProcess(item)
-                } else {
-                    item.isFollowed = true
-                    unFollowedImgProcess(item)
+            //Add tickAddImg according to Followed, Follower or All Type User
+            when (userType) {
+                Tools.userAll, Tools.userFollower -> {
+                    if (item.isFollowed) {
+                        item.isFollowed = false
+                        followedImgProcess(item)
+                    } else {
+                        item.isFollowed = true
+                        unFollowedImgProcess(item)
+                    }
                 }
-            } else if (secim == 1) {
-                tickAddImg.visibility = View.GONE
+                Tools.userFollowed -> {
+                    tickAddImg.visibility = View.GONE
+                }
             }
         }
 
@@ -96,8 +102,8 @@ class UserItem(private val userList: ArrayList<User>, private val secim: Int, pr
             item.isFollowed = true
 
             tickAddImg.setOnClickListener {
-
-                removeFollowed(item)
+                fBaseControl.followedOperations(mUser, item, Tools.removeFollowed)
+                //removeFollowed(item)
                 unFollowedImgProcess(item)
             }
         }
@@ -107,18 +113,19 @@ class UserItem(private val userList: ArrayList<User>, private val secim: Int, pr
             item.isFollowed = false
 
             tickAddImg.setOnClickListener {
-                addToFollowed(item)
+                fBaseControl.followedOperations(mUser, item, Tools.addFollowed)
+                //addToFollowed(item)
                 followedImgProcess(item)
             }
         }
 
+        /*
         private fun addToFollowed(user: User) {
             val followed = FirebaseDatabase.getInstance().getReference("/friends/${mUser.uid}/followeds/${user.uid}")
             followed.setValue(user)
                     .addOnSuccessListener {
                     }
                     .addOnFailureListener {
-                        Log.d("UsersFragment", "there is a problem : $it")
                     }
 
             val follower = FirebaseDatabase.getInstance().getReference("/friends/${user.uid}/followers/${mUser.uid}")
@@ -149,5 +156,8 @@ class UserItem(private val userList: ArrayList<User>, private val secim: Int, pr
                         Log.d("UsersFragment", "there is a problem : $it")
                     }
         }
+
+
+         */
     }
 }

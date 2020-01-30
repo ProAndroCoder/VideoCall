@@ -12,7 +12,6 @@ import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.startActivity
-import androidx.core.graphics.PathUtils
 import androidx.core.net.toUri
 import com.bumptech.glide.Glide
 import com.downloader.Error
@@ -29,7 +28,7 @@ import com.qatasoft.videocall.ViewActivity
 import com.qatasoft.videocall.models.ChatMessage
 import com.qatasoft.videocall.models.Tools
 import com.qatasoft.videocall.models.User
-import com.qatasoft.videocall.request.FirebaseControl
+import com.qatasoft.videocall.request.FBaseControl
 import com.xwray.groupie.Item
 import com.xwray.groupie.ViewHolder
 import kotlinx.android.synthetic.main.item_chatfromrow_chatlog.view.*
@@ -145,7 +144,7 @@ class ChatFromItem(var chatMessage: ChatMessage, val user: User, val context: Co
 
                 chatMessage.attachmentUrl = task.result.toString()
 
-                val firebaseControl = FirebaseControl()
+                val firebaseControl = FBaseControl()
 
                 firebaseControl.performSendMessage(chatMessage, false)
 

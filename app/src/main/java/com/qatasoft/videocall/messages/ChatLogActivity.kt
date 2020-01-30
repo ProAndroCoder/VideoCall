@@ -24,7 +24,7 @@ import com.jaiselrahman.filepicker.model.MediaFile
 import com.qatasoft.videocall.bottomFragments.MessagesFragment.Companion.USER_KEY
 import com.qatasoft.videocall.MainActivity
 import com.qatasoft.videocall.models.Tools
-import com.qatasoft.videocall.request.FirebaseControl
+import com.qatasoft.videocall.request.FBaseControl
 import com.qatasoft.videocall.videoCallRequests.SendVideoRequest
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.ViewHolder
@@ -43,7 +43,7 @@ class ChatLogActivity : AppCompatActivity() {
     private lateinit var user: User
     private lateinit var fromId: String
 
-    private var firebaseControl = FirebaseControl()
+    private var firebaseControl = FBaseControl()
     private val FILE_REQUEST_CODE = 24
     private val maxSize = 200000000
     val adapter = GroupAdapter<ViewHolder>()

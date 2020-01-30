@@ -39,6 +39,8 @@ class MainActivity : AppCompatActivity() {
         const val keyViewActivityType = "KEY_VIEW_ACTIVITY_TYPE"
     }
 
+    lateinit var myPreference: MyPreference
+
     private val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
             R.id.navigation_home -> {
@@ -139,18 +141,18 @@ class MainActivity : AppCompatActivity() {
 
     private fun fetchUserInfo() {
         val ref = FirebaseDatabase.getInstance().getReference("/users")
+
         ref.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(p0: DataSnapshot) {
-                p0.children.forEach() {
+                p0.children.forEach {
                     Log.d(logTAG, "User Info : $it")
                     val user = it.getValue(User::class.java)
 
                     if (user != null && user.uid == FirebaseAuth.getInstance().uid) {
-                        val myPreference = MyPreference(applicationContext)
+                        myPreference = MyPreference(applicationContext)
                         myPreference.setUserInfo(user)
                     }
                 }
-
                 controlSession()
             }
 
@@ -161,7 +163,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun controlSession() {
-        val myPreference = MyPreference(this)
         mUser = myPreference.getUserInfo()
 
         if (mUser.uid.isEmpty()) {
@@ -169,8 +170,8 @@ class MainActivity : AppCompatActivity() {
             stopService(Intent(this, BackgroundService::class.java))
 
             //Shared Preference ile telefonda bulunan kullanıcı bilgilerini silme işlemi. Uid boş gönderilirse çıkış yapar.
-            myPreference.setLoginInfo(LoginInfo("", ""))
-            myPreference.setUserInfo(User("", "", "", "", "", "", "", false))
+            myPreference.setLoginInfo(LoginInfo())
+            myPreference.setUserInfo(User())
 
             // Firebase ile kullanıcının çıkışını sağlamak ve onu LoginActivity'e yollama işi
             FirebaseAuth.getInstance().signOut()
