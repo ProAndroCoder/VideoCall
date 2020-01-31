@@ -6,12 +6,16 @@
     <color name="colorWhite">#FFFFFF</color>
     <color name="colorTransWhite">#CCFFFFFF</color>
 
+    <!--Chatlog colors-->
+    <color name="colorAero">#7CB9E8</color>
+
+
     <!--app colors-->
     <color name="themeColor">#11CFC5</color>
 
     <!--normal colors-->
     <color name="darkTextColor">#020000</color>
-    
+
     <!--colors for light mode-->
     <color name="contentTextColor">#020000</color>
     <color name="register_bk_color">#11CFC5</color>

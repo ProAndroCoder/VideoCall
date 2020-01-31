@@ -22,9 +22,6 @@ import com.qatasoft.videocall.models.LoginInfo
 import com.qatasoft.videocall.models.User
 import kotlinx.android.synthetic.main.activity_register.*
 import java.util.*
-import androidx.core.app.ComponentActivity.ExtraData
-import androidx.core.content.ContextCompat.getSystemService
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
 import android.provider.MediaStore
 
 class RegisterActivity : AppCompatActivity() {
@@ -123,7 +120,7 @@ class RegisterActivity : AppCompatActivity() {
     //Firebase'e resim upload eden metod
     private fun uploadProfileImage() {
         val filename = UUID.randomUUID().toString()
-        val ref = FirebaseStorage.getInstance().getReference().child("UserProfileImage/$filename")
+        val ref = FirebaseStorage.getInstance().reference.child("UserProfileImage/$filename")
 
         ref.putFile(selectedPhotoUri!!)
                 .addOnSuccessListener { img ->

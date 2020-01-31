@@ -185,4 +185,9 @@
     <style name="parent.contentLayout">
         <item name="android:background">@color/contentBodyColor</item>
     </style>
+
+    <!--ChatLog From and To Layout's style-->
+    <style name="chatlogStyles">
+        
+    </style>
 </resources>

@@ -6,8 +6,8 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
 import com.qatasoft.videocall.R
 import com.qatasoft.videocall.models.ChatMessage
 import com.qatasoft.videocall.models.User
@@ -18,53 +18,50 @@ import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
+import com.jaiselrahman.filepicker.activity.FilePickerActivity
+import com.jaiselrahman.filepicker.config.Configurations
+import com.jaiselrahman.filepicker.model.MediaFile
 import com.qatasoft.videocall.bottomFragments.MessagesFragment.Companion.USER_KEY
 import com.qatasoft.videocall.MainActivity
+import com.qatasoft.videocall.models.Tools
+import com.qatasoft.videocall.request.FBaseControl
 import com.qatasoft.videocall.videoCallRequests.SendVideoRequest
-import com.squareup.picasso.NetworkPolicy
-import com.squareup.picasso.Picasso
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.ViewHolder
-import dmax.dialog.SpotsDialog
 import kotlinx.android.synthetic.main.activity_chat_log.*
+import kotlinx.android.synthetic.main.activity_chat_log.toolbar
 import java.text.SimpleDateFormat
 import java.util.*
 
 class ChatLogActivity : AppCompatActivity() {
     companion object {
-        const val logTAG = "ChatLogActivity"
+        const val logTAG = "ChatLogActivityLogs"
     }
 
-    lateinit var mStorageRef: StorageReference
-    lateinit var mAlertDialog: android.app.AlertDialog
+    private lateinit var mFiles: ArrayList<MediaFile>
+    private lateinit var toId: String
+    private lateinit var user: User
+    private lateinit var fromId: String
 
-    val PICK_IMAGE_CODE = 23
+    private var firebaseControl = FBaseControl()
+    private val FILE_REQUEST_CODE = 24
+    private val maxSize = 200000000
     val adapter = GroupAdapter<ViewHolder>()
     var mUser = MainActivity.mUser
-    var user: User? = null
-    var uid = FirebaseAuth.getInstance().uid
+
+    private var attachmentUrl: String = ""
+    private var attachmentName: String = ""
+    private var attachmentType: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_log)
 
-        recyclerview_chatlog.adapter = adapter
-
-        //Parcelable Nesne Alma
-        user = intent.getParcelableExtra(USER_KEY) ?: null
-
         setSupportActionBar(toolbar)
 
-        Picasso.get()
-                .load(user!!.profileImageUrl)
-                .networkPolicy(NetworkPolicy.OFFLINE)
-                .into(chat_userImage)
+        recyclerview_chatlog.adapter = adapter
 
-        // Picasso.get().load(user!!.profileImageUrl).into(chat_userImage)
-
-        chat_username.text = user!!.username
+        getChatInfo()
 
         chat_videocall.setOnClickListener {
             val intent = Intent(this, SendVideoRequest::class.java)
@@ -72,41 +69,86 @@ class ChatLogActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        fetchMessages()
-
         btn_send_chatlog.setOnClickListener {
-            Log.d(logTAG, "Attempt to send message ...")
             performSendMessage()
         }
 
         img_attachment_chatlog.setOnClickListener {
-            sendAttachment()
+            performSendAttachment()
         }
     }
 
+    private fun getChatInfo() {
+        //Parcelable Nesne Alma
+        user = intent.getParcelableExtra(USER_KEY)!!
+
+        fromId = FirebaseAuth.getInstance().uid!!
+        toId = user.uid
+
+        Glide.with(this).load(user.profileImageUrl).into(chat_userImage)
+
+        chat_username.text = user.username
+
+        fetchMessages()
+    }
+
+    private fun performSendAttachment() {
+        val intent = Intent(this, FilePickerActivity::class.java)
+        intent.putExtra(FilePickerActivity.CONFIGS, Configurations.Builder()
+                .setCheckPermission(true)
+                .enableVideoCapture(true)
+                .setShowImages(true)
+                .setShowVideos(true)
+                .setShowAudios(true)
+                .setShowFiles(true)
+                .enableImageCapture(true)
+                .setMaxSelection(10)
+                .setSkipZeroSizeFiles(true)
+                .build())
+        startActivityForResult(intent, FILE_REQUEST_CODE)
+    }
+
+    private fun performSendMessage() {
+        val text = et_message_chatlog.text.toString()
+
+        val sendingTime = SimpleDateFormat("dd/M/yyyy hh:mm:ss", Locale.getDefault()).format(Date())
+
+        val chatMessage = ChatMessage(text, fromId, toId, sendingTime)
+
+        if (fromId.isEmpty() || text.isEmpty() || toId.isEmpty()) {
+            Log.d(logTAG, "There is an error while sending message")
+            return
+        }
+
+        if (firebaseControl.performSendMessage(chatMessage, false)) {
+            //Mesaj kısmını boşaltma
+            et_message_chatlog.text.clear()
+            //En Son atılan mesaja odaklanma
+            recyclerview_chatlog.scrollToPosition(adapter.itemCount - 1)
+        } else {
+            Toast.makeText(this, "Send Message Error!", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     private fun fetchMessages() {
         adapter.clear()
-        val fromId = FirebaseAuth.getInstance().uid
-        val toId = user?.uid
 
         val ref = FirebaseDatabase.getInstance().getReference("/user-messages/$fromId/$toId")
 
         ref.addChildEventListener(object : ChildEventListener {
             override fun onChildAdded(p0: DataSnapshot, p1: String?) {
                 val chatMessage = p0.getValue(ChatMessage::class.java)
+
                 if (chatMessage != null) {
-                    Log.d(logTAG, chatMessage.text)
                     val currentUser = mUser
 
-                    if (FirebaseAuth.getInstance().uid == chatMessage.fromId && user?.uid == chatMessage.toId) {
-                        adapter.add(ChatFromItem(chatMessage.text, currentUser))
-                    } else if (FirebaseAuth.getInstance().uid == chatMessage.toId && user?.uid == chatMessage.fromId) {
-                        adapter.add(ChatToItem(chatMessage.text, user!!))
+                    if (fromId == chatMessage.fromId && user.uid == chatMessage.toId) {
+                        adapter.add(ChatFromItem(chatMessage, currentUser, applicationContext))
+                    } else if (fromId == chatMessage.toId && user.uid == chatMessage.fromId) {
+                        adapter.add(ChatToItem(chatMessage, user, applicationContext))
                     }
-
-                    recyclerview_chatlog.scrollToPosition(adapter.itemCount - 1)
                 }
+                recyclerview_chatlog.scrollToPosition(adapter.itemCount - 1)
             }
 
             override fun onChildChanged(p0: DataSnapshot, p1: String?) {
@@ -126,42 +168,65 @@ class ChatLogActivity : AppCompatActivity() {
         })
     }
 
-    private fun performSendMessage() {
-        val text = et_message_chatlog.text.toString()
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
 
-        val fromId = FirebaseAuth.getInstance().uid
-        val user = intent.getParcelableExtra<User>(USER_KEY)
-        val toId = user?.uid
+        when (requestCode) {
+            FILE_REQUEST_CODE -> {
 
-        val ref = FirebaseDatabase.getInstance().getReference("/user-messages/$fromId/$toId").push()
+                if (data == null) return
 
-        val toRef = FirebaseDatabase.getInstance().getReference("/user-messages/$toId/$fromId").push()
-
-        if (fromId == null) return
-
-        val sendingTime = SimpleDateFormat("dd/M/yyyy hh:mm:ss", Locale.getDefault()).format(Date())
-
-        val chatMessage = toId?.let { ChatMessage(ref.key!!, text, fromId, it, sendingTime) }
-
-        ref.setValue(chatMessage)
-                .addOnSuccessListener {
-                    Log.d(logTAG, "Chat Message Saved : ${ref.key}")
-                    //Edittext i boşaltma işlemi
-                    et_message_chatlog.text.clear()
-                    //recyclerview i en aşağı indirme işlemi
-                    recyclerview_chatlog.scrollToPosition(adapter.itemCount - 1)
-                }
-                .addOnFailureListener {
-                    Log.d(logTAG, "Message Cant Send ${it.message}")
+                mFiles = data.getParcelableArrayListExtra(FilePickerActivity.MEDIA_FILES)!!
+                var sumSize: Long = 0
+                mFiles.forEach {
+                    sumSize += it.size
                 }
 
-        toRef.setValue(chatMessage)
+                if (sumSize <= maxSize) {
+                    Toast.makeText(this, "Size of Files : $sumSize", Toast.LENGTH_SHORT).show()
 
-        val latestMessagesRef = FirebaseDatabase.getInstance().getReference("/latest-messages/$fromId/$toId")
-        latestMessagesRef.setValue(chatMessage)
+                    mFiles.forEach { item ->
+                        sumSize += item.size
 
-        val latestToMessageRef = FirebaseDatabase.getInstance().getReference("/latest-messages/$toId/$fromId")
-        latestToMessageRef.setValue(chatMessage)
+                        Log.d(logTAG, "OK : " + item.mimeType + "  " + item.size + "  " + item.mediaType + "  " + item.name + " path: " + item.path + "  " + item.uri + "  " + sumSize)
+
+                        attachmentType = getTypeOfFile(item.mimeType)
+                        attachmentName = item.name
+
+                        if (fromId.isEmpty() || attachmentName.isEmpty() || attachmentType.isEmpty() || item.uri == null) {
+                            Log.d(logTAG, "There is an error while sending attachment")
+                            return
+                        }
+
+                        val sendingTime = SimpleDateFormat("dd/M/yyyy hh:mm:ss", Locale.getDefault()).format(Date())
+
+                        val chatMessage = ChatMessage("", fromId, toId, sendingTime, attachmentUrl, attachmentName, attachmentType, item.path)
+
+                        firebaseControl.performSendMessage(chatMessage, true)
+                    }
+
+                } else {
+                    Toast.makeText(this, "Files are bigger than 200 MB", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    private fun getTypeOfFile(mimeType: String): String {
+        return when {
+            mimeType.contains("image") -> {
+                Tools.image
+            }
+            mimeType.contains(Tools.video.toLowerCase()) -> {
+                Tools.video
+            }
+            mimeType.contains(Tools.audio.toLowerCase()) -> {
+                Tools.audio
+            }
+            else -> {
+                Tools.document
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -172,7 +237,7 @@ class ChatLogActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.remove_chatlog -> {
-                val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${mUser.uid}/${user!!.uid}")
+                val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${mUser.uid}/${user.uid}")
 
                 ref.removeValue()
 
@@ -181,37 +246,4 @@ class ChatLogActivity : AppCompatActivity() {
         }
         return super.onOptionsItemSelected(item)
     }
-
-    private fun sendAttachment() {
-        val filename= UUID.randomUUID().toString()
-        mAlertDialog = SpotsDialog.Builder().setContext(this).build()
-        mStorageRef = FirebaseStorage.getInstance().getReference("Attachments/image/$filename")
-
-        val intent = Intent()
-        intent.type = "image/*"
-        intent.action = Intent.ACTION_GET_CONTENT
-        startActivityForResult(Intent.createChooser(intent, "Select Attachment"), PICK_IMAGE_CODE)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        Log.d(logTAG,data!!.type.toString())
-        if (requestCode == PICK_IMAGE_CODE) {
-            mAlertDialog.show()
-            val uploadTask = mStorageRef.putFile(data!!.data!!).continueWithTask { task ->
-                if (!task.isSuccessful) {
-                    Toast.makeText(this@ChatLogActivity, "Fail", Toast.LENGTH_SHORT).show()
-                }
-                mStorageRef.downloadUrl
-            }.addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val url = task.result.toString()
-                    Log.d(logTAG, url)
-                    mAlertDialog.dismiss()
-                }
-            }
-        }
-    }
 }
-
-

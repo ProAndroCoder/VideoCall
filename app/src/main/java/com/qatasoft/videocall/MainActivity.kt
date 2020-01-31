@@ -2,6 +2,7 @@ package com.qatasoft.videocall
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Environment
 import android.os.Handler
 import android.util.Log
 import android.view.View
@@ -16,13 +17,16 @@ import com.google.firebase.database.ValueEventListener
 import com.qatasoft.videocall.bottomFragments.*
 import com.qatasoft.videocall.models.GeneralInfo
 import com.qatasoft.videocall.models.LoginInfo
+import com.qatasoft.videocall.models.Tools
 import com.qatasoft.videocall.models.User
 import com.qatasoft.videocall.registerlogin.LoginActivity
 import kotlinx.android.synthetic.main.activity_main.*
+import java.io.File
+
 
 class MainActivity : AppCompatActivity() {
     private val manager = supportFragmentManager
-    val logTAG = "MainActivity"
+    val logTAG = "MainActivityLogs"
 
     companion object {
         const val IsOwnerInfo = "IsOwnerInfo"
@@ -31,7 +35,11 @@ class MainActivity : AppCompatActivity() {
         var nav: BottomNavigationView? = null
         var isVisible = true
         var isBackPressedToExit = false
+        const val keyViewActivityUri = "KEY_VIEW_ACTIVITY_URI"
+        const val keyViewActivityType = "KEY_VIEW_ACTIVITY_TYPE"
     }
+
+    lateinit var myPreference: MyPreference
 
     private val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
@@ -72,6 +80,12 @@ class MainActivity : AppCompatActivity() {
         startService()
 
         navView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
+
+        createFoldersIfNotExist()
+    }
+
+    private fun createFoldersIfNotExist() {
+        Tools.createDirectories(this)
     }
 
     private fun openHomeFragment() {
@@ -127,18 +141,18 @@ class MainActivity : AppCompatActivity() {
 
     private fun fetchUserInfo() {
         val ref = FirebaseDatabase.getInstance().getReference("/users")
+
         ref.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(p0: DataSnapshot) {
-                p0.children.forEach() {
+                p0.children.forEach {
                     Log.d(logTAG, "User Info : $it")
                     val user = it.getValue(User::class.java)
 
                     if (user != null && user.uid == FirebaseAuth.getInstance().uid) {
-                        val myPreference = MyPreference(applicationContext)
+                        myPreference = MyPreference(applicationContext)
                         myPreference.setUserInfo(user)
                     }
                 }
-
                 controlSession()
             }
 
@@ -149,7 +163,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun controlSession() {
-        val myPreference = MyPreference(this)
         mUser = myPreference.getUserInfo()
 
         if (mUser.uid.isEmpty()) {
@@ -157,8 +170,8 @@ class MainActivity : AppCompatActivity() {
             stopService(Intent(this, BackgroundService::class.java))
 
             //Shared Preference ile telefonda bulunan kullanıcı bilgilerini silme işlemi. Uid boş gönderilirse çıkış yapar.
-            myPreference.setLoginInfo(LoginInfo("", ""))
-            myPreference.setUserInfo(User("", "", "", "", "", "", "", false))
+            myPreference.setLoginInfo(LoginInfo())
+            myPreference.setUserInfo(User())
 
             // Firebase ile kullanıcının çıkışını sağlamak ve onu LoginActivity'e yollama işi
             FirebaseAuth.getInstance().signOut()
