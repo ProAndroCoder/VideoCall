@@ -50,8 +50,8 @@ class VideoChatViewActivity : AppCompatActivity() {
     private var mRtcEngine: RtcEngine? = null
     private val logTAG = "VideoChatViewActivity"
     private var isCaller = false
-    private var user = User("", "", "", "", "", "", "", false)
-    private var mUser = User("", "", "", "", "", "", "", false)
+    private var user = User()
+    private var mUser = User()
     private var isFront = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -147,9 +147,9 @@ class VideoChatViewActivity : AppCompatActivity() {
                     val currentUser = mUser
 
                     if (fromId == chatMessage.fromId && user.uid == chatMessage.toId) {
-                        adapter.add(ChatFromItem(chatMessage, currentUser,applicationContext))
+                        adapter.add(ChatFromItem(chatMessage, currentUser, applicationContext))
                     } else if (fromId == chatMessage.toId && user.uid == chatMessage.fromId) {
-                        adapter.add(ChatToItem(chatMessage, user,applicationContext))
+                        adapter.add(ChatToItem(chatMessage, user, applicationContext))
                     }
 
                     live_chat.scrollToPosition(adapter.itemCount - 1)
@@ -241,8 +241,7 @@ class VideoChatViewActivity : AppCompatActivity() {
     //Checking Permissions For Camera and Audio
     private fun checkSelfPermission(permission: String, requestCode: Int): Boolean {
         Log.i(logTAG, "checkSelfPermission $permission $requestCode")
-        if (ContextCompat.checkSelfPermission(this,
-                        permission) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
 
             ActivityCompat.requestPermissions(this,
                     arrayOf(permission),

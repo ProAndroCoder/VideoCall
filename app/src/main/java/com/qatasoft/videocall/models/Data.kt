@@ -5,8 +5,11 @@ import android.os.Parcelable
 import android.widget.Toast
 import kotlinx.android.parcel.Parcelize
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
-class ChatMessage(val text: String, val fromId: String, val toId: String, val sendingTime: String, var attachmentUrl: String = "", val attachmentName: String = "", val attachmentType: String = "", var fileUri: String = "", var refKey: String = "") {
+class ChatMessage(var text: String, val fromId: String, val toId: String, val sendingTime: String, var attachmentUrl: String = "", val attachmentName: String = "", val attachmentType: String = "", var fileUri: String = "", var refKey: String = "") {
     constructor() : this("", "", "", "")
 }
 
@@ -20,7 +23,7 @@ data class Token(
 
 //Bu classın nesnesinin diğer activitylere gönderilebilmesi için Parcelable olması gerekiyor. Bunu da kalıtım ve de eklentiyle yapıyoruz.Eklenti gradle app kısmında androidExtensions tagıyla yazılan fonksiyondur
 @Parcelize
-class User(val profileImageUrl: String, val uid: String, val username: String, val token: String, val about: String, val mobile: String, val email: String, var isFollowed: Boolean) : Parcelable {
+class User(var profileImageUrl: String, val uid: String, val username: String, val token: String = "", val about: String = "", val mobile: String = "", val email: String = "", var isFollowed: Boolean = false) : Parcelable {
     constructor() : this("", "", "", "", "", "", "", false)
 }
 
@@ -47,8 +50,19 @@ class Tools {
         const val addFollowed = "ADD_FOLLOWEDS"
         const val removeFollowed = "REMOVE_FOLLOWEDS"
 
-        //ProjectName for using Path
+        //Values for VideoRequests
+        const val addRequest = "ADD_VIDEO_REQUEST"
+        const val removeRequest = "REMOVE_VIDEO_REQUEST"
+        const val addRequestLog = "ADD_VIDEO_REQUEST_LOG"
+        const val removeRequestLog = "REMOVE_VIDEO_REQUEST_LOG"
 
+        const val videoReqType = "videorequests"
+        const val reqLogType = "latest-calls"
+
+        //Date Information
+        fun getSendingTime(): String = SimpleDateFormat("dd/M/yyyy hh:mm", Locale.getDefault()).format(Date())
+
+        //ProjectName for using Path
         fun getPath(pathType: String): String = "/VideoCall/$pathType/"
 
         fun getExternalPath(context: Context): String = context.getExternalFilesDir(null).toString()

@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
 import com.google.firebase.database.DataSnapshot

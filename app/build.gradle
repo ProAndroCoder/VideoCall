@@ -104,4 +104,5 @@ dependencies {
 
     //PR Download Manager
     implementation 'com.mindorks.android:prdownloader:0.6.0'
+
 }

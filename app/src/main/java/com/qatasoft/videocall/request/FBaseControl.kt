@@ -112,4 +112,52 @@ class FBaseControl {
         }
         return isSuccess
     }
+
+    fun callRequestOperations(fromId: String, toId: String, type: String, path: String): Boolean {
+        var isSend = true
+
+        val sendingTime = Tools.getSendingTime()
+
+        val fromRef = FirebaseDatabase.getInstance().getReference("/$path/$fromId/$toId")
+        val toRef = FirebaseDatabase.getInstance().getReference("/$path/$toId/$fromId")
+
+        val refKey = fromRef.key
+        if (refKey == null) {
+            Log.d(logTag, "callReqOp refkey null")
+            return false
+        } else {
+            when (type) {
+                Tools.addRequestLog -> {
+                    val chatMessage = ChatMessage("OutGoing Call", fromId, toId, sendingTime, "", "", "", "", refKey)
+
+                    fromRef.setValue(chatMessage).addOnFailureListener {
+                        isSend = false
+                    }
+
+                    chatMessage.text = "Incoming Call"
+
+                    toRef.setValue(chatMessage).addOnFailureListener {
+                        isSend = false
+                    }
+                }
+
+                Tools.removeRequestLog -> {
+                    fromRef.removeValue().addOnFailureListener { isSend = false }
+                    toRef.removeValue().addOnFailureListener { isSend = false }
+                }
+
+                Tools.addRequest -> {
+                    toRef.setValue(mUser)
+                }
+
+                Tools.removeRequest -> {
+                    toRef.removeValue()
+                }
+            }
+        }
+        if (!isSend) {
+            Log.d(logTag, "callReqOp Problem false? Failure")
+        }
+        return isSend
+    }
 }

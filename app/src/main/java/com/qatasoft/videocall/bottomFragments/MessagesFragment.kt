@@ -89,11 +89,12 @@ class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
         recycler_message_user.adapter = adapter
     }
 
-    private fun fetchInfo(type: String) {
+    private fun fetchInfos(type: String) {
         adapter.clear()
         users.clear()
 
         val ref = FirebaseDatabase.getInstance().getReference("/$type/${mUser.uid}")
+
         ref.addChildEventListener(object : ChildEventListener {
             override fun onChildAdded(p0: DataSnapshot, p1: String?) {
                 val data = p0.getValue(ChatMessage::class.java) ?: return
@@ -139,6 +140,60 @@ class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
         })
     }
 
+    private fun fetchInfo(type: String) {
+        adapter.clear()
+        users.clear()
+
+        val ref = FirebaseDatabase.getInstance().getReference("/$type/${mUser.uid}")
+
+        ref.addChildEventListener(object : ChildEventListener {
+            override fun onChildAdded(p0: DataSnapshot, p1: String?) {
+                val data = p0.getValue(ChatMessage::class.java) ?: return
+
+                Log.d(logTAG, "Deneme :" + data.toId)
+
+                val chatPartnerId = if (data.fromId == mUser.uid) {
+                    data.toId
+                } else {
+                    data.fromId
+                }
+
+                if (users.indexOf(chatPartnerId) < 0) {
+                    users.add(chatPartnerId)
+
+                    fetchUserInfo(data, chatPartnerId)
+                }
+            }
+
+            override fun onChildChanged(p0: DataSnapshot, p1: String?) {
+                val data = p0.getValue(ChatMessage::class.java) ?: return
+
+                val chatPartnerId = if (data.fromId == mUser.uid) {
+                    data.toId
+                } else {
+                    data.fromId
+                }
+
+                if (users.indexOf(chatPartnerId) < 0) {
+                    users.add(chatPartnerId)
+                    fetchUserInfo(data, chatPartnerId)
+                }
+            }
+
+            override fun onCancelled(p0: DatabaseError) {
+
+            }
+
+            override fun onChildMoved(p0: DataSnapshot, p1: String?) {
+
+            }
+
+            override fun onChildRemoved(p0: DataSnapshot) {
+
+            }
+        })
+    }
+
     fun fetchUserInfo(data: ChatMessage, chatPartnerId: String) {
         val ref = FirebaseDatabase.getInstance().getReference("/users/$chatPartnerId")
 
@@ -147,12 +202,17 @@ class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
 
                 val user = p0.getValue(User::class.java)
 
-                Log.d(logTAG, "  Size : " + users.size)
+                if (user != null) {
+                    Log.d(logTAG, "Users Size : ${users.size} ${user.username}")
 
-                if (user!!.username.contains(searchText) && users.indexOf(chatPartnerId) >= 0) {
-                    Log.d(logTAG, user.username)
-                    users.remove(chatPartnerId)
-                    adapter.add(LatestMessageRow(data, user, context!!))
+                    if (user.username.contains(searchText) && users.indexOf(chatPartnerId) >= 0) {
+                        Log.d(logTAG, user.username)
+                        users.remove(chatPartnerId)
+                        adapter.add(LatestMessageRow(data, user, context!!))
+                    }
+                } else {
+                    Log.d(logTAG, "Problem Users Size : ${users.size}")
+
                 }
             }
 
