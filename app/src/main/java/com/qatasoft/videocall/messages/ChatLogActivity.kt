@@ -1,10 +1,16 @@
 package com.qatasoft.videocall.messages
 
+import android.app.Activity
+import android.app.ActivityOptions
 import android.content.Intent
 import android.os.Bundle
+import android.transition.ChangeBounds
 import android.util.Log
 import android.view.Menu
+import android.util.Pair
 import android.view.MenuItem
+import android.view.View
+import android.view.animation.DecelerateInterpolator
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
@@ -23,6 +29,7 @@ import com.jaiselrahman.filepicker.config.Configurations
 import com.jaiselrahman.filepicker.model.MediaFile
 import com.qatasoft.videocall.bottomFragments.MessagesFragment.Companion.USER_KEY
 import com.qatasoft.videocall.MainActivity
+import com.qatasoft.videocall.ViewActivity
 import com.qatasoft.videocall.models.Tools
 import com.qatasoft.videocall.request.FBaseControl
 import com.qatasoft.videocall.videoCallRequests.SendVideoRequest
@@ -30,6 +37,7 @@ import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.ViewHolder
 import kotlinx.android.synthetic.main.activity_chat_log.*
 import kotlinx.android.synthetic.main.activity_chat_log.toolbar
+import kotlinx.android.synthetic.main.item_chatfromrow_chatlog.view.*
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -69,6 +77,8 @@ class ChatLogActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        onClickEventss()
+
         btn_send_chatlog.setOnClickListener {
             performSendMessage()
         }
@@ -76,6 +86,36 @@ class ChatLogActivity : AppCompatActivity() {
         img_attachment_chatlog.setOnClickListener {
             performSendAttachment()
         }
+    }
+
+    private fun onClickEventss() {
+        adapter.setOnItemClickListener { item, view ->
+
+            if (item is ChatFromItem) {
+                val model = item.chatMessage
+                Log.d(logTAG, "From : " + item.chatMessage.fromId)
+                view.img_from_chatlog.setOnClickListener {
+                    val url = if (model.fileUri.isNotEmpty()) {
+                        model.fileUri
+                    } else {
+                        model.attachmentUrl
+                    }
+
+                    val sharedIntent = Intent(this, ViewActivity::class.java)
+                    val pairs = Pair<View, String>(view.img_from_chatlog, "imageTransition")
+
+                    val options = ActivityOptions.makeSceneTransitionAnimation(this, pairs)
+
+                    sharedIntent.putExtra(MainActivity.keyViewActivityUri, url)
+                    sharedIntent.putExtra(MainActivity.keyViewActivityType, model.attachmentType)
+
+                    startActivity(sharedIntent, options.toBundle())
+                }
+            } else if (item is ChatToItem) {
+                Log.d(logTAG, "To : " + item.chatMessage.fromId)
+            }
+        }
+
     }
 
     private fun getChatInfo() {
@@ -90,6 +130,8 @@ class ChatLogActivity : AppCompatActivity() {
         chat_username.text = user.username
 
         fetchMessages()
+
+        //changeEnterExitTransition()
     }
 
     private fun performSendAttachment() {
@@ -143,7 +185,7 @@ class ChatLogActivity : AppCompatActivity() {
                     val currentUser = mUser
 
                     if (fromId == chatMessage.fromId && user.uid == chatMessage.toId) {
-                        adapter.add(ChatFromItem(chatMessage, currentUser, applicationContext))
+                        adapter.add(ChatFromItem(chatMessage, currentUser, applicationContext,Activity()))
                     } else if (fromId == chatMessage.toId && user.uid == chatMessage.fromId) {
                         adapter.add(ChatToItem(chatMessage, user, applicationContext))
                     }
@@ -217,10 +259,10 @@ class ChatLogActivity : AppCompatActivity() {
             mimeType.contains("image") -> {
                 Tools.image
             }
-            mimeType.contains(Tools.video.toLowerCase()) -> {
+            mimeType.contains("video") -> {
                 Tools.video
             }
-            mimeType.contains(Tools.audio.toLowerCase()) -> {
+            mimeType.contains("audio") -> {
                 Tools.audio
             }
             else -> {
@@ -245,5 +287,17 @@ class ChatLogActivity : AppCompatActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun changeEnterExitTransition() {
+        val enter = ChangeBounds()
+        enter.duration = 5000
+
+        val exit = ChangeBounds()
+        exit.interpolator = DecelerateInterpolator()
+        exit.duration = 5000
+
+        window.sharedElementEnterTransition = enter
+        window.sharedElementReturnTransition = exit
     }
 }

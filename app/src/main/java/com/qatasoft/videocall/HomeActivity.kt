@@ -3,19 +3,13 @@ package com.qatasoft.videocall
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.MediaController
+import android.transition.Slide
 import com.denzcoskun.imageslider.models.SlideModel
 import com.qatasoft.videocall.models.GeneralInfo
 import com.qatasoft.videocall.registerlogin.LoginActivity
 import com.qatasoft.videocall.registerlogin.RegisterActivity
-import kotlinx.android.synthetic.main.activity_general_info.*
 import kotlinx.android.synthetic.main.fragment_home.*
-import android.util.DisplayMetrics
-import androidx.core.app.ComponentActivity.ExtraData
-import androidx.core.content.ContextCompat.getSystemService
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
-import android.widget.LinearLayout
-
+import android.transition.TransitionInflater
 
 class HomeActivity : AppCompatActivity() {
 
@@ -24,8 +18,8 @@ class HomeActivity : AppCompatActivity() {
         setContentView(R.layout.fragment_home)
 
         if (intent.getBooleanExtra("Exit me", false)) {
-            finish();
-            return; // add this to prevent from doing unnecessary stuffs
+            finish()
+            return // add this to prevent from doing unnecessary stuffs
         }
 
         val imageList = ArrayList<SlideModel>()
@@ -35,6 +29,7 @@ class HomeActivity : AppCompatActivity() {
         image_slider.setImageList(imageList)
 
         onClickProcesses()
+
     }
 
     private fun onClickProcesses() {

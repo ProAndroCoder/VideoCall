@@ -78,7 +78,7 @@ class LoginActivity : AppCompatActivity() {
                     cirLoginButton.revertAnimation()
 
                     startActivity(Intent(this, MainActivity::class.java))
-                    overridePendingTransition(R.anim.right_in, R.anim.left_out)
+                    overridePendingTransition(R.transition.right_in, R.transition.left_out)
                 }
                 .addOnFailureListener {
                     cirLoginButton.revertAnimation()
@@ -115,17 +115,17 @@ class LoginActivity : AppCompatActivity() {
 
             R.id.login_registerButton -> {
                 startActivity(Intent(this, RegisterActivity::class.java))
-                overridePendingTransition(R.anim.right_in, R.anim.left_out)
+                overridePendingTransition(R.transition.right_in, R.transition.left_out)
             }
 
             R.id.login_addButton -> {
                 startActivity(Intent(this, RegisterActivity::class.java))
-                overridePendingTransition(R.anim.right_in, R.anim.left_out)
+                overridePendingTransition(R.transition.right_in, R.transition.left_out)
             }
 
             R.id.login_forgotButton -> {
                 startActivity(Intent(this, ForgotActivity::class.java))
-                overridePendingTransition(R.anim.right_in, R.anim.left_out)
+                overridePendingTransition(R.transition.right_in, R.transition.left_out)
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.qatasoft.videocall.views
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
@@ -36,8 +37,17 @@ import kotlinx.android.synthetic.main.item_chattorow_chatlog.view.*
 import java.io.File
 import java.util.*
 
-class ChatFromItem(var chatMessage: ChatMessage, val user: User, val context: Context) : Item<ViewHolder>() {
+class ChatFromItem(var chatMessage: ChatMessage, val user: User, val context: Context, var activity: Activity) : Item<ViewHolder>() {
     val logTag = "ChatFromItemLog"
+    val clickInterface: ClickInterface? = null
+
+    public interface ClickInterface {
+        fun clickEvent(position: Int)
+    }
+
+    fun setClickInterface() {
+
+    }
 
     override fun bind(viewHolder: ViewHolder, position: Int) {
         val item = viewHolder.itemView
@@ -55,7 +65,7 @@ class ChatFromItem(var chatMessage: ChatMessage, val user: User, val context: Co
                         sendAttachment(viewHolder)
                     } else {
                         //Show Image in ViewActivity
-                        viewSettings(viewHolder)
+                        //viewSettings(viewHolder)
                     }
                 }
 
@@ -75,7 +85,7 @@ class ChatFromItem(var chatMessage: ChatMessage, val user: User, val context: Co
 
                         setImage(chatMessage.fileUri, item.img_from_chatlog)
 
-                        viewSettings(viewHolder)
+                        //viewSettings(viewHolder)
                     }
                 }
 
@@ -153,7 +163,7 @@ class ChatFromItem(var chatMessage: ChatMessage, val user: User, val context: Co
                 when (chatMessage.attachmentType) {
                     Tools.image -> {
                         //Show Image in ViewActivity
-                        viewSettings(viewHolder)
+                        //viewSettings(viewHolder)
                     }
 
                     Tools.video -> {
@@ -161,7 +171,7 @@ class ChatFromItem(var chatMessage: ChatMessage, val user: User, val context: Co
                         item.progress_from_chatlog.setIdle()
 
                         //VideoView Activity
-                        viewSettings(viewHolder)
+                        //viewSettings(viewHolder)
                     }
 
                     Tools.audio, Tools.document -> {
@@ -275,7 +285,7 @@ class ChatFromItem(var chatMessage: ChatMessage, val user: User, val context: Co
     }
 }
 
-class ChatToItem(private val chatMessage: ChatMessage, val user: User, val context: Context) : Item<ViewHolder>() {
+class ChatToItem(val chatMessage: ChatMessage, val user: User, val context: Context) : Item<ViewHolder>() {
 
     private val logTag = "ChatToItemLog"
 

@@ -47,12 +47,12 @@ class ForgotActivity : AppCompatActivity() {
 
             R.id.forgot_loginButton -> {
                 startActivity(Intent(this, LoginActivity::class.java))
-                overridePendingTransition(R.anim.slide_in_left, android.R.anim.slide_out_right)
+                overridePendingTransition(R.transition.slide_in_left, android.R.anim.slide_out_right)
             }
 
             R.id.forgot_backButton -> {
                 startActivity(Intent(this, LoginActivity::class.java))
-                overridePendingTransition(R.anim.slide_in_left, android.R.anim.slide_out_right)
+                overridePendingTransition(R.transition.slide_in_left, android.R.anim.slide_out_right)
             }
         }
     }

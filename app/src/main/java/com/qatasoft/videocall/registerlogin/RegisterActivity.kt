@@ -161,7 +161,7 @@ class RegisterActivity : AppCompatActivity() {
 
                     intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
                     startActivity(intent)
-                    overridePendingTransition(R.anim.slide_in_left, android.R.anim.slide_out_right)
+                    overridePendingTransition(R.transition.slide_in_left, android.R.anim.slide_out_right)
                 }
                 .addOnFailureListener {
                     cirRegisterButton.revertAnimation()
@@ -195,12 +195,12 @@ class RegisterActivity : AppCompatActivity() {
 
             R.id.register_loginButton -> {
                 startActivity(Intent(this, LoginActivity::class.java))
-                overridePendingTransition(R.anim.slide_in_left, android.R.anim.slide_out_right)
+                overridePendingTransition(R.transition.slide_in_left, android.R.anim.slide_out_right)
             }
 
             R.id.register_backButton -> {
                 startActivity(Intent(this, LoginActivity::class.java))
-                overridePendingTransition(R.anim.slide_in_left, android.R.anim.slide_out_right)
+                overridePendingTransition(R.transition.slide_in_left, android.R.anim.slide_out_right)
             }
         }
     }

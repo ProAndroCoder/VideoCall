@@ -1,11 +1,13 @@
 package com.qatasoft.videocall.bottomFragments
 
 import android.app.Activity
+import android.app.ActivityOptions
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
+import android.util.Pair
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -17,10 +19,14 @@ import com.bumptech.glide.Glide
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.qatasoft.videocall.MainActivity
+import com.qatasoft.videocall.MainActivity.Companion.keyViewActivityType
+import com.qatasoft.videocall.MainActivity.Companion.keyViewActivityUri
 import com.qatasoft.videocall.MainActivity.Companion.mUser
 import com.qatasoft.videocall.MyPreference
 import com.qatasoft.videocall.R
+import com.qatasoft.videocall.ViewActivity
 import com.qatasoft.videocall.messages.ChatLogActivity
+import com.qatasoft.videocall.models.Tools
 import com.qatasoft.videocall.models.User
 import kotlinx.android.synthetic.main.activity_register.*
 import kotlinx.android.synthetic.main.fragment_profile.*
@@ -32,7 +38,7 @@ class ProfileFragment : Fragment() {
     private var isEnable = false
     private var isOwner = false
 
-    var newProfileUrl: String = ""
+    private var newProfileUrl: String = ""
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_profile, container, false)
@@ -111,6 +117,18 @@ class ProfileFragment : Fragment() {
     private fun getInfo(userInfo: User) {
         if (userInfo.profileImageUrl != "") {
             Glide.with(this).load(userInfo.profileImageUrl).into(circleimg_profile)
+
+            circleimg_profile.setOnClickListener {
+                val sharedIntent = Intent(context, ViewActivity::class.java)
+                val pairs = Pair<View, String>(circleimg_profile, "imageTransition")
+
+                val options = ActivityOptions.makeSceneTransitionAnimation(activity, pairs)
+
+                sharedIntent.putExtra(keyViewActivityUri, userInfo.profileImageUrl)
+                sharedIntent.putExtra(keyViewActivityType, Tools.image)
+
+                startActivity(sharedIntent, options.toBundle())
+            }
         }
 
         //Changing DrawableLeft of Button
@@ -168,7 +186,6 @@ class ProfileFragment : Fragment() {
         profile_btn_send_cancel.visibility = View.GONE
         profile_btn_edit.visibility = View.VISIBLE
         img_profile_update.visibility = View.GONE
-
 
         setEtDisable(profile_et_username)
         setEtDisable(profile_et_email)

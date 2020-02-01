@@ -147,7 +147,7 @@ class VideoChatViewActivity : AppCompatActivity() {
                     val currentUser = mUser
 
                     if (fromId == chatMessage.fromId && user.uid == chatMessage.toId) {
-                        adapter.add(ChatFromItem(chatMessage, currentUser, applicationContext))
+                        adapter.add(ChatFromItem(chatMessage, currentUser, applicationContext, Activity))
                     } else if (fromId == chatMessage.toId && user.uid == chatMessage.fromId) {
                         adapter.add(ChatToItem(chatMessage, user, applicationContext))
                     }
