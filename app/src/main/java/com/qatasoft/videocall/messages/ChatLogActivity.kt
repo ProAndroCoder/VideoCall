@@ -1,6 +1,5 @@
 package com.qatasoft.videocall.messages
 
-import android.app.Activity
 import android.app.ActivityOptions
 import android.content.Intent
 import android.os.Bundle
@@ -33,11 +32,13 @@ import com.qatasoft.videocall.ViewActivity
 import com.qatasoft.videocall.models.Tools
 import com.qatasoft.videocall.request.FBaseControl
 import com.qatasoft.videocall.videoCallRequests.SendVideoRequest
+import com.qatasoft.videocall.views.OnChatItemClickListener
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.ViewHolder
 import kotlinx.android.synthetic.main.activity_chat_log.*
 import kotlinx.android.synthetic.main.activity_chat_log.toolbar
 import kotlinx.android.synthetic.main.item_chatfromrow_chatlog.view.*
+import kotlinx.android.synthetic.main.item_chattorow_chatlog.view.*
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -77,8 +78,6 @@ class ChatLogActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        onClickEventss()
-
         btn_send_chatlog.setOnClickListener {
             performSendMessage()
         }
@@ -86,36 +85,6 @@ class ChatLogActivity : AppCompatActivity() {
         img_attachment_chatlog.setOnClickListener {
             performSendAttachment()
         }
-    }
-
-    private fun onClickEventss() {
-        adapter.setOnItemClickListener { item, view ->
-
-            if (item is ChatFromItem) {
-                val model = item.chatMessage
-                Log.d(logTAG, "From : " + item.chatMessage.fromId)
-                view.img_from_chatlog.setOnClickListener {
-                    val url = if (model.fileUri.isNotEmpty()) {
-                        model.fileUri
-                    } else {
-                        model.attachmentUrl
-                    }
-
-                    val sharedIntent = Intent(this, ViewActivity::class.java)
-                    val pairs = Pair<View, String>(view.img_from_chatlog, "imageTransition")
-
-                    val options = ActivityOptions.makeSceneTransitionAnimation(this, pairs)
-
-                    sharedIntent.putExtra(MainActivity.keyViewActivityUri, url)
-                    sharedIntent.putExtra(MainActivity.keyViewActivityType, model.attachmentType)
-
-                    startActivity(sharedIntent, options.toBundle())
-                }
-            } else if (item is ChatToItem) {
-                Log.d(logTAG, "To : " + item.chatMessage.fromId)
-            }
-        }
-
     }
 
     private fun getChatInfo() {
@@ -177,7 +146,31 @@ class ChatLogActivity : AppCompatActivity() {
 
         val ref = FirebaseDatabase.getInstance().getReference("/user-messages/$fromId/$toId")
 
-        ref.addChildEventListener(object : ChildEventListener {
+        ref.addChildEventListener(object : ChildEventListener, OnChatItemClickListener {
+            override fun onItemClick(item: ChatMessage, position: Int, view: View) {
+                Log.d(logTAG, "Click Info : ${item.attachmentType} ${item.attachmentName} $position")
+
+                when (item.attachmentType) {
+                    Tools.Image, Tools.Video -> {
+                        val sharedIntent = Intent(applicationContext, ViewActivity::class.java)
+
+                        val transition = item.attachmentType + "Transition"
+
+                        val pairs = Pair<View, String>(view, transition)
+
+                        val options = ActivityOptions.makeSceneTransitionAnimation(this@ChatLogActivity, pairs)
+
+                        sharedIntent.putExtra(MainActivity.keyViewActivityUri, item.fileUri)
+                        sharedIntent.putExtra(MainActivity.keyViewActivityType, item.attachmentType)
+
+                        startActivity(sharedIntent, options.toBundle())
+                    }
+                    Tools.Document -> {
+
+                    }
+                }
+            }
+
             override fun onChildAdded(p0: DataSnapshot, p1: String?) {
                 val chatMessage = p0.getValue(ChatMessage::class.java)
 
@@ -185,9 +178,9 @@ class ChatLogActivity : AppCompatActivity() {
                     val currentUser = mUser
 
                     if (fromId == chatMessage.fromId && user.uid == chatMessage.toId) {
-                        adapter.add(ChatFromItem(chatMessage, currentUser, applicationContext,Activity()))
+                        adapter.add(ChatFromItem(chatMessage, currentUser, applicationContext, this))
                     } else if (fromId == chatMessage.toId && user.uid == chatMessage.fromId) {
-                        adapter.add(ChatToItem(chatMessage, user, applicationContext))
+                        adapter.add(ChatToItem(chatMessage, user, applicationContext, this))
                     }
                 }
                 recyclerview_chatlog.scrollToPosition(adapter.itemCount - 1)
@@ -256,17 +249,17 @@ class ChatLogActivity : AppCompatActivity() {
 
     private fun getTypeOfFile(mimeType: String): String {
         return when {
-            mimeType.contains("image") -> {
-                Tools.image
+            mimeType.contains(Tools.image) -> {
+                Tools.Image
             }
-            mimeType.contains("video") -> {
-                Tools.video
+            mimeType.contains(Tools.video) -> {
+                Tools.Video
             }
-            mimeType.contains("audio") -> {
-                Tools.audio
+            mimeType.contains(Tools.audio) -> {
+                Tools.Audio
             }
             else -> {
-                Tools.document
+                Tools.Document
             }
         }
     }

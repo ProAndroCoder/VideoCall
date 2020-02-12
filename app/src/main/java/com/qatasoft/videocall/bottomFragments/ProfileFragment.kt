@@ -5,7 +5,6 @@ import android.app.ActivityOptions
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.util.Log
 import android.util.Pair
 import androidx.fragment.app.Fragment
@@ -13,7 +12,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.google.firebase.database.FirebaseDatabase
@@ -28,7 +26,6 @@ import com.qatasoft.videocall.ViewActivity
 import com.qatasoft.videocall.messages.ChatLogActivity
 import com.qatasoft.videocall.models.Tools
 import com.qatasoft.videocall.models.User
-import kotlinx.android.synthetic.main.activity_register.*
 import kotlinx.android.synthetic.main.fragment_profile.*
 import kotlinx.android.synthetic.main.fragment_profile.circleimg_profile
 import java.util.*
@@ -125,7 +122,7 @@ class ProfileFragment : Fragment() {
                 val options = ActivityOptions.makeSceneTransitionAnimation(activity, pairs)
 
                 sharedIntent.putExtra(keyViewActivityUri, userInfo.profileImageUrl)
-                sharedIntent.putExtra(keyViewActivityType, Tools.image)
+                sharedIntent.putExtra(keyViewActivityType, Tools.Image)
 
                 startActivity(sharedIntent, options.toBundle())
             }

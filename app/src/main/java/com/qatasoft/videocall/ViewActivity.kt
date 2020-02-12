@@ -26,7 +26,7 @@ class ViewActivity : AppCompatActivity() {
         //videoview_view.setVideoPath("/storage/emulated/0/Movies/VID_20200122_113026.mp4")
 
         when (type) {
-            Tools.video -> {
+            Tools.Video -> {
                 videoview_view.setVideoURI(uri)
                 val mediaController = MediaController(this)
 
@@ -40,7 +40,7 @@ class ViewActivity : AppCompatActivity() {
 
                 videoview_view.start()
             }
-            Tools.image -> {
+            Tools.Image -> {
                 videoview_view.visibility = View.GONE
                 img_view.visibility = View.VISIBLE
                 Glide.with(this).load(uri).into(img_view)

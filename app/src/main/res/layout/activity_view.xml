@@ -10,12 +10,13 @@
         android:id="@+id/img_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:transitionName="imageTransition"
+        android:transitionName="ImageTransition"
         android:visibility="gone" />
 
     <VideoView
         android:id="@+id/videoview_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:transitionName="VideoTransition" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -34,10 +34,15 @@ class GeneralInfo(val img_general_url: String, val title: String, val text: Stri
 
 class Tools {
     companion object {
-        const val image = "Image"
-        const val video = "Video"
-        const val document = "Document"
-        const val audio = "Audio"
+        const val Image = "Image"
+        const val Video = "Video"
+        const val Document = "Document"
+        const val Audio = "Audio"
+
+        const val image = "image"
+        const val video = "video"
+        const val document = "document"
+        const val audio = "audio"
 
         //Values for MessagesFragment
         const val messageType = "latest-messages"
@@ -75,10 +80,10 @@ class Tools {
 
             val externalPath = getExternalPath(context)
 
-            directories.add(File(externalPath, getPath(image) + "Sent"))
-            directories.add(File(externalPath, getPath(video) + "Sent"))
-            directories.add(File(externalPath, getPath(document) + "Sent"))
-            directories.add(File(externalPath, getPath(audio) + "Sent"))
+            directories.add(File(externalPath, getPath(Image) + "Sent"))
+            directories.add(File(externalPath, getPath(Video) + "Sent"))
+            directories.add(File(externalPath, getPath(Document) + "Sent"))
+            directories.add(File(externalPath, getPath(Audio) + "Sent"))
 
             directories.forEach { file ->
                 try {

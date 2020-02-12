@@ -1,6 +1,7 @@
 package com.qatasoft.videocall
 
 import android.Manifest
+import android.app.Activity
 import android.app.PictureInPictureParams
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -23,11 +24,13 @@ import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.qatasoft.videocall.messages.ChatLogActivity
 import com.qatasoft.videocall.models.ChatMessage
 import com.qatasoft.videocall.videoCallRequests.SendVideoRequest
 import com.qatasoft.videocall.models.User
 import com.qatasoft.videocall.views.ChatFromItem
 import com.qatasoft.videocall.views.ChatToItem
+import com.qatasoft.videocall.views.OnChatItemClickListener
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.ViewHolder
 import com.yarolegovich.slidingrootnav.SlidingRootNavBuilder
@@ -139,7 +142,11 @@ class VideoChatViewActivity : AppCompatActivity() {
 
         val ref = FirebaseDatabase.getInstance().getReference("/user-messages/$fromId/$toId")
 
-        ref.addChildEventListener(object : ChildEventListener {
+        ref.addChildEventListener(object : ChildEventListener, OnChatItemClickListener {
+            override fun onItemClick(item: ChatMessage, position: Int,view:View) {
+                Log.d(logTAG, "Click Info : ${item.attachmentType} ${item.attachmentName} $position")
+            }
+
             override fun onChildAdded(p0: DataSnapshot, p1: String?) {
                 val chatMessage = p0.getValue(ChatMessage::class.java)
                 if (chatMessage != null) {
@@ -147,9 +154,9 @@ class VideoChatViewActivity : AppCompatActivity() {
                     val currentUser = mUser
 
                     if (fromId == chatMessage.fromId && user.uid == chatMessage.toId) {
-                        adapter.add(ChatFromItem(chatMessage, currentUser, applicationContext, Activity))
+                        adapter.add(ChatFromItem(chatMessage, currentUser, applicationContext, this))
                     } else if (fromId == chatMessage.toId && user.uid == chatMessage.fromId) {
-                        adapter.add(ChatToItem(chatMessage, user, applicationContext))
+                        adapter.add(ChatToItem(chatMessage, user, applicationContext,this))
                     }
 
                     live_chat.scrollToPosition(adapter.itemCount - 1)
