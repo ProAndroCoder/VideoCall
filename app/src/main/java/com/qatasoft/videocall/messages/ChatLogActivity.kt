@@ -5,13 +5,14 @@ import android.content.Intent
 import android.os.Bundle
 import android.transition.ChangeBounds
 import android.util.Log
-import android.view.Menu
 import android.util.Pair
-import android.view.MenuItem
-import android.view.View
+import android.view.*
 import android.view.animation.DecelerateInterpolator
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.core.view.get
+import androidx.core.view.size
 import com.bumptech.glide.Glide
 import com.qatasoft.videocall.R
 import com.qatasoft.videocall.models.ChatMessage
@@ -32,6 +33,10 @@ import com.qatasoft.videocall.ViewActivity
 import com.qatasoft.videocall.models.Tools
 import com.qatasoft.videocall.request.FBaseControl
 import com.qatasoft.videocall.videoCallRequests.SendVideoRequest
+import com.qatasoft.videocall.views.ChatFromItem.Companion.isMultiSelectActive
+import com.qatasoft.videocall.views.ChatFromItem.Companion.selectedList
+import com.qatasoft.videocall.views.ChatFromItem.Companion.selectedPositions
+import com.qatasoft.videocall.views.ChatFromItem.Companion.selectedViews
 import com.qatasoft.videocall.views.OnChatItemClickListener
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.ViewHolder
@@ -41,16 +46,21 @@ import kotlinx.android.synthetic.main.item_chatfromrow_chatlog.view.*
 import kotlinx.android.synthetic.main.item_chattorow_chatlog.view.*
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 class ChatLogActivity : AppCompatActivity() {
     companion object {
         const val logTAG = "ChatLogActivityLogs"
     }
 
+    private var mActionMode: ActionMode? = null
+
     private lateinit var mFiles: ArrayList<MediaFile>
     private lateinit var toId: String
     private lateinit var user: User
     private lateinit var fromId: String
+
+    private var messageList = ArrayList<ChatMessage>()
 
     private var firebaseControl = FBaseControl()
     private val FILE_REQUEST_CODE = 24
@@ -141,12 +151,112 @@ class ChatLogActivity : AppCompatActivity() {
         }
     }
 
+    private val actionModeCallback = object : ActionMode.Callback {
+        // Called when the action mode is created; startActionMode() was called
+        override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+            // Inflate a menu resource providing context menu items
+            val inflater: MenuInflater = mode.menuInflater
+            inflater.inflate(R.menu.contextual_actionbar, menu)
+            return true
+        }
+
+        // Called each time the action mode is shown. Always called after onCreateActionMode, but
+        // may be called multiple times if the mode is invalidated.
+        override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
+            return false // Return false if nothing is done
+        }
+
+        // Called when the user selects a contextual menu item
+        override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
+            return when (item.itemId) {
+                R.id.remove -> {
+                    Toast.makeText(applicationContext, "Del ${selectedList.size}  ${selectedViews.size}", Toast.LENGTH_SHORT).show()
+
+                    var i = 0
+                    while (i < selectedList.size) {
+                        val chatMessage: ChatMessage = selectedList[i]
+
+                        Log.d(logTAG, "Item Info : ${adapter.itemCount} ${selectedViews.size} ${recyclerview_chatlog.size}")
+
+                        selectedViews[i].setBackgroundColor(ContextCompat.getColor(applicationContext, R.color.colorAero))
+
+                        val ref = FirebaseDatabase.getInstance().getReference("/user-messages/${mUser.uid}/${user.uid}/${chatMessage.refKey}")
+                        ref.removeValue()
+
+                        i++
+                    }
+
+                    selectedPositions.sort()
+                    selectedPositions.reverse()
+
+                    selectedPositions.forEach {
+                        Log.d(logTAG, "Position : $it")
+                    }
+
+                    selectedPositions.forEach {
+                        if(it<adapter.itemCount){
+                            adapter.removeGroup(it)
+                        }
+                    }
+
+                    selectedPositions.clear()
+                    selectedList.clear()
+                    selectedViews.clear()
+                    isMultiSelectActive = false
+                    mode.finish() // Action picked, so close the CAB
+
+                    true
+                }
+                R.id.share -> {
+                    Toast.makeText(applicationContext, "Share ${selectedList.size}  ${selectedViews.size}", Toast.LENGTH_SHORT).show()
+
+                    selectedViews.forEach {
+                        it.setBackgroundColor(ContextCompat.getColor(applicationContext, R.color.colorAero))
+                    }
+
+                    selectedList.clear()
+                    selectedViews.clear()
+                    mode.finish() // Action picked, so close the CAB
+                    true
+                }
+                else -> false
+            }
+        }
+
+        // Called when the user exits the action mode
+        override fun onDestroyActionMode(mode: ActionMode) {
+            selectedViews.forEach {
+                it.setBackgroundColor(ContextCompat.getColor(applicationContext, R.color.colorAero))
+            }
+
+            selectedList.clear()
+            selectedViews.clear()
+
+            mActionMode = null
+            mode.finish()
+        }
+    }
+
     private fun fetchMessages() {
         adapter.clear()
 
         val ref = FirebaseDatabase.getInstance().getReference("/user-messages/$fromId/$toId")
 
         ref.addChildEventListener(object : ChildEventListener, OnChatItemClickListener {
+            override fun onContextualState(isActive: Boolean) {
+
+                if (isActive) {
+                    if (mActionMode == null) {
+                        mActionMode = startActionMode(actionModeCallback)
+                    }
+                } else {
+                    if (mActionMode != null) {
+                        mActionMode!!.finish()
+                    }
+                    mActionMode = null
+                }
+            }
+
             override fun onItemClick(item: ChatMessage, position: Int, view: View) {
                 Log.d(logTAG, "Click Info : ${item.attachmentType} ${item.attachmentName} $position")
 

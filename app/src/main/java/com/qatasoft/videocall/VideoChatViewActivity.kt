@@ -1,7 +1,6 @@
 package com.qatasoft.videocall
 
 import android.Manifest
-import android.app.Activity
 import android.app.PictureInPictureParams
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -24,7 +23,6 @@ import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
-import com.qatasoft.videocall.messages.ChatLogActivity
 import com.qatasoft.videocall.models.ChatMessage
 import com.qatasoft.videocall.videoCallRequests.SendVideoRequest
 import com.qatasoft.videocall.models.User
@@ -143,6 +141,10 @@ class VideoChatViewActivity : AppCompatActivity() {
         val ref = FirebaseDatabase.getInstance().getReference("/user-messages/$fromId/$toId")
 
         ref.addChildEventListener(object : ChildEventListener, OnChatItemClickListener {
+            override fun onContextualState(isActive: Boolean, selectedList: ArrayList<ChatMessage>, selectedPositions: ArrayList<Int>) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
             override fun onItemClick(item: ChatMessage, position: Int,view:View) {
                 Log.d(logTAG, "Click Info : ${item.attachmentType} ${item.attachmentName} $position")
             }

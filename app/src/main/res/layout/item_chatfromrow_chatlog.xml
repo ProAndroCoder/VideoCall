@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/item_from_chatlog"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="end"
-    android:layout_margin="5dp"
+    android:background="@color/colorAero"
     android:gravity="center_vertical">
 
     <LinearLayout
@@ -17,7 +18,7 @@
             android:id="@+id/card_from_chatlog"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="end"
+            android:layout_gravity="center"
             android:layout_margin="5dp"
             android:elevation="10dp"
             android:padding="5dp"

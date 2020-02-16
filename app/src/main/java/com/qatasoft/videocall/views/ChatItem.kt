@@ -23,15 +23,28 @@ import com.qatasoft.videocall.models.ChatMessage
 import com.qatasoft.videocall.models.Tools
 import com.qatasoft.videocall.models.User
 import com.qatasoft.videocall.request.FBaseControl
+import com.qatasoft.videocall.views.ChatFromItem.Companion.isMultiSelectActive
+import com.qatasoft.videocall.views.ChatFromItem.Companion.selectedList
+import com.qatasoft.videocall.views.ChatFromItem.Companion.selectedPositions
+import com.qatasoft.videocall.views.ChatFromItem.Companion.selectedViews
 import com.xwray.groupie.Item
 import com.xwray.groupie.ViewHolder
 import kotlinx.android.synthetic.main.item_chatfromrow_chatlog.view.*
 import kotlinx.android.synthetic.main.item_chattorow_chatlog.view.*
 import java.io.File
 import java.util.*
+import kotlin.collections.ArrayList
 
 class ChatFromItem(var chatMessage: ChatMessage, val user: User, val context: Context, var listener: OnChatItemClickListener) : Item<ViewHolder>() {
     val logTag = "ChatFromItemLog"
+    var isItemSelect = false
+
+    companion object {
+        var isMultiSelectActive = false
+        var selectedList = ArrayList<ChatMessage>()
+        var selectedViews = ArrayList<View>()
+        var selectedPositions = ArrayList<Int>()
+    }
 
     override fun bind(viewHolder: ViewHolder, position: Int) {
         val item = viewHolder.itemView
@@ -104,6 +117,73 @@ class ChatFromItem(var chatMessage: ChatMessage, val user: User, val context: Co
         Glide.with(context).load(user.profileImageUrl).into(item.circleimg_from_chatlog)
 
         item.txt_date_from_chatlog.text = chatMessage.sendingTime
+
+        item.setOnClickListener {
+            itemMultiSelectClick(viewHolder)
+        }
+
+        item.card_from_chatlog.setOnClickListener {
+            itemMultiSelectClick(viewHolder)
+        }
+
+        item.setOnLongClickListener {
+            itemMultiSelectLongClick(viewHolder)
+        }
+
+        item.img_from_chatlog.setOnLongClickListener {
+            itemMultiSelectLongClick(viewHolder)
+        }
+
+        item.card_from_chatlog.setOnLongClickListener {
+            itemMultiSelectLongClick(viewHolder)
+        }
+
+        item.progress_from_chatlog.setOnLongClickListener {
+            itemMultiSelectLongClick(viewHolder)
+        }
+    }
+
+    private fun itemMultiSelectLongClick(viewHolder: ViewHolder): Boolean {
+        val item = viewHolder.itemView
+        if (!isMultiSelectActive) {
+            Log.d(logTag, "Long Clicked : ${viewHolder.adapterPosition}")
+            item.setBackgroundColor(ContextCompat.getColor(context, R.color.colorChatSelected))
+            selectedList.add(chatMessage)
+            selectedViews.add(item)
+            selectedPositions.add(viewHolder.adapterPosition)
+            isMultiSelectActive = true
+            isItemSelect = true
+
+            listener.onContextualState(isMultiSelectActive)
+
+            return true
+        }
+        return false
+    }
+
+    private fun itemMultiSelectClick(viewHolder: ViewHolder) {
+        val item = viewHolder.itemView
+
+        if (isMultiSelectActive) {
+            if (!isItemSelect) {
+                selectedList.add(chatMessage)
+                selectedViews.add(item)
+                selectedPositions.add(viewHolder.adapterPosition)
+                isItemSelect = true
+                item.setBackgroundColor(ContextCompat.getColor(context, R.color.colorChatSelected))
+            } else {
+                selectedList.remove(chatMessage)
+                selectedPositions.add(viewHolder.adapterPosition)
+                selectedViews.remove(item)
+                isItemSelect = false
+                item.setBackgroundColor(ContextCompat.getColor(context, R.color.colorAero))
+                if (selectedList.size <= 0) {
+                    isMultiSelectActive = false
+                }
+            }
+            listener.onContextualState(isMultiSelectActive)
+            Log.d(logTag, "Selected Other : ${selectedList.size}")
+        }
     }
 
     private fun sendAttachment(viewHolder: ViewHolder) {
@@ -216,17 +296,28 @@ class ChatFromItem(var chatMessage: ChatMessage, val user: User, val context: Co
         when (chatMessage.attachmentType) {
             Tools.Image, Tools.Video -> {
                 item.img_from_chatlog.setOnClickListener {
-                    listener.onItemClick(chatMessage, viewHolder.adapterPosition, item.img_from_chatlog)
+                    if (!isMultiSelectActive) {
+                        listener.onItemClick(chatMessage, viewHolder.adapterPosition, item.img_from_chatlog)
+                    } else {
+                        itemMultiSelectClick(viewHolder)
+                    }
                 }
 
-
                 item.progress_from_chatlog.setOnClickListener {
-                    listener.onItemClick(chatMessage, viewHolder.adapterPosition, item.img_from_chatlog)
+                    if (!isMultiSelectActive) {
+                        listener.onItemClick(chatMessage, viewHolder.adapterPosition, item.img_from_chatlog)
+                    } else {
+                        itemMultiSelectClick(viewHolder)
+                    }
                 }
             }
             Tools.Document -> {
                 item.card_from_chatlog.setOnClickListener {
-                    listener.onItemClick(chatMessage, viewHolder.adapterPosition, item.card_from_chatlog)
+                    if (!isMultiSelectActive) {
+                        listener.onItemClick(chatMessage, viewHolder.adapterPosition, item.card_from_chatlog)
+                    } else {
+                        itemMultiSelectClick(viewHolder)
+                    }
                 }
             }
             Tools.Audio -> {
@@ -236,15 +327,19 @@ class ChatFromItem(var chatMessage: ChatMessage, val user: User, val context: Co
                 val mp = MediaPlayer.create(context, chatMessage.fileUri.toUri())
 
                 item.progress_from_chatlog.setOnClickListener {
-                    Log.d(logTag, "Sound Play From Uri")
-                    if (mp.isPlaying) {
-                        mp.pause()
-                        item.progress_from_chatlog.idleIcon = ContextCompat.getDrawable(context, R.drawable.ic_play)
-                        item.progress_from_chatlog.setIdle()
+                    if (!isMultiSelectActive) {
+                        Log.d(logTag, "Sound Play From Uri")
+                        if (mp.isPlaying) {
+                            mp.pause()
+                            item.progress_from_chatlog.idleIcon = ContextCompat.getDrawable(context, R.drawable.ic_play)
+                            item.progress_from_chatlog.setIdle()
+                        } else {
+                            mp.start()
+                            item.progress_from_chatlog.idleIcon = ContextCompat.getDrawable(context, R.drawable.ic_info)
+                            item.progress_from_chatlog.setIdle()
+                        }
                     } else {
-                        mp.start()
-                        item.progress_from_chatlog.idleIcon = ContextCompat.getDrawable(context, R.drawable.ic_info)
-                        item.progress_from_chatlog.setIdle()
+                        itemMultiSelectClick(viewHolder)
                     }
                 }
             }
@@ -261,7 +356,7 @@ class ChatFromItem(var chatMessage: ChatMessage, val user: User, val context: Co
 }
 
 class ChatToItem(val chatMessage: ChatMessage, val user: User, val context: Context, var listener: OnChatItemClickListener) : Item<ViewHolder>() {
-
+    private var isItemSelect = false
     private val logTag = "ChatToItemLog"
 
     override fun bind(viewHolder: ViewHolder, position: Int) {
@@ -334,6 +429,73 @@ class ChatToItem(val chatMessage: ChatMessage, val user: User, val context: Cont
         Glide.with(context).load(user.profileImageUrl).into(item.circleimg_to_chatlog)
 
         item.txt_date_to_chatlog.text = chatMessage.sendingTime
+
+        item.setOnClickListener {
+            itemMultiSelectClick(viewHolder)
+        }
+
+        item.card_to_chatlog.setOnClickListener {
+            itemMultiSelectClick(viewHolder)
+        }
+
+        item.setOnLongClickListener {
+            itemMultiSelectLongClick(viewHolder)
+        }
+
+        item.img_to_chatlog.setOnLongClickListener {
+            itemMultiSelectLongClick(viewHolder)
+        }
+
+        item.card_to_chatlog.setOnLongClickListener {
+            itemMultiSelectLongClick(viewHolder)
+        }
+
+        item.progress_to_chatlog.setOnLongClickListener {
+            itemMultiSelectLongClick(viewHolder)
+        }
+    }
+
+    private fun itemMultiSelectLongClick(viewHolder: ViewHolder): Boolean {
+        val item = viewHolder.itemView
+        if (!isMultiSelectActive) {
+            Log.d(logTag, "Long Clicked : ${viewHolder.adapterPosition}")
+            item.setBackgroundColor(ContextCompat.getColor(context, R.color.colorChatSelected))
+            selectedList.add(chatMessage)
+            selectedViews.add(item)
+            selectedPositions.add(viewHolder.adapterPosition)
+            isMultiSelectActive = true
+            isItemSelect = true
+
+            listener.onContextualState(isMultiSelectActive)
+
+            return true
+        }
+        return false
+    }
+
+    private fun itemMultiSelectClick(viewHolder: ViewHolder) {
+        val item = viewHolder.itemView
+
+        if (isMultiSelectActive) {
+            if (!isItemSelect) {
+                selectedList.add(chatMessage)
+                selectedViews.add(item)
+                selectedPositions.add(viewHolder.adapterPosition)
+                isItemSelect = true
+                item.setBackgroundColor(ContextCompat.getColor(context, R.color.colorChatSelected))
+            } else {
+                selectedList.remove(chatMessage)
+                selectedViews.remove(item)
+                selectedPositions.remove(viewHolder.adapterPosition)
+                isItemSelect = false
+                item.setBackgroundColor(ContextCompat.getColor(context, R.color.colorAero))
+                if (selectedList.size <= 0) {
+                    isMultiSelectActive = false
+                }
+            }
+            listener.onContextualState(isMultiSelectActive)
+            Log.d(logTag, "Selected Other : ${selectedList.size}")
+        }
     }
 
     private fun downloadAttachment(viewHolder: ViewHolder) {
@@ -445,16 +607,28 @@ val downloadDirectory = "VideoCall" + "/${chatMessage.attachmentType}"
                 setImage(chatMessage.fileUri, item.img_to_chatlog)
 
                 item.img_to_chatlog.setOnClickListener {
-                    listener.onItemClick(chatMessage, viewHolder.adapterPosition, item.card_to_chatlog)
+                    if (!isMultiSelectActive) {
+                        listener.onItemClick(chatMessage, viewHolder.adapterPosition, item.img_to_chatlog)
+                    } else {
+                        itemMultiSelectClick(viewHolder)
+                    }
                 }
 
                 item.progress_to_chatlog.setOnClickListener {
-                    listener.onItemClick(chatMessage, viewHolder.adapterPosition, item.card_to_chatlog)
+                    if (!isMultiSelectActive) {
+                        listener.onItemClick(chatMessage, viewHolder.adapterPosition, item.img_to_chatlog)
+                    } else {
+                        itemMultiSelectClick(viewHolder)
+                    }
                 }
             }
             Tools.Document -> {
                 item.card_to_chatlog.setOnClickListener {
-                    listener.onItemClick(chatMessage, viewHolder.adapterPosition, item.card_to_chatlog)
+                    if (!isMultiSelectActive) {
+                        listener.onItemClick(chatMessage, viewHolder.adapterPosition, item.img_to_chatlog)
+                    } else {
+                        itemMultiSelectClick(viewHolder)
+                    }
                 }
             }
             Tools.Audio -> {
@@ -464,16 +638,19 @@ val downloadDirectory = "VideoCall" + "/${chatMessage.attachmentType}"
                 val mp = MediaPlayer.create(context, chatMessage.fileUri.toUri())
 
                 item.progress_to_chatlog.setOnClickListener {
-
-                    Log.d(logTag, "Sound Play To Uri")
-                    if (mp.isPlaying) {
-                        mp.pause()
-                        item.progress_to_chatlog.idleIcon = ContextCompat.getDrawable(context, R.drawable.ic_play)
-                        item.progress_to_chatlog.setIdle()
+                    if (!isMultiSelectActive) {
+                        Log.d(logTag, "Sound Play From Uri")
+                        if (mp.isPlaying) {
+                            mp.pause()
+                            item.progress_to_chatlog.idleIcon = ContextCompat.getDrawable(context, R.drawable.ic_play)
+                            item.progress_to_chatlog.setIdle()
+                        } else {
+                            mp.start()
+                            item.progress_to_chatlog.idleIcon = ContextCompat.getDrawable(context, R.drawable.ic_info)
+                            item.progress_to_chatlog.setIdle()
+                        }
                     } else {
-                        mp.start()
-                        item.progress_to_chatlog.idleIcon = ContextCompat.getDrawable(context, R.drawable.ic_info)
-                        item.progress_to_chatlog.setIdle()
+                        itemMultiSelectClick(viewHolder)
                     }
                 }
             }
@@ -495,4 +672,5 @@ val downloadDirectory = "VideoCall" + "/${chatMessage.attachmentType}"
 
 interface OnChatItemClickListener {
     fun onItemClick(item: ChatMessage, position: Int, view: View)
+    fun onContextualState(isActive: Boolean)
 }
