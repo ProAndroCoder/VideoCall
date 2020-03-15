@@ -1,4 +1,4 @@
-package com.qatasoft.videocall.bottomFragments
+package com.qatasoft.videocall.ui.bottomfragments.home
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -8,7 +8,8 @@ import com.denzcoskun.imageslider.models.SlideModel
 import android.view.ViewGroup
 import com.qatasoft.videocall.MainActivity
 import com.qatasoft.videocall.R
-import kotlinx.android.synthetic.main.activity_main.*
+import com.qatasoft.videocall.ui.bottomfragments.messages.MessagesFragment
+import com.qatasoft.videocall.ui.bottomfragments.users.UsersFragment
 import kotlinx.android.synthetic.main.fragment_home.*
 
 class HomeFragment : Fragment() {

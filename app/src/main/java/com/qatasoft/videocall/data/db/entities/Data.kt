@@ -1,16 +1,46 @@
-package com.qatasoft.videocall.models
+package com.qatasoft.videocall.data.db.entities
 
 import android.content.Context
 import android.os.Parcelable
 import android.widget.Toast
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import kotlinx.android.parcel.Parcelize
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
-class ChatMessage(var text: String, val fromId: String, val toId: String, val sendingTime: String, var attachmentUrl: String = "", val attachmentName: String = "", val attachmentType: String = "", var fileUri: String = "", var refKey: String = "") {
-    constructor() : this("", "", "", "")
+@Entity(tableName = "chat_items")
+class ChatMessage(
+        @ColumnInfo(name = "item_text")
+        var text: String,
+        @ColumnInfo(name = "item_from_id")
+        val fromId: String,
+        @ColumnInfo(name = "item_to_id")
+        val toId: String,
+        @ColumnInfo(name = "item_from_username")
+        val fromUsername: String,
+        @ColumnInfo(name = "item_to_username")
+        val toUsername: String,
+        @ColumnInfo(name = "item_sending_time")
+        val sendingTime: String,
+        @ColumnInfo(name = "item_attachment_url")
+        var attachmentUrl: String = "",
+        @ColumnInfo(name = "item_attachment_name")
+        val attachmentName: String = "",
+        @ColumnInfo(name = "item_attachment_type")
+        val attachmentType: String = "",
+        @ColumnInfo(name = "item_file_uri")
+        var fileUri: String = "",
+        @ColumnInfo(name = "item_ref_key")
+        var refKey: String = ""
+) {
+    constructor() : this("", "", "", "", "", "", "", "", "", "", "")
+
+    @PrimaryKey(autoGenerate = true)
+    var id: Int? = null
 }
 
 class LoginInfo(val email: String, val password: String) {

@@ -1,8 +1,8 @@
 package com.qatasoft.videocall
 
 import android.content.Context
-import com.qatasoft.videocall.models.LoginInfo
-import com.qatasoft.videocall.models.User
+import com.qatasoft.videocall.data.db.entities.LoginInfo
+import com.qatasoft.videocall.data.db.entities.User
 import android.util.Log
 import com.qatasoft.videocall.registerlogin.LoginActivity
 

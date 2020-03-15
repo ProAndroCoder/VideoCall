@@ -9,7 +9,7 @@ import androidx.core.net.toUri
 import com.bumptech.glide.Glide
 import com.qatasoft.videocall.MainActivity.Companion.keyViewActivityType
 import com.qatasoft.videocall.MainActivity.Companion.keyViewActivityUri
-import com.qatasoft.videocall.models.Tools
+import com.qatasoft.videocall.data.db.entities.Tools
 import kotlinx.android.synthetic.main.activity_view.*
 
 class ViewActivity : AppCompatActivity() {

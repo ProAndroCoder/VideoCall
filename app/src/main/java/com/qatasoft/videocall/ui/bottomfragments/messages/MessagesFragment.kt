@@ -1,4 +1,4 @@
-package com.qatasoft.videocall.bottomFragments
+package com.qatasoft.videocall.ui.bottomfragments.messages
 
 import android.content.Intent
 import android.os.Bundle
@@ -8,37 +8,48 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.google.android.material.tabs.TabLayout
 import com.google.firebase.database.*
 import com.qatasoft.videocall.MainActivity
 import com.qatasoft.videocall.R
-import com.qatasoft.videocall.messages.ChatLogActivity
-import com.qatasoft.videocall.models.ChatMessage
-import com.qatasoft.videocall.models.User
+import com.qatasoft.videocall.ui.chatmessage.ChatLogActivity
+import com.qatasoft.videocall.data.db.entities.ChatMessage
+import com.qatasoft.videocall.data.db.entities.User
 import com.qatasoft.videocall.registerlogin.LoginActivity
-import com.qatasoft.videocall.views.LatestMessageRow
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.ViewHolder
-import com.qatasoft.videocall.models.Tools
+import com.qatasoft.videocall.data.db.entities.Tools
 import com.qatasoft.videocall.request.FBaseControl
+import com.qatasoft.videocall.ui.bottomfragments.home.HomeFragment
+import com.qatasoft.videocall.ui.chatmessage.ChatMessageViewModel
+import com.qatasoft.videocall.ui.chatmessage.ChatMessageViewModelFactory
+import kotlinx.android.synthetic.main.activity_chat_log.*
 import kotlinx.android.synthetic.main.fragment_messages.*
+import org.kodein.di.KodeinAware
+import org.kodein.di.android.closestKodein
+import org.kodein.di.android.kodein
+import org.kodein.di.android.x.closestKodein
+import org.kodein.di.generic.instance
 
-class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
+class MessagesFragment : Fragment(), SearchView.OnQueryTextListener, KodeinAware {
 
     companion object {
         const val logTAG = "MessagesFragment"
         const val USER_KEY = "USER_INFO_KEY"
     }
 
+    override val kodein by closestKodein()
+    private val factory: ChatMessageViewModelFactory by instance()
+
     private var searchText = ""
     var tabIndex = 0
     var users = ArrayList<String>()
 
     private val adapter = GroupAdapter<ViewHolder>()
+    private lateinit var viewModel: ChatMessageViewModel
     private val mUser = MainActivity.mUser
-
-    val fBaseControl = FBaseControl()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_messages, container, false)
@@ -50,7 +61,7 @@ class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
         getInfo()
 
         adapter.setOnItemClickListener { item, _ ->
-            val row = item as LatestMessageRow
+            val row = item as MessageItem
 
             val intent = Intent(activity, ChatLogActivity::class.java)
             intent.putExtra(USER_KEY, row.user)
@@ -75,6 +86,12 @@ class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
 
 
     private fun getInfo() {
+        viewModel = ViewModelProvider(this, factory).get(ChatMessageViewModel::class.java)
+        
+        recycler_message_user.adapter = adapter
+        //Itemlar arasında ayıraç konuluyor
+        recycler_message_user.addItemDecoration(DividerItemDecoration(activity, DividerItemDecoration.VERTICAL))
+
         if (HomeFragment.isMessage) {
             tabLayout.getTabAt(0)?.select()
             fetchInfo(Tools.messageType)
@@ -82,11 +99,6 @@ class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
             tabLayout.getTabAt(1)?.select()
             fetchInfo(Tools.callType)
         }
-
-        //Itemlar arasında ayıraç konuluyor
-        recycler_message_user.addItemDecoration(DividerItemDecoration(activity, DividerItemDecoration.VERTICAL))
-
-        recycler_message_user.adapter = adapter
     }
 
     private fun fetchInfos(type: String) {
@@ -208,11 +220,10 @@ class MessagesFragment : Fragment(), SearchView.OnQueryTextListener {
                     if (user.username.contains(searchText) && users.indexOf(chatPartnerId) >= 0) {
                         Log.d(logTAG, user.username)
                         users.remove(chatPartnerId)
-                        adapter.add(LatestMessageRow(data, user, context!!))
+                        adapter.add(MessageItem(data, user, context!!))
                     }
                 } else {
                     Log.d(logTAG, "Problem Users Size : ${users.size}")
-
                 }
             }
 

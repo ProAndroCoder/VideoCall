@@ -2,7 +2,6 @@ package com.qatasoft.videocall
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.Environment
 import android.os.Handler
 import android.util.Log
 import android.view.View
@@ -14,14 +13,17 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.qatasoft.videocall.bottomFragments.*
-import com.qatasoft.videocall.models.GeneralInfo
-import com.qatasoft.videocall.models.LoginInfo
-import com.qatasoft.videocall.models.Tools
-import com.qatasoft.videocall.models.User
+import com.qatasoft.videocall.data.db.entities.GeneralInfo
+import com.qatasoft.videocall.data.db.entities.LoginInfo
+import com.qatasoft.videocall.data.db.entities.Tools
+import com.qatasoft.videocall.data.db.entities.User
 import com.qatasoft.videocall.registerlogin.LoginActivity
+import com.qatasoft.videocall.ui.bottomfragments.home.HomeFragment
+import com.qatasoft.videocall.ui.bottomfragments.messages.MessagesFragment
+import com.qatasoft.videocall.ui.bottomfragments.profile.ProfileFragment
+import com.qatasoft.videocall.ui.bottomfragments.settings.SettingsFragment
+import com.qatasoft.videocall.ui.bottomfragments.users.UsersFragment
 import kotlinx.android.synthetic.main.activity_main.*
-import java.io.File
 
 
 class MainActivity : AppCompatActivity() {

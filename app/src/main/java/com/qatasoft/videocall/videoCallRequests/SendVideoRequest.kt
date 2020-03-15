@@ -16,11 +16,11 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.qatasoft.videocall.*
 import com.qatasoft.videocall.MainActivity.Companion.mUser
-import com.qatasoft.videocall.bottomFragments.MessagesFragment.Companion.USER_KEY
-import com.qatasoft.videocall.messages.ChatLogActivity
-import com.qatasoft.videocall.models.Token
-import com.qatasoft.videocall.models.Tools
-import com.qatasoft.videocall.models.User
+import com.qatasoft.videocall.ui.bottomfragments.messages.MessagesFragment.Companion.USER_KEY
+import com.qatasoft.videocall.ui.chatmessage.ChatLogActivity
+import com.qatasoft.videocall.data.db.entities.Token
+import com.qatasoft.videocall.data.db.entities.Tools
+import com.qatasoft.videocall.data.db.entities.User
 import com.qatasoft.videocall.request.FBaseControl
 import com.qatasoft.videocall.request.IApiServer
 import io.fotoapparat.Fotoapparat

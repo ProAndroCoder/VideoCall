@@ -3,8 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/item_to_chatlog"
     android:layout_width="match_parent"
-    android:background="@color/colorAero"
     android:layout_height="wrap_content"
+    android:background="@color/colorAero"
     android:gravity="center_vertical">
 
     <LinearLayout
@@ -25,11 +25,11 @@
             app:civ_border_width="0.1dp" />
 
         <androidx.cardview.widget.CardView
-            android:layout_margin="5dp"
             android:id="@+id/card_to_chatlog"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
+            android:layout_margin="5dp"
             android:elevation="10dp"
             android:padding="5dp"
             app:cardCornerRadius="8dp">

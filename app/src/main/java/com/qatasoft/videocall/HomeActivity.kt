@@ -3,13 +3,11 @@ package com.qatasoft.videocall
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.transition.Slide
 import com.denzcoskun.imageslider.models.SlideModel
-import com.qatasoft.videocall.models.GeneralInfo
+import com.qatasoft.videocall.data.db.entities.GeneralInfo
 import com.qatasoft.videocall.registerlogin.LoginActivity
 import com.qatasoft.videocall.registerlogin.RegisterActivity
 import kotlinx.android.synthetic.main.fragment_home.*
-import android.transition.TransitionInflater
 
 class HomeActivity : AppCompatActivity() {
 

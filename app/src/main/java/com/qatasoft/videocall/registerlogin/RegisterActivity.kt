@@ -18,8 +18,8 @@ import com.google.firebase.storage.FirebaseStorage
 import com.qatasoft.videocall.MainActivity
 import com.qatasoft.videocall.MyPreference
 import com.qatasoft.videocall.R
-import com.qatasoft.videocall.models.LoginInfo
-import com.qatasoft.videocall.models.User
+import com.qatasoft.videocall.data.db.entities.LoginInfo
+import com.qatasoft.videocall.data.db.entities.User
 import kotlinx.android.synthetic.main.activity_register.*
 import java.util.*
 import android.provider.MediaStore

@@ -3,10 +3,7 @@ package com.qatasoft.videocall.registerlogin
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
-import android.view.KeyEvent
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -14,7 +11,7 @@ import com.qatasoft.videocall.R
 import com.google.firebase.auth.FirebaseAuth
 import com.qatasoft.videocall.MainActivity
 import com.qatasoft.videocall.MyPreference
-import com.qatasoft.videocall.models.LoginInfo
+import com.qatasoft.videocall.data.db.entities.LoginInfo
 import kotlinx.android.synthetic.main.activity_login.*
 
 class LoginActivity : AppCompatActivity() {

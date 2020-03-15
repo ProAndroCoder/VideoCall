@@ -8,7 +8,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.qatasoft.videocall.videoCallRequests.GetVideoRequest
 import com.qatasoft.videocall.videoCallRequests.SendVideoRequest
-import com.qatasoft.videocall.models.User
+import com.qatasoft.videocall.data.db.entities.User
 
 class BackgroundService : Service() {
     companion object {

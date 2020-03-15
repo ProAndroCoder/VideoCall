@@ -3,14 +3,14 @@ package com.qatasoft.videocall.request
 import android.util.Log
 import com.google.firebase.database.*
 import com.qatasoft.videocall.MainActivity.Companion.mUser
-import com.qatasoft.videocall.models.ChatMessage
-import com.qatasoft.videocall.models.Tools
-import com.qatasoft.videocall.models.User
+import com.qatasoft.videocall.data.db.entities.ChatMessage
+import com.qatasoft.videocall.data.db.entities.Tools
+import com.qatasoft.videocall.data.db.entities.User
 
 class FBaseControl {
     private val logTag = "FirebaseControlLogs"
 
-    fun performSendMessage(chatMessage: ChatMessage, isAttachment: Boolean): Boolean {
+    fun performSendMessage(chatMessage: ChatMessage): Boolean {
         val mDatabase = FirebaseDatabase.getInstance().getReference("/user-messages")
         val lDatabase = FirebaseDatabase.getInstance().getReference("/latest-messages")
 
@@ -20,6 +20,9 @@ class FBaseControl {
             //From Messages
             val fromRef = mDatabase.child(chatMessage.fromId).child(chatMessage.toId)
             val latestFromRef = lDatabase.child(chatMessage.fromId).child(chatMessage.toId)
+
+            val toRef = mDatabase.child(chatMessage.toId).child(chatMessage.fromId)
+            val latestToRef = lDatabase.child(chatMessage.toId).child(chatMessage.fromId)
 
             val key = if (chatMessage.refKey.isEmpty()) fromRef.push().key else chatMessage.refKey
 
@@ -34,19 +37,13 @@ class FBaseControl {
             fromRef.child(key).setValue(chatMessage).addOnFailureListener { isSend = false }
             latestFromRef.setValue(chatMessage).addOnFailureListener { isSend = false }
 
-            //If message an attachment then first time do not send toRef to Firebase when attachment sends then we send toRef too
-            if (!isAttachment) {
-                //To Messages
-                val tempFileUri = chatMessage.fileUri
-                chatMessage.fileUri = ""
-                val toRef = mDatabase.child(chatMessage.toId).child(chatMessage.fromId)
-                val latestToRef = lDatabase.child(chatMessage.toId).child(chatMessage.fromId)
+            val tempFileUri = chatMessage.fileUri
+            chatMessage.fileUri = ""
 
-                toRef.child(key).setValue(chatMessage).addOnFailureListener { isSend = false }
-                latestToRef.setValue(chatMessage).addOnFailureListener { isSend = false }
+            toRef.child(key).setValue(chatMessage).addOnFailureListener { isSend = false }
+            latestToRef.setValue(chatMessage).addOnFailureListener { isSend = false }
 
-                chatMessage.fileUri = tempFileUri
-            }
+            chatMessage.fileUri = tempFileUri
         } catch (e: Exception) {
             Log.d(logTag, e.toString())
             isSend = false
@@ -159,5 +156,9 @@ class FBaseControl {
             Log.d(logTag, "callReqOp Problem false? Failure")
         }
         return isSend
+    }
+
+    fun getInstance() {
+
     }
 }

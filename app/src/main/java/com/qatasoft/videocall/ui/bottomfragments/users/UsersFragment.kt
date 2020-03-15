@@ -1,4 +1,4 @@
-package com.qatasoft.videocall.bottomFragments
+package com.qatasoft.videocall.ui.bottomfragments.users
 
 import android.os.Bundle
 import android.os.Handler
@@ -17,10 +17,9 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.qatasoft.videocall.MainActivity.Companion.mUser
 import com.qatasoft.videocall.R
-import com.qatasoft.videocall.models.Tools
-import com.qatasoft.videocall.models.User
+import com.qatasoft.videocall.data.db.entities.Tools
+import com.qatasoft.videocall.data.db.entities.User
 import com.qatasoft.videocall.request.FBaseControl
-import com.qatasoft.videocall.views.UserItem
 import kotlinx.android.synthetic.main.fragment_messages.*
 
 class UsersFragment : Fragment(), SearchView.OnQueryTextListener {

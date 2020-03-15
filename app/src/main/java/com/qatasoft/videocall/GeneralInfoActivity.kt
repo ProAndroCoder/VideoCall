@@ -1,16 +1,13 @@
 package com.qatasoft.videocall
 
-import android.media.ThumbnailUtils
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.provider.MediaStore
-import android.util.DisplayMetrics
 import android.widget.LinearLayout
 import android.widget.MediaController
 import android.widget.RelativeLayout
 import androidx.core.net.toUri
 import com.bumptech.glide.Glide
-import com.qatasoft.videocall.models.GeneralInfo
+import com.qatasoft.videocall.data.db.entities.GeneralInfo
 import kotlinx.android.synthetic.main.activity_general_info.*
 import java.io.File
 

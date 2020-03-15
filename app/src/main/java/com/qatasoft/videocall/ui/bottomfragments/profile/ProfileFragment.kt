@@ -1,4 +1,4 @@
-package com.qatasoft.videocall.bottomFragments
+package com.qatasoft.videocall.ui.bottomfragments.profile
 
 import android.app.Activity
 import android.app.ActivityOptions
@@ -23,9 +23,10 @@ import com.qatasoft.videocall.MainActivity.Companion.mUser
 import com.qatasoft.videocall.MyPreference
 import com.qatasoft.videocall.R
 import com.qatasoft.videocall.ViewActivity
-import com.qatasoft.videocall.messages.ChatLogActivity
-import com.qatasoft.videocall.models.Tools
-import com.qatasoft.videocall.models.User
+import com.qatasoft.videocall.ui.chatmessage.ChatLogActivity
+import com.qatasoft.videocall.data.db.entities.Tools
+import com.qatasoft.videocall.data.db.entities.User
+import com.qatasoft.videocall.ui.bottomfragments.messages.MessagesFragment
 import kotlinx.android.synthetic.main.fragment_profile.*
 import kotlinx.android.synthetic.main.fragment_profile.circleimg_profile
 import java.util.*

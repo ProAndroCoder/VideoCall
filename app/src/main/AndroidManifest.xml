@@ -16,6 +16,7 @@
         android:required="true" />
 
     <application
+        android:name=".ChatMessageApplication"
         android:allowBackup="true"
         android:fullBackupContent="true"
         android:icon="@drawable/ic_launcher"
@@ -39,7 +40,7 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main" />
-        <activity android:name=".messages.ChatLogActivity" />
+        <activity android:name=".ui.chatmessage.ChatLogActivity" />
         <activity
             android:name=".VideoChatViewActivity"
             android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"

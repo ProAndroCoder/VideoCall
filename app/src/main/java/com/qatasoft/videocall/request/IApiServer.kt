@@ -1,6 +1,6 @@
 package com.qatasoft.videocall.request
 
-import com.qatasoft.videocall.models.Token
+import com.qatasoft.videocall.data.db.entities.Token
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Query
